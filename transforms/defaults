@@ -1,0 +1,114 @@
+#
+# CDDL HEADER START
+#
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License (the "License").
+# You may not use this file except in compliance with the License.
+#
+# You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+# or http://www.opensolaris.org/os/licensing.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+# If applicable, add the following below this CDDL HEADER, with the
+# fields enclosed by brackets "[]" replaced with your own identifying
+# information: Portions Copyright [yyyy] [name of copyright owner]
+#
+# CDDL HEADER END
+#
+
+#
+# Copyright (c) 2010, 2011, Oracle and/or its affiliates. All rights reserved.
+#
+
+<transform dir path=etc$ -> default group sys>
+<transform dir path=etc/inet$ -> default group sys>
+<transform dir path=var$ -> default group sys>
+
+#
+# LP print service
+#
+<transform dir path=etc/lp/fd$ -> default owner root>
+<transform dir path=etc/lp/fd$ -> default mode 0755>
+<transform dir path=etc/lp(/.+){0,1}$ -> default owner lp>
+<transform dir path=etc/lp(/.+){0,1}$ -> default group lp>
+<transform dir path=etc/lp(/.+){0,1}$ -> default mode 0775>
+
+<transform dir path=etc/skel$ -> default group sys>
+<transform dir path=usr$ -> default group sys>
+<transform dir path=usr/lib/pkgconfig$ -> default group other>
+<transform dir path=usr/lib/.*/pkgconfig$ -> default group other>
+<transform dir path=usr/share$ -> default group sys>
+<transform dir path=usr/share/aclocal$ -> default group other>
+<transform dir path=usr/share/doc$ -> default group other>
+<transform dir path=usr/share/lib$ -> default group sys>
+<transform dir path=usr/share/lib/java$ -> default group sys>
+<transform dir path=usr/share/lib/java/javadoc$ -> default group other>
+
+#
+# Most directories and files under /etc/security are group sys
+#
+<transform dir path=etc/security$ -> default group sys>
+<transform dir path=etc/security/exec_attr.d$ -> default group sys>
+<transform file path=etc/security/exec_attr.d/.* -> default group sys>
+<transform dir path=etc/security/prof_attr.d$ -> default group sys>
+<transform file path=etc/security/prof_attr.d/.* -> default group sys>
+<transform dir path=etc/security/auth_attr.d$ -> default group sys>
+<transform file path=etc/security/auth_attr.d/.* -> default group sys>
+
+#
+# SMF directories and files
+#
+<transform dir path=lib/svc/manifest -> default group sys>
+<transform file path=lib/svc/manifest -> default group sys>
+<transform file path=lib/svc/method/.* -> default mode 0555>
+
+#
+# Many directories and files under /usr/share are group other
+#
+<transform dir path=usr/share/locale(/.+){0,2}$ -> default group other>
+<transform file path=usr/share/locale(/.+){3}$ -> default group other>
+<transform dir path=usr/share/applications$ -> default group other>
+<transform file path=usr/share/applications/.* -> default group other>
+<transform dir path=usr/share/pixmaps$ -> default group other>
+<transform file path=usr/share/pixmaps/.* -> default group other>
+
+<transform dir path=usr/gnu/share$ -> default group sys>
+
+<transform dir path=var/db$ -> default group sys>
+<transform dir path=var/lib$ -> default group other>
+<transform dir path=var/log$ -> default group sys>
+
+# usr/share/icons, and all its subdirectories at any level are group other
+<transform dir path=usr/share/icons(/.*){0,1}$ -> default group other>
+
+#
+# programs & shared objects should generally have mode 0555
+#
+<transform file path=.*lib/.*\.so.* -> default mode 0555>
+<transform file path=.*bin/.* -> default mode 0555>
+<transform file path=.*lib/inet/.* -> default mode 0555>
+
+#
+# For what's left, go with root:bin 0444 for files, 0755 for directories
+#
+<transform dir file -> default owner root>
+<transform dir file -> default group bin>
+<transform file -> default mode 0444>
+<transform dir -> default mode 0755>
+
+set name=variant.arch value=$(MACH)
+
+#
+# Defaults for legacy metadata for SVR4 package information
+#
+<transform legacy -> default vendor "Oracle Corporation">
+<transform legacy -> default hotline \
+	"Please contact your local service provider">
+<transform legacy -> default arch $(MACH)>
+<transform legacy -> default category "system">
+# This is set to the final version number delivered as SVR4 format
+<transform legacy -> default version "11.11.0,REV=2010.05.25.01.00">
+

@@ -1,0 +1,44 @@
+--- apache-tomcat-6.0.32-src/build.properties.default	Wed Feb  2 11:07:31 2011
++++ apache-tomcat-6.0.32-src/build.properties.default	Thu Jun  2 05:02:15 2011
+@@ -49,6 +49,12 @@
+ base-sf.loc=http://downloads.sourceforge.net
+ base-maven1.loc=http://repo1.maven.org/maven
+ 
++# In Userland we really don't want Tomcat to download its build
++# dependencies itself but instead we will do it ourself in advance.
++# Therefore those dependencies which are really required need to be
++# redirected to local file system.
++userland-files.loc=file://${base.path}/../../
++
+ # ----- Commons Logging, version 1.1 or later -----
+ # If this version is updated, check the versions required for the deps
+ # - avalon-framework
+@@ -108,7 +114,7 @@
+ jdt.jar=${jdt.home}/ecj-${jdt.version}.jar
+ # The download will be moved to the archive area eventually. We are taking care of that in advance.
+ # Note older JARs were called ecj.jar. Newer JARs are called ecj-${jdt.version}.jar
+-jdt.loc.1=http://archive.eclipse.org/eclipse/downloads/drops/${jdt.release}/ecj.jar
++jdt.loc.1=${userland-files.loc}/ecj.jar
+ jdt.loc.2=http://download.eclipse.org/eclipse/downloads/drops/${jdt.release}/ecj.jar
+ 
+ # ----- Tomcat native library -----
+@@ -118,15 +124,15 @@
+ tomcat-native.loc=${base-tomcat.loc}/tomcat-connectors/native/${tomcat-native.version}/source/tomcat-native-${tomcat-native.version}-src.tar.gz
+ tomcat-native.dll=${base-tomcat.loc}/tomcat-connectors/native/${tomcat-native.version}/binaries
+ 
+-# ----- Commons DBCP, version 1.1 or later -----
+-commons-dbcp.version=1.3
++# ----- Commons DBCP, version 1.4 (for JDK 1.6) -----
++commons-dbcp.version=1.4
+ commons-dbcp.home=${base.path}/commons-dbcp-${commons-dbcp.version}-src
+-commons-dbcp-src.loc=${base-commons.loc}/dbcp/source/commons-dbcp-${commons-dbcp.version}-src.tar.gz
++commons-dbcp-src.loc=${userland-files.loc}/commons-dbcp-${commons-dbcp.version}-src.tar.gz
+ 
+ # ----- Commons Pool, version 1.1 or later -----
+ commons-pool.version=1.5.5
+ commons-pool.home=${base.path}/commons-pool-${commons-pool.version}-src
+-commons-pool-src.loc=${base-commons.loc}/pool/source/commons-pool-${commons-pool.version}-src.tar.gz
++commons-pool-src.loc=${userland-files.loc}/commons-pool-${commons-pool.version}-src.tar.gz
+ 
+ # ----- NSIS, version 2.0 or later -----
+ nsis.home=${base.path}/nsis-2.46
