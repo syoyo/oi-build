@@ -1,6 +1,6 @@
 diff -r -u /tmp/infiniband-diags-1.5.13/configure infiniband-diags-1.5.13/configure
 --- /tmp/infiniband-diags-1.5.13/configure	2012-01-17 04:28:21.000000000 +0900
-+++ infiniband-diags-1.5.13/configure	2012-02-03 02:35:45.707787504 +0900
++++ infiniband-diags-1.5.13/configure	2012-02-03 05:05:16.331097148 +0900
 @@ -909,6 +909,7 @@
  ac_subst_files=''
  ac_user_opts='
@@ -173,9 +173,18 @@ diff -r -u /tmp/infiniband-diags-1.5.13/configure infiniband-diags-1.5.13/config
  
  { $as_echo "$as_me:$LINENO: checking for error_at_line" >&5
  $as_echo_n "checking for error_at_line... " >&6; }
+@@ -12758,7 +12781,7 @@
+ 
+ if test $withperlinstalldir = "no"
+ then
+-    PERL_INSTALLDIR=`$PERL -e 'use Config; $T=$Config{installvendorlib}; print $T;'`
++    PERL_INSTALLDIR=`$PERL -e 'use Config; $T=$Config{installsitearch}; print $T;'`
+ fi
+ 
+ 
 diff -r -u /tmp/infiniband-diags-1.5.13/configure.in infiniband-diags-1.5.13/configure.in
 --- /tmp/infiniband-diags-1.5.13/configure.in	2012-01-17 04:03:30.000000000 +0900
-+++ infiniband-diags-1.5.13/configure.in	2012-02-03 02:35:35.559831741 +0900
++++ infiniband-diags-1.5.13/configure.in	2012-02-03 05:05:26.119611394 +0900
 @@ -10,6 +10,12 @@
  AC_SUBST(RELEASE, ${RELEASE:-unknown})
  AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
@@ -222,9 +231,18 @@ diff -r -u /tmp/infiniband-diags-1.5.13/configure.in infiniband-diags-1.5.13/con
  
  dnl Checks for library functions
  AC_FUNC_ERROR_AT_LINE
+@@ -120,7 +135,7 @@
+ 
+ if test $withperlinstalldir = "no"
+ then
+-    PERL_INSTALLDIR=`$PERL -e 'use Config; $T=$Config{installvendorlib}; print $T;'`
++    PERL_INSTALLDIR=`$PERL -e 'use Config; $T=$Config{installsitearch}; print $T;'`
+ fi
+ AC_SUBST(PERL_INSTALLDIR)
+ 
 diff -r -u /tmp/infiniband-diags-1.5.13/include/ibdiag_common.h infiniband-diags-1.5.13/include/ibdiag_common.h
 --- /tmp/infiniband-diags-1.5.13/include/ibdiag_common.h	2011-12-07 06:33:19.000000000 +0900
-+++ infiniband-diags-1.5.13/include/ibdiag_common.h	2012-02-03 02:55:13.133240175 +0900
++++ infiniband-diags-1.5.13/include/ibdiag_common.h	2012-02-03 04:54:04.087262703 +0900
 @@ -39,7 +39,7 @@
  #ifndef _IBDIAG_COMMON_H_
  #define _IBDIAG_COMMON_H_
@@ -236,7 +254,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/include/ibdiag_common.h infiniband-diags
  
 diff -r -u /tmp/infiniband-diags-1.5.13/infiniband-diags.spec.in infiniband-diags-1.5.13/infiniband-diags.spec.in
 --- /tmp/infiniband-diags-1.5.13/infiniband-diags.spec.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/infiniband-diags.spec.in	2012-02-03 02:35:35.560112099 +0900
++++ infiniband-diags-1.5.13/infiniband-diags.spec.in	2012-02-03 04:54:04.087788066 +0900
 @@ -52,7 +52,7 @@
  %{_includedir}/infiniband/*.h
  %define _perldir %(perl -e 'use Config; $T=$Config{installvendorlib}; print $T;')
@@ -248,7 +266,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/infiniband-diags.spec.in infiniband-diag
  %doc README COPYING ChangeLog
 diff -r -u /tmp/infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c
 --- /tmp/infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c	2011-11-02 14:31:40.000000000 +0900
-+++ infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c	2012-02-03 02:35:35.560422869 +0900
++++ infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c	2012-02-03 04:54:04.088317266 +0900
 @@ -164,7 +164,7 @@
  	uint8_t *mad;
  	uint32_t trid;
@@ -260,7 +278,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c infiniband-
  
 diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.am infiniband-diags-1.5.13/Makefile.am
 --- /tmp/infiniband-diags-1.5.13/Makefile.am	2012-01-17 04:00:05.000000000 +0900
-+++ infiniband-diags-1.5.13/Makefile.am	2012-02-03 02:35:35.560727658 +0900
++++ infiniband-diags-1.5.13/Makefile.am	2012-02-03 04:54:04.088835672 +0900
 @@ -13,7 +13,7 @@
  sbin_PROGRAMS = src/ibaddr src/ibnetdiscover src/ibping src/ibportstate \
  	        src/ibroute src/ibstat src/ibsysstat src/ibtracert \
@@ -291,7 +309,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.am infiniband-diags-1.5.13/Make
  	man/ibcheckportstate.8 man/ibcheckportwidth.8 man/ibcheckstate.8 \
 diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.in infiniband-diags-1.5.13/Makefile.in
 --- /tmp/infiniband-diags-1.5.13/Makefile.in	2012-01-17 04:28:21.000000000 +0900
-+++ infiniband-diags-1.5.13/Makefile.in	2012-02-03 02:35:44.091890454 +0900
++++ infiniband-diags-1.5.13/Makefile.in	2012-02-03 04:54:13.013824957 +0900
 @@ -44,7 +44,8 @@
  	src/smpdump$(EXEEXT) src/smpquery$(EXEEXT) \
  	src/saquery$(EXEEXT) src/vendstat$(EXEEXT) \
@@ -470,7 +488,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.in infiniband-diags-1.5.13/Make
  	distclean distclean-compile distclean-generic distclean-hdr \
 diff -r -u /tmp/infiniband-diags-1.5.13/man/check_lft_balance.8 infiniband-diags-1.5.13/man/check_lft_balance.8
 --- /tmp/infiniband-diags-1.5.13/man/check_lft_balance.8	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/man/check_lft_balance.8	2012-02-03 02:35:35.562413389 +0900
++++ infiniband-diags-1.5.13/man/check_lft_balance.8	2012-02-03 04:54:04.091533118 +0900
 @@ -1,4 +1,4 @@
 -.TH CHECK_LFT_BALANCE.SH 8 "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
 +.TH CHECK_LFT_BALANCE.SH 1m "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
@@ -502,7 +520,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/check_lft_balance.8 infiniband-diags
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_lfts.8 infiniband-diags-1.5.13/man/dump_lfts.8
 --- /tmp/infiniband-diags-1.5.13/man/dump_lfts.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/dump_lfts.8	2012-02-03 02:35:35.562694727 +0900
++++ infiniband-diags-1.5.13/man/dump_lfts.8	2012-02-03 04:54:04.091968150 +0900
 @@ -1,4 +1,4 @@
 -.TH DUMP_LFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH DUMP_LFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -526,7 +544,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_lfts.8 infiniband-diags-1.5.13/
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_mfts.8 infiniband-diags-1.5.13/man/dump_mfts.8
 --- /tmp/infiniband-diags-1.5.13/man/dump_mfts.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/dump_mfts.8	2012-02-03 02:35:35.563029231 +0900
++++ infiniband-diags-1.5.13/man/dump_mfts.8	2012-02-03 04:54:04.092266096 +0900
 @@ -1,4 +1,4 @@
 -.TH DUMP_MFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH DUMP_MFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -550,7 +568,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_mfts.8 infiniband-diags-1.5.13/
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibaddr.8 infiniband-diags-1.5.13/man/ibaddr.8
 --- /tmp/infiniband-diags-1.5.13/man/ibaddr.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibaddr.8	2012-02-03 02:35:35.563325822 +0900
++++ infiniband-diags-1.5.13/man/ibaddr.8	2012-02-03 04:54:04.092569450 +0900
 @@ -1,4 +1,4 @@
 -.TH IBADDR 8 "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBADDR 1m "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -570,7 +588,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibaddr.8 infiniband-diags-1.5.13/man
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcacheedit.8 infiniband-diags-1.5.13/man/ibcacheedit.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcacheedit.8	2011-12-07 06:33:17.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcacheedit.8	2012-02-03 02:35:35.563629976 +0900
++++ infiniband-diags-1.5.13/man/ibcacheedit.8	2012-02-03 04:54:04.092866259 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCACHEEDIT 8 "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCACHEEDIT 1m "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
@@ -588,7 +606,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcacheedit.8 infiniband-diags-1.5.1
  
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrors.8 infiniband-diags-1.5.13/man/ibcheckerrors.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckerrors.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckerrors.8	2012-02-03 02:35:35.563970296 +0900
++++ infiniband-diags-1.5.13/man/ibcheckerrors.8	2012-02-03 04:54:04.093160520 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -612,7 +630,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrors.8 infiniband-diags-1.5
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrs.8 infiniband-diags-1.5.13/man/ibcheckerrs.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckerrs.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckerrs.8	2012-02-03 02:35:35.564264563 +0900
++++ infiniband-diags-1.5.13/man/ibcheckerrs.8	2012-02-03 04:54:04.093467169 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKERRS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKERRS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -632,7 +650,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrs.8 infiniband-diags-1.5.1
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknet.8 infiniband-diags-1.5.13/man/ibchecknet.8
 --- /tmp/infiniband-diags-1.5.13/man/ibchecknet.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibchecknet.8	2012-02-03 02:35:35.564541390 +0900
++++ infiniband-diags-1.5.13/man/ibchecknet.8	2012-02-03 04:54:04.093760827 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKNET 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKNET 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -656,7 +674,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknet.8 infiniband-diags-1.5.13
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknode.8 infiniband-diags-1.5.13/man/ibchecknode.8
 --- /tmp/infiniband-diags-1.5.13/man/ibchecknode.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibchecknode.8	2012-02-03 02:35:35.564817485 +0900
++++ infiniband-diags-1.5.13/man/ibchecknode.8	2012-02-03 04:54:04.094048292 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKNODE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKNODE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -676,7 +694,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknode.8 infiniband-diags-1.5.1
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckport.8 infiniband-diags-1.5.13/man/ibcheckport.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckport.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckport.8	2012-02-03 02:35:35.565151379 +0900
++++ infiniband-diags-1.5.13/man/ibcheckport.8	2012-02-03 04:54:04.094333711 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKPORT 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKPORT 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -696,7 +714,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckport.8 infiniband-diags-1.5.1
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportstate.8 infiniband-diags-1.5.13/man/ibcheckportstate.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckportstate.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckportstate.8	2012-02-03 02:35:35.565426319 +0900
++++ infiniband-diags-1.5.13/man/ibcheckportstate.8	2012-02-03 04:54:04.094753212 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKPORTSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKPORTSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -716,7 +734,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportstate.8 infiniband-diags-
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportwidth.8 infiniband-diags-1.5.13/man/ibcheckportwidth.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckportwidth.8	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckportwidth.8	2012-02-03 02:35:35.565717461 +0900
++++ infiniband-diags-1.5.13/man/ibcheckportwidth.8	2012-02-03 04:54:04.095037213 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKPORTWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKPORTWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -736,7 +754,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportwidth.8 infiniband-diags-
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckstate.8 infiniband-diags-1.5.13/man/ibcheckstate.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckstate.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckstate.8	2012-02-03 02:35:35.566002914 +0900
++++ infiniband-diags-1.5.13/man/ibcheckstate.8	2012-02-03 04:54:04.095321716 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -758,7 +776,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckstate.8 infiniband-diags-1.5.
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckwidth.8 infiniband-diags-1.5.13/man/ibcheckwidth.8
 --- /tmp/infiniband-diags-1.5.13/man/ibcheckwidth.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibcheckwidth.8	2012-02-03 02:35:35.566280965 +0900
++++ infiniband-diags-1.5.13/man/ibcheckwidth.8	2012-02-03 04:54:04.095775268 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCHECKWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCHECKWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -780,7 +798,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckwidth.8 infiniband-diags-1.5.
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearcounters.8 infiniband-diags-1.5.13/man/ibclearcounters.8
 --- /tmp/infiniband-diags-1.5.13/man/ibclearcounters.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibclearcounters.8	2012-02-03 02:35:35.566551828 +0900
++++ infiniband-diags-1.5.13/man/ibclearcounters.8	2012-02-03 04:54:04.096270678 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCLEARCOUNTERS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCLEARCOUNTERS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -800,7 +818,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearcounters.8 infiniband-diags-1
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearerrors.8 infiniband-diags-1.5.13/man/ibclearerrors.8
 --- /tmp/infiniband-diags-1.5.13/man/ibclearerrors.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibclearerrors.8	2012-02-03 02:35:35.566816740 +0900
++++ infiniband-diags-1.5.13/man/ibclearerrors.8	2012-02-03 04:54:04.096797004 +0900
 @@ -1,4 +1,4 @@
 -.TH IBCLEARERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBCLEARERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -820,7 +838,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearerrors.8 infiniband-diags-1.5
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounters.8 infiniband-diags-1.5.13/man/ibdatacounters.8
 --- /tmp/infiniband-diags-1.5.13/man/ibdatacounters.8	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibdatacounters.8	2012-02-03 02:35:35.567071656 +0900
++++ infiniband-diags-1.5.13/man/ibdatacounters.8	2012-02-03 04:54:04.097320782 +0900
 @@ -1,4 +1,4 @@
 -.TH IBDATACOUNTERS 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBDATACOUNTERS 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -840,7 +858,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounters.8 infiniband-diags-1.
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounts.8 infiniband-diags-1.5.13/man/ibdatacounts.8
 --- /tmp/infiniband-diags-1.5.13/man/ibdatacounts.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibdatacounts.8	2012-02-03 02:35:35.567359288 +0900
++++ infiniband-diags-1.5.13/man/ibdatacounts.8	2012-02-03 04:54:04.097736826 +0900
 @@ -1,4 +1,4 @@
 -.TH IBDATACOUNTS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBDATACOUNTS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -860,7 +878,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounts.8 infiniband-diags-1.5.
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdiscover.8 infiniband-diags-1.5.13/man/ibdiscover.8
 --- /tmp/infiniband-diags-1.5.13/man/ibdiscover.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibdiscover.8	2012-02-03 02:35:35.567628292 +0900
++++ infiniband-diags-1.5.13/man/ibdiscover.8	2012-02-03 04:54:04.098071530 +0900
 @@ -1,4 +1,4 @@
 -.TH IBDISCOVER.PL 8 "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBDISCOVER.PL 1m "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -878,7 +896,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdiscover.8 infiniband-diags-1.5.13
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibfindnodesusing.8 infiniband-diags-1.5.13/man/ibfindnodesusing.8
 --- /tmp/infiniband-diags-1.5.13/man/ibfindnodesusing.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibfindnodesusing.8	2012-02-03 02:35:35.567863523 +0900
++++ infiniband-diags-1.5.13/man/ibfindnodesusing.8	2012-02-03 04:54:04.098341225 +0900
 @@ -1,4 +1,4 @@
 -.TH IBFINDNODESUSING 8 "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBFINDNODESUSING 1m "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -887,7 +905,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibfindnodesusing.8 infiniband-diags-
  ibfindnodesusing.pl \- find a list of end nodes which are routed through
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibhosts.8 infiniband-diags-1.5.13/man/ibhosts.8
 --- /tmp/infiniband-diags-1.5.13/man/ibhosts.8	2011-11-02 14:31:40.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibhosts.8	2012-02-03 02:35:35.568127275 +0900
++++ infiniband-diags-1.5.13/man/ibhosts.8	2012-02-03 04:54:04.098619703 +0900
 @@ -1,4 +1,4 @@
 -.TH IBHOSTS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBHOSTS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -905,7 +923,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibhosts.8 infiniband-diags-1.5.13/ma
  
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibidsverify.8 infiniband-diags-1.5.13/man/ibidsverify.8
 --- /tmp/infiniband-diags-1.5.13/man/ibidsverify.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibidsverify.8	2012-02-03 02:35:35.568385072 +0900
++++ infiniband-diags-1.5.13/man/ibidsverify.8	2012-02-03 04:54:04.098902107 +0900
 @@ -1,4 +1,4 @@
 -.TH IBIDSVERIFY 8 "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBIDSVERIFY 1m "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -923,7 +941,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibidsverify.8 infiniband-diags-1.5.1
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/iblinkinfo.8 infiniband-diags-1.5.13/man/iblinkinfo.8
 --- /tmp/infiniband-diags-1.5.13/man/iblinkinfo.8	2012-01-17 04:01:27.000000000 +0900
-+++ infiniband-diags-1.5.13/man/iblinkinfo.8	2012-02-03 02:35:35.568634002 +0900
++++ infiniband-diags-1.5.13/man/iblinkinfo.8	2012-02-03 04:54:04.099175205 +0900
 @@ -1,4 +1,4 @@
 -.TH IBLINKINFO 8 "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
 +.TH IBLINKINFO 1m "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
@@ -932,7 +950,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/iblinkinfo.8 infiniband-diags-1.5.13
  iblinkinfo \- report link info for all links in the fabric
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnetdiscover.8 infiniband-diags-1.5.13/man/ibnetdiscover.8
 --- /tmp/infiniband-diags-1.5.13/man/ibnetdiscover.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibnetdiscover.8	2012-02-03 02:35:35.568937527 +0900
++++ infiniband-diags-1.5.13/man/ibnetdiscover.8	2012-02-03 04:54:04.099575258 +0900
 @@ -1,4 +1,4 @@
 -.TH IBNETDISCOVER 8 "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
 +.TH IBNETDISCOVER 1m "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
@@ -941,7 +959,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnetdiscover.8 infiniband-diags-1.5
  ibnetdiscover \- discover InfiniBand topology
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnodes.8 infiniband-diags-1.5.13/man/ibnodes.8
 --- /tmp/infiniband-diags-1.5.13/man/ibnodes.8	2011-11-02 14:31:40.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibnodes.8	2012-02-03 02:35:35.569202875 +0900
++++ infiniband-diags-1.5.13/man/ibnodes.8	2012-02-03 04:54:04.099875629 +0900
 @@ -1,4 +1,4 @@
 -.TH IBNODES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBNODES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -959,7 +977,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnodes.8 infiniband-diags-1.5.13/ma
  
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibping.8 infiniband-diags-1.5.13/man/ibping.8
 --- /tmp/infiniband-diags-1.5.13/man/ibping.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibping.8	2012-02-03 02:35:35.569528591 +0900
++++ infiniband-diags-1.5.13/man/ibping.8	2012-02-03 04:54:04.100149519 +0900
 @@ -1,4 +1,4 @@
 -.TH IBPING 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBPING 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -968,7 +986,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibping.8 infiniband-diags-1.5.13/man
  ibping \- ping an InfiniBand address
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibportstate.8 infiniband-diags-1.5.13/man/ibportstate.8
 --- /tmp/infiniband-diags-1.5.13/man/ibportstate.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibportstate.8	2012-02-03 02:35:35.569834619 +0900
++++ infiniband-diags-1.5.13/man/ibportstate.8	2012-02-03 04:54:04.100437889 +0900
 @@ -1,4 +1,4 @@
 -.TH IBPORTSTATE 8 "Mar 9, 2011" "OpenIB" "OpenIB Diagnostics"
 +.TH IBPORTSTATE 1m "Mar 9, 2011" "OpenIB" "OpenIB Diagnostics"
@@ -977,7 +995,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibportstate.8 infiniband-diags-1.5.1
  ibportstate \- handle port (physical) state and link speed of an InfiniBand port
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintca.8 infiniband-diags-1.5.13/man/ibprintca.8
 --- /tmp/infiniband-diags-1.5.13/man/ibprintca.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibprintca.8	2012-02-03 02:35:35.570095020 +0900
++++ infiniband-diags-1.5.13/man/ibprintca.8	2012-02-03 04:54:04.100710933 +0900
 @@ -1,4 +1,4 @@
 -.TH IBPRINTCA 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBPRINTCA 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -986,7 +1004,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintca.8 infiniband-diags-1.5.13/
  ibprintca.pl \- print either the ca specified or the list of cas from the ibnetdiscover output
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintrt.8 infiniband-diags-1.5.13/man/ibprintrt.8
 --- /tmp/infiniband-diags-1.5.13/man/ibprintrt.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibprintrt.8	2012-02-03 02:35:35.570345844 +0900
++++ infiniband-diags-1.5.13/man/ibprintrt.8	2012-02-03 04:54:04.100985392 +0900
 @@ -1,4 +1,4 @@
 -.TH IBPRINTRT 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBPRINTRT 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -995,7 +1013,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintrt.8 infiniband-diags-1.5.13/
  ibprintrt.pl \- print either only the router specified or a list of routers
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintswitch.8 infiniband-diags-1.5.13/man/ibprintswitch.8
 --- /tmp/infiniband-diags-1.5.13/man/ibprintswitch.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibprintswitch.8	2012-02-03 02:35:35.570582582 +0900
++++ infiniband-diags-1.5.13/man/ibprintswitch.8	2012-02-03 04:54:04.101325227 +0900
 @@ -1,4 +1,4 @@
 -.TH IBPRINTSWITCH 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBPRINTSWITCH 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -1004,7 +1022,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintswitch.8 infiniband-diags-1.5
  ibprintswitch.pl \- print either the switch specified or a list of switches
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibqueryerrors.8 infiniband-diags-1.5.13/man/ibqueryerrors.8
 --- /tmp/infiniband-diags-1.5.13/man/ibqueryerrors.8	2012-01-17 04:28:29.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibqueryerrors.8	2012-02-03 02:35:35.570834749 +0900
++++ infiniband-diags-1.5.13/man/ibqueryerrors.8	2012-02-03 04:54:04.101603896 +0900
 @@ -1,4 +1,4 @@
 -.TH IBQUERYERRORS 8 "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
 +.TH IBQUERYERRORS 1m "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
@@ -1013,7 +1031,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibqueryerrors.8 infiniband-diags-1.5
  ibqueryerrors \- query and report non-zero IB port counters
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibroute.8 infiniband-diags-1.5.13/man/ibroute.8
 --- /tmp/infiniband-diags-1.5.13/man/ibroute.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibroute.8	2012-02-03 02:35:35.571112654 +0900
++++ infiniband-diags-1.5.13/man/ibroute.8	2012-02-03 04:54:04.101957896 +0900
 @@ -1,4 +1,4 @@
 -.TH IBROUTE 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBROUTE 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1031,7 +1049,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibroute.8 infiniband-diags-1.5.13/ma
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibrouters.8 infiniband-diags-1.5.13/man/ibrouters.8
 --- /tmp/infiniband-diags-1.5.13/man/ibrouters.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibrouters.8	2012-02-03 02:35:35.571379879 +0900
++++ infiniband-diags-1.5.13/man/ibrouters.8	2012-02-03 04:54:04.102287120 +0900
 @@ -1,4 +1,4 @@
 -.TH IBROUTERS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
 +.TH IBROUTERS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
@@ -1049,7 +1067,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibrouters.8 infiniband-diags-1.5.13/
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstat.8 infiniband-diags-1.5.13/man/ibstat.8
 --- /tmp/infiniband-diags-1.5.13/man/ibstat.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibstat.8	2012-02-03 02:35:35.573395399 +0900
++++ infiniband-diags-1.5.13/man/ibstat.8	2012-02-03 04:54:04.102554570 +0900
 @@ -1,4 +1,4 @@
 -.TH IBSTAT 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBSTAT 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1067,7 +1085,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstat.8 infiniband-diags-1.5.13/man
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstatus.8 infiniband-diags-1.5.13/man/ibstatus.8
 --- /tmp/infiniband-diags-1.5.13/man/ibstatus.8	2011-09-01 08:49:24.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibstatus.8	2012-02-03 02:35:35.573870282 +0900
++++ infiniband-diags-1.5.13/man/ibstatus.8	2012-02-03 04:54:04.102897956 +0900
 @@ -1,4 +1,4 @@
 -.TH IBSTATUS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBSTATUS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1085,7 +1103,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstatus.8 infiniband-diags-1.5.13/m
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswitches.8 infiniband-diags-1.5.13/man/ibswitches.8
 --- /tmp/infiniband-diags-1.5.13/man/ibswitches.8	2011-11-02 14:31:40.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibswitches.8	2012-02-03 02:35:35.574379534 +0900
++++ infiniband-diags-1.5.13/man/ibswitches.8	2012-02-03 04:54:04.103190556 +0900
 @@ -1,4 +1,4 @@
 -.TH IBSWITCHES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBSWITCHES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1103,7 +1121,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswitches.8 infiniband-diags-1.5.13
  
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswportwatch.8 infiniband-diags-1.5.13/man/ibswportwatch.8
 --- /tmp/infiniband-diags-1.5.13/man/ibswportwatch.8	2011-09-01 08:49:23.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibswportwatch.8	2012-02-03 02:35:35.574915054 +0900
++++ infiniband-diags-1.5.13/man/ibswportwatch.8	2012-02-03 04:54:04.103437997 +0900
 @@ -1,4 +1,4 @@
 -.TH IBSWPORTWATCH 8 "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBSWPORTWATCH 1m "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1112,7 +1130,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswportwatch.8 infiniband-diags-1.5
  ibswportwatch.pl \- poll the counters on the specified switch/port and
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibsysstat.8 infiniband-diags-1.5.13/man/ibsysstat.8
 --- /tmp/infiniband-diags-1.5.13/man/ibsysstat.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibsysstat.8	2012-02-03 02:35:35.575411631 +0900
++++ infiniband-diags-1.5.13/man/ibsysstat.8	2012-02-03 04:54:04.103804740 +0900
 @@ -1,4 +1,4 @@
 -.TH IBSYSSTAT 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH IBSYSSTAT 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1121,7 +1139,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibsysstat.8 infiniband-diags-1.5.13/
  ibsysstat \- system status on an InfiniBand address
 diff -r -u /tmp/infiniband-diags-1.5.13/man/ibtracert.8 infiniband-diags-1.5.13/man/ibtracert.8
 --- /tmp/infiniband-diags-1.5.13/man/ibtracert.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/ibtracert.8	2012-02-03 02:35:35.575908010 +0900
++++ infiniband-diags-1.5.13/man/ibtracert.8	2012-02-03 04:54:04.104254461 +0900
 @@ -1,4 +1,4 @@
 -.TH IBTRACERT 8 "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
 +.TH IBTRACERT 1m "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
@@ -1148,7 +1166,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/ibtracert.8 infiniband-diags-1.5.13/
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/perfquery.8 infiniband-diags-1.5.13/man/perfquery.8
 --- /tmp/infiniband-diags-1.5.13/man/perfquery.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/perfquery.8	2012-02-03 02:35:35.576377411 +0900
++++ infiniband-diags-1.5.13/man/perfquery.8	2012-02-03 04:54:04.104584268 +0900
 @@ -1,4 +1,4 @@
 -.TH PERFQUERY 8 "February 19, 2011" "OpenIB" "OpenIB Diagnostics"
 +.TH PERFQUERY 1m "February 19, 2011" "OpenIB" "OpenIB Diagnostics"
@@ -1157,7 +1175,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/perfquery.8 infiniband-diags-1.5.13/
  perfquery \- query InfiniBand port counters
 diff -r -u /tmp/infiniband-diags-1.5.13/man/saquery.8 infiniband-diags-1.5.13/man/saquery.8
 --- /tmp/infiniband-diags-1.5.13/man/saquery.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/saquery.8	2012-02-03 02:35:35.576824325 +0900
++++ infiniband-diags-1.5.13/man/saquery.8	2012-02-03 04:54:04.104910558 +0900
 @@ -1,4 +1,4 @@
 -.TH SAQUERY 8 "March 14, 2011" "OpenIB" "OpenIB Diagnostics"
 +.TH SAQUERY 1m "March 14, 2011" "OpenIB" "OpenIB Diagnostics"
@@ -1175,7 +1193,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/saquery.8 infiniband-diags-1.5.13/ma
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/sminfo.8 infiniband-diags-1.5.13/man/sminfo.8
 --- /tmp/infiniband-diags-1.5.13/man/sminfo.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/sminfo.8	2012-02-03 02:35:35.577446942 +0900
++++ infiniband-diags-1.5.13/man/sminfo.8	2012-02-03 04:54:04.105199193 +0900
 @@ -1,4 +1,4 @@
 -.TH SMINFO 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH SMINFO 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1193,7 +1211,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/sminfo.8 infiniband-diags-1.5.13/man
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/smpdump.8 infiniband-diags-1.5.13/man/smpdump.8
 --- /tmp/infiniband-diags-1.5.13/man/smpdump.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/smpdump.8	2012-02-03 02:35:35.577905860 +0900
++++ infiniband-diags-1.5.13/man/smpdump.8	2012-02-03 04:54:04.105584260 +0900
 @@ -1,4 +1,4 @@
 -.TH SMPDUMP 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
 +.TH SMPDUMP 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
@@ -1211,7 +1229,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/smpdump.8 infiniband-diags-1.5.13/ma
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/smpquery.8 infiniband-diags-1.5.13/man/smpquery.8
 --- /tmp/infiniband-diags-1.5.13/man/smpquery.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/smpquery.8	2012-02-03 02:35:35.578370168 +0900
++++ infiniband-diags-1.5.13/man/smpquery.8	2012-02-03 04:54:04.105908344 +0900
 @@ -1,4 +1,4 @@
 -.TH SMPQUERY 8 "March 9, 2011" "OpenIB" "OpenIB Diagnostics"
 +.TH SMPQUERY 1m "March 9, 2011" "OpenIB" "OpenIB Diagnostics"
@@ -1238,7 +1256,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/smpquery.8 infiniband-diags-1.5.13/m
  .TP
 diff -r -u /tmp/infiniband-diags-1.5.13/man/vendstat.8 infiniband-diags-1.5.13/man/vendstat.8
 --- /tmp/infiniband-diags-1.5.13/man/vendstat.8	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/man/vendstat.8	2012-02-03 02:35:35.578850801 +0900
++++ infiniband-diags-1.5.13/man/vendstat.8	2012-02-03 04:54:04.106159123 +0900
 @@ -1,4 +1,4 @@
 -.TH VENDSTAT 8 "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
 +.TH VENDSTAT 1m "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
@@ -1247,7 +1265,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/man/vendstat.8 infiniband-diags-1.5.13/m
  vendstat \- query InfiniBand vendor specific functions
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrors.in infiniband-diags-1.5.13/scripts/ibcheckerrors.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrors.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckerrors.in	2012-02-03 02:35:35.579485303 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckerrors.in	2012-02-03 04:54:04.106429878 +0900
 @@ -74,7 +74,7 @@
  
  text="`eval $netcmd`"
@@ -1259,7 +1277,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrors.in infiniband-diag
  }
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrs.in infiniband-diags-1.5.13/scripts/ibcheckerrs.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrs.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckerrs.in	2012-02-03 02:35:35.580330205 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckerrs.in	2012-02-03 04:54:04.106769681 +0900
 @@ -136,7 +136,7 @@
  fi
  
@@ -1289,7 +1307,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrs.in infiniband-diags-
  	if (brief == "yes") {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknet.in infiniband-diags-1.5.13/scripts/ibchecknet.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibchecknet.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibchecknet.in	2012-02-03 02:35:35.581065986 +0900
++++ infiniband-diags-1.5.13/scripts/ibchecknet.in	2012-02-03 04:54:04.107029421 +0900
 @@ -67,7 +67,7 @@
  
  text="`eval $netcmd`"
@@ -1301,7 +1319,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknet.in infiniband-diags-1
  	pe=0
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknode.in infiniband-diags-1.5.13/scripts/ibchecknode.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibchecknode.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibchecknode.in	2012-02-03 02:35:35.581722971 +0900
++++ infiniband-diags-1.5.13/scripts/ibchecknode.in	2012-02-03 04:54:04.107293407 +0900
 @@ -71,14 +71,14 @@
  fi
  
@@ -1321,7 +1339,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknode.in infiniband-diags-
  		exit -1
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckport.in infiniband-diags-1.5.13/scripts/ibcheckport.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckport.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckport.in	2012-02-03 02:35:35.582363901 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckport.in	2012-02-03 04:54:04.107643603 +0900
 @@ -73,7 +73,7 @@
  portnum=$2
  
@@ -1359,7 +1377,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckport.in infiniband-diags-
  	if (mono)
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportstate.in infiniband-diags-1.5.13/scripts/ibcheckportstate.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckportstate.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckportstate.in	2012-02-03 02:35:35.582991842 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckportstate.in	2012-02-03 04:54:04.107948768 +0900
 @@ -73,7 +73,7 @@
  portnum=$2
  
@@ -1389,7 +1407,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportstate.in infiniband-d
  	if (mono)
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportwidth.in infiniband-diags-1.5.13/scripts/ibcheckportwidth.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckportwidth.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckportwidth.in	2012-02-03 02:35:35.583534974 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckportwidth.in	2012-02-03 04:54:04.108226551 +0900
 @@ -73,7 +73,7 @@
  portnum=$2
  
@@ -1419,7 +1437,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportwidth.in infiniband-d
  	if (mono)
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckstate.in infiniband-diags-1.5.13/scripts/ibcheckstate.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckstate.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckstate.in	2012-02-03 02:35:35.583963185 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckstate.in	2012-02-03 04:54:04.108467417 +0900
 @@ -69,7 +69,7 @@
  
  text="`eval $netcmd`"
@@ -1431,7 +1449,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckstate.in infiniband-diags
  	pe=0
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckwidth.in infiniband-diags-1.5.13/scripts/ibcheckwidth.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibcheckwidth.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibcheckwidth.in	2012-02-03 02:35:35.584379314 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckwidth.in	2012-02-03 04:54:04.108708282 +0900
 @@ -69,7 +69,7 @@
  
  text="`eval $netcmd`"
@@ -1443,7 +1461,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckwidth.in infiniband-diags
  	pe=0
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearcounters.in infiniband-diags-1.5.13/scripts/ibclearcounters.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibclearcounters.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibclearcounters.in	2012-02-03 02:35:35.584806630 +0900
++++ infiniband-diags-1.5.13/scripts/ibclearcounters.in	2012-02-03 04:54:04.108954277 +0900
 @@ -59,7 +59,7 @@
  
  text="`eval $netcmd`"
@@ -1455,7 +1473,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearcounters.in infiniband-di
  {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearerrors.in infiniband-diags-1.5.13/scripts/ibclearerrors.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibclearerrors.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibclearerrors.in	2012-02-03 02:35:35.585239580 +0900
++++ infiniband-diags-1.5.13/scripts/ibclearerrors.in	2012-02-03 04:54:04.109201422 +0900
 @@ -63,7 +63,7 @@
  
  text="`eval $netcmd`"
@@ -1467,7 +1485,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearerrors.in infiniband-diag
  {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounters.in infiniband-diags-1.5.13/scripts/ibdatacounters.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibdatacounters.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibdatacounters.in	2012-02-03 02:35:35.585709867 +0900
++++ infiniband-diags-1.5.13/scripts/ibdatacounters.in	2012-02-03 04:54:04.109532348 +0900
 @@ -74,7 +74,7 @@
  
  text="`eval $netcmd`"
@@ -1479,7 +1497,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounters.in infiniband-dia
  }
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounts.in infiniband-diags-1.5.13/scripts/ibdatacounts.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibdatacounts.in	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibdatacounts.in	2012-02-03 02:35:35.586208532 +0900
++++ infiniband-diags-1.5.13/scripts/ibdatacounts.in	2012-02-03 04:54:04.109824401 +0900
 @@ -91,7 +91,7 @@
  fi
  
@@ -1509,7 +1527,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounts.in infiniband-diags
  	if (brief == "yes") {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdiscover.pl infiniband-diags-1.5.13/scripts/ibdiscover.pl
 --- /tmp/infiniband-diags-1.5.13/scripts/ibdiscover.pl	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibdiscover.pl	2012-02-03 02:35:35.586731362 +0900
++++ infiniband-diags-1.5.13/scripts/ibdiscover.pl	2012-02-03 04:54:04.110091983 +0900
 @@ -49,9 +49,10 @@
  		$localGuid = $local;
  	} else {
@@ -1524,7 +1542,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdiscover.pl infiniband-diags-1
  				$localPort, $localGuid, $remotePort, $remoteGuid);
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibhosts.in infiniband-diags-1.5.13/scripts/ibhosts.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibhosts.in	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibhosts.in	2012-02-03 02:35:35.587167967 +0900
++++ infiniband-diags-1.5.13/scripts/ibhosts.in	2012-02-03 04:54:04.110389798 +0900
 @@ -49,7 +49,7 @@
  
  text="`eval $netcmd`"
@@ -1536,7 +1554,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibhosts.in infiniband-diags-1.5.
  /^ib/	{print $0; next}
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintca.pl infiniband-diags-1.5.13/scripts/ibprintca.pl
 --- /tmp/infiniband-diags-1.5.13/scripts/ibprintca.pl	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibprintca.pl	2012-02-03 02:35:35.587655248 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintca.pl	2012-02-03 04:54:04.110652930 +0900
 @@ -84,7 +84,7 @@
  
  if ($list_hcas) {
@@ -1548,7 +1566,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintca.pl infiniband-diags-1.
  if ($target_hca eq "") {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintrt.pl infiniband-diags-1.5.13/scripts/ibprintrt.pl
 --- /tmp/infiniband-diags-1.5.13/scripts/ibprintrt.pl	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibprintrt.pl	2012-02-03 02:35:35.588097690 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintrt.pl	2012-02-03 04:54:04.110916109 +0900
 @@ -84,7 +84,7 @@
  
  if ($list_rts) {
@@ -1560,7 +1578,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintrt.pl infiniband-diags-1.
  if ($target_rt eq "") {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintswitch.pl infiniband-diags-1.5.13/scripts/ibprintswitch.pl
 --- /tmp/infiniband-diags-1.5.13/scripts/ibprintswitch.pl	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibprintswitch.pl	2012-02-03 02:35:35.588537533 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintswitch.pl	2012-02-03 04:54:04.111202519 +0900
 @@ -84,7 +84,7 @@
  
  if ($list_switches) {
@@ -1572,7 +1590,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintswitch.pl infiniband-diag
  if ($target_switch eq "") {
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibrouters.in infiniband-diags-1.5.13/scripts/ibrouters.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibrouters.in	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibrouters.in	2012-02-03 02:35:35.588990471 +0900
++++ infiniband-diags-1.5.13/scripts/ibrouters.in	2012-02-03 04:54:04.111593825 +0900
 @@ -49,7 +49,7 @@
  
  text="`eval $netcmd`"
@@ -1584,7 +1602,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibrouters.in infiniband-diags-1.
  /^ib/	{print $0; next}
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibstatus infiniband-diags-1.5.13/scripts/ibstatus
 --- /tmp/infiniband-diags-1.5.13/scripts/ibstatus	2012-01-12 15:50:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibstatus	2012-02-03 02:35:35.589550326 +0900
++++ infiniband-diags-1.5.13/scripts/ibstatus	2012-02-03 04:54:04.112325987 +0900
 @@ -2,66 +2,128 @@
  
  # Usage ibstatus [devname[:port]]
@@ -1768,7 +1786,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibstatus infiniband-diags-1.5.13
  done
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/IBswcountlimits.pm infiniband-diags-1.5.13/scripts/IBswcountlimits.pm
 --- /tmp/infiniband-diags-1.5.13/scripts/IBswcountlimits.pm	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/IBswcountlimits.pm	2012-02-03 02:35:35.590131347 +0900
++++ infiniband-diags-1.5.13/scripts/IBswcountlimits.pm	2012-02-03 04:54:04.112941669 +0900
 @@ -261,7 +261,8 @@
  	my $cache_file   = get_cache_file($ca_name, $ca_port);
  	my $extra_params = get_ca_name_port_param_string($ca_name, $ca_port);
@@ -1781,7 +1799,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/IBswcountlimits.pm infiniband-di
  }
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibswitches.in infiniband-diags-1.5.13/scripts/ibswitches.in
 --- /tmp/infiniband-diags-1.5.13/scripts/ibswitches.in	2012-01-13 04:28:34.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/ibswitches.in	2012-02-03 02:35:35.590576702 +0900
++++ infiniband-diags-1.5.13/scripts/ibswitches.in	2012-02-03 04:54:04.113398287 +0900
 @@ -49,7 +49,7 @@
  
  text="`eval $netcmd`"
@@ -1793,7 +1811,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibswitches.in infiniband-diags-1
  			desc=substr(l, match(l, "#[ \t]*")+RLENGTH)
 diff -r -u /tmp/infiniband-diags-1.5.13/scripts/set_nodedesc.sh infiniband-diags-1.5.13/scripts/set_nodedesc.sh
 --- /tmp/infiniband-diags-1.5.13/scripts/set_nodedesc.sh	2011-09-01 08:49:22.000000000 +0900
-+++ infiniband-diags-1.5.13/scripts/set_nodedesc.sh	2012-02-03 02:35:35.590989601 +0900
++++ infiniband-diags-1.5.13/scripts/set_nodedesc.sh	2012-02-03 04:54:04.113856936 +0900
 @@ -1,5 +1,13 @@
  #!/bin/bash
  
@@ -1810,7 +1828,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/scripts/set_nodedesc.sh infiniband-diags
  fi
 diff -r -u /tmp/infiniband-diags-1.5.13/src/ibdiag_common.c infiniband-diags-1.5.13/src/ibdiag_common.c
 --- /tmp/infiniband-diags-1.5.13/src/ibdiag_common.c	2011-12-07 06:33:19.000000000 +0900
-+++ infiniband-diags-1.5.13/src/ibdiag_common.c	2012-02-03 02:35:35.591629248 +0900
++++ infiniband-diags-1.5.13/src/ibdiag_common.c	2012-02-03 04:54:04.116027290 +0900
 @@ -398,7 +398,7 @@
  
  	if (ibdebug)
@@ -1822,7 +1840,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/src/ibdiag_common.c infiniband-diags-1.5
  		       prog_name ? prog_name : "", buf);
 diff -r -u /tmp/infiniband-diags-1.5.13/src/ibnetdiscover.c infiniband-diags-1.5.13/src/ibnetdiscover.c
 --- /tmp/infiniband-diags-1.5.13/src/ibnetdiscover.c	2011-11-02 14:31:40.000000000 +0900
-+++ infiniband-diags-1.5.13/src/ibnetdiscover.c	2012-02-03 02:35:35.592254585 +0900
++++ infiniband-diags-1.5.13/src/ibnetdiscover.c	2012-02-03 04:54:04.117022843 +0900
 @@ -571,7 +571,7 @@
  			}
  
@@ -1843,7 +1861,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/src/ibnetdiscover.c infiniband-diags-1.5
  						   chname, NULL, NULL);
 diff -r -u /tmp/infiniband-diags-1.5.13/src/ibportstate.c infiniband-diags-1.5.13/src/ibportstate.c
 --- /tmp/infiniband-diags-1.5.13/src/ibportstate.c	2011-12-07 06:33:19.000000000 +0900
-+++ infiniband-diags-1.5.13/src/ibportstate.c	2012-02-03 02:35:35.592911694 +0900
++++ infiniband-diags-1.5.13/src/ibportstate.c	2012-02-03 04:54:04.117938935 +0900
 @@ -345,6 +345,7 @@
  	int portnum = 0;
  	ib_portid_t selfportid = { 0 };
@@ -1875,7 +1893,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/src/ibportstate.c infiniband-diags-1.5.1
  
 diff -r -u /tmp/infiniband-diags-1.5.13/src/ibstat.c infiniband-diags-1.5.13/src/ibstat.c
 --- /tmp/infiniband-diags-1.5.13/src/ibstat.c	2011-11-02 14:32:02.000000000 +0900
-+++ infiniband-diags-1.5.13/src/ibstat.c	2012-02-03 02:35:35.593351838 +0900
++++ infiniband-diags-1.5.13/src/ibstat.c	2012-02-03 04:54:04.118619274 +0900
 @@ -315,7 +315,7 @@
  		if (i >= n)
  			IBPANIC("'%s' IB device can't be found", argv[0]);
@@ -1887,7 +1905,7 @@ diff -r -u /tmp/infiniband-diags-1.5.13/src/ibstat.c infiniband-diags-1.5.13/src
  
 diff -r -u /tmp/infiniband-diags-1.5.13/src/saquery.c infiniband-diags-1.5.13/src/saquery.c
 --- /tmp/infiniband-diags-1.5.13/src/saquery.c	2011-11-02 14:55:06.000000000 +0900
-+++ infiniband-diags-1.5.13/src/saquery.c	2012-02-03 02:35:35.594244049 +0900
++++ infiniband-diags-1.5.13/src/saquery.c	2012-02-03 04:54:04.119782739 +0900
 @@ -91,7 +91,7 @@
   * Declare some globals because I don't want this to be too complex.
   */
