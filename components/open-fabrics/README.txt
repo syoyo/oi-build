@@ -23,11 +23,11 @@ libibmad         1.3.7        1.3.8         Hunk success with offset
 librdmacm        1.0.14-1     1.0.15        14->15 fix + Illumos fix.
 libmlx4          1.0.1-1.18   1.0.1-1.20    No diff.
 libmthca         1.0.5-0.1    1.0.5-0.1     No diff.
-opensm           3.3.9        3.3.13        TODO
+opensm           3.3.9        3.3.13        9->13 fix.
 ibutils          1.5.7        1.5.7-0.1     TODO
 infiniband-diags 1.5.8        1.5.13        TODO
 qperf            0.4.6-1      0.4.6-1       No diff.
-perftest         1.3.0-0.42   1.3.0-0.58    TODO
+perftest         1.3.0-0.42   1.3.0-0.58    42->58 fix.
 rds-tools        2.0.4        2.0.4         No diff.
 libsdp           1.1.108-0.15 1.1.108.0.17  TODO
 
@@ -36,4 +36,5 @@ Note
 ----
 
  * setnodedesc feature is disabled(Seems it only works with Solaris 11 kernel).
+ * AF_INET_SDP is set to 33. But this needs an update of /usr/include/sys/socket.h(Change AF_MAX from 33 to 34)
 
