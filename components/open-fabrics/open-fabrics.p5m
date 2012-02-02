@@ -34,7 +34,7 @@ set name=opensolaris.arc_url value=htp://arc.opensolaris.org/caselog/PSARC/2010/
 set name=org.opensolaris.consolidation value=$(CONSOLIDATION)
 set name=variant.opensolaris.zone value=global value=nonglobal
 
-#depend fmri=runtime/perl-512 type=require
+#depend fmri=runtime/perl-510 type=require
 #depend fmri=runtime/tcl-8 type=require
 #depend fmri=shell/bash type=require
 legacy pkg=SUNWofusr \
@@ -68,10 +68,10 @@ dir path=usr/share/man/man3 variant.opensolaris.zone=global
 dir path=usr/share/man/man3lib variant.opensolaris.zone=global
 dir path=usr/share/man/man4 variant.opensolaris.zone=global
 dir path=usr/share/man/man7 variant.opensolaris.zone=global
-dir path=usr/perl5/site_perl/5.12/i86pc-solaris-64int variant.arch=i386 variant.opensolaris.zone=global
-dir path=usr/perl5/site_perl/5.12/sun4-solaris-64int variant.arch=sparc variant.opensolaris.zone=global
-file path=usr/perl5/site_perl/5.12/i86pc-solaris-64int/IBswcountlimits.pm variant.arch=i386 group=root mode=0444 variant.opensolaris.zone=global
-file path=usr/perl5/site_perl/5.12/sun4-solaris-64int/IBswcountlimits.pm variant.arch=sparc group=root mode=0444 variant.opensolaris.zone=global
+dir path=usr/perl5/site_perl/5.10.0/i86pc-solaris-64int variant.arch=i386 variant.opensolaris.zone=global
+dir path=usr/perl5/site_perl/5.10.0/sun4-solaris-64int variant.arch=sparc variant.opensolaris.zone=global
+file path=usr/perl5/site_perl/5.10.0/i86pc-solaris-64int/IBswcountlimits.pm variant.arch=i386 group=root mode=0444 variant.opensolaris.zone=global
+file path=usr/perl5/site_perl/5.10.0/sun4-solaris-64int/IBswcountlimits.pm variant.arch=sparc group=root mode=0444 variant.opensolaris.zone=global
 file path=etc/libsdp.conf mode=0644 preserve=renameold
 file path=usr/bin/$(MACH64)/ib_clock_test
 file path=usr/bin/$(MACH64)/ib_read_bw
@@ -119,14 +119,14 @@ file path=usr/include/infiniband/sa.h variant.opensolaris.zone=global
 file path=usr/include/infiniband/verbs.h variant.opensolaris.zone=global
 file path=usr/include/rdma/rdma_cma.h variant.opensolaris.zone=global
 file path=usr/include/rdma/rdma_verbs.h variant.opensolaris.zone=global
-file path=usr/lib/$(MACH64)/libibmad.so.5.1.2 variant.opensolaris.zone=global
+file path=usr/lib/$(MACH64)/libibmad.so.5.2.2 variant.opensolaris.zone=global
 file path=usr/lib/$(MACH64)/libibumad.so.3.0.2
 file path=usr/lib/$(MACH64)/libibverbs.so.1.0.0
 file path=usr/lib/$(MACH64)/libmlx4-rdmav2.so
 file path=usr/lib/$(MACH64)/libmthca-rdmav2.so
-file path=usr/lib/$(MACH64)/libopensm.so.4.0.2 variant.opensolaris.zone=global
-file path=usr/lib/$(MACH64)/libosmcomp.so.3.0.4 variant.opensolaris.zone=global
-file path=usr/lib/$(MACH64)/libosmvendor.so.3.0.5 variant.opensolaris.zone=global
+file path=usr/lib/$(MACH64)/libopensm.so.5.0.0 variant.opensolaris.zone=global
+file path=usr/lib/$(MACH64)/libosmcomp.so.3.0.5 variant.opensolaris.zone=global
+file path=usr/lib/$(MACH64)/libosmvendor.so.3.0.7 variant.opensolaris.zone=global
 file path=usr/lib/$(MACH64)/librdmacm.so.1.0.0
 file path=usr/lib/ibdiagnet1.5.7/git_version.tcl variant.opensolaris.zone=global
 file path=usr/lib/ibdiagnet1.5.7/ibdebug_if.tcl variant.opensolaris.zone=global
@@ -171,15 +171,15 @@ file path=usr/lib/ibdm1.5.7/libibdm.so.1.5.7 variant.opensolaris.zone=global
 file path=usr/lib/ibdm1.5.7/pkgIndex.tcl variant.opensolaris.zone=global
 file path=usr/lib/ibis1.5.7/libibis.so.1.5.7 variant.opensolaris.zone=global
 file path=usr/lib/ibis1.5.7/pkgIndex.tcl variant.opensolaris.zone=global
-file path=usr/lib/libibmad.so.5.1.2 variant.opensolaris.zone=global
-file path=usr/lib/libibnetdisc.so.5.0.1 variant.opensolaris.zone=global
+file path=usr/lib/libibmad.so.5.2.2 variant.opensolaris.zone=global
+file path=usr/lib/libibnetdisc.so.5.2.0 variant.opensolaris.zone=global
 file path=usr/lib/libibumad.so.3.0.2
 file path=usr/lib/libibverbs.so.1.0.0
 file path=usr/lib/libmlx4-rdmav2.so
 file path=usr/lib/libmthca-rdmav2.so
-file path=usr/lib/libopensm.so.4.0.2 variant.opensolaris.zone=global
-file path=usr/lib/libosmcomp.so.3.0.4 variant.opensolaris.zone=global
-file path=usr/lib/libosmvendor.so.3.0.5 variant.opensolaris.zone=global
+file path=usr/lib/libopensm.so.5.0.0 variant.opensolaris.zone=global
+file path=usr/lib/libosmcomp.so.3.0.5 variant.opensolaris.zone=global
+file path=usr/lib/libosmvendor.so.3.0.7 variant.opensolaris.zone=global
 file path=usr/lib/librdmacm.so.1.0.0
 file path=usr/lib/secure/$(MACH64)/libsdp.so.1.0.0
 file path=usr/lib/secure/libsdp.so.1.0.0
@@ -373,27 +373,27 @@ file path=usr/share/man/man3lib/libsdp.3lib variant.opensolaris.zone=global
 file path=usr/share/man/man4/libsdp.conf.4 variant.opensolaris.zone=global
 file path=usr/share/man/man7/rdma_cm.7 variant.opensolaris.zone=global
 file path=usr/share/man/man7/verbs.7 variant.opensolaris.zone=global
-link path=usr/lib/$(MACH64)/libibmad.so.5 target=libibmad.so.5.1.2 variant.opensolaris.zone=global
+link path=usr/lib/$(MACH64)/libibmad.so.5 target=libibmad.so.5.2.2 variant.opensolaris.zone=global
 link path=usr/lib/$(MACH64)/libibumad.so.3 target=libibumad.so.3.0.2
 link path=usr/lib/$(MACH64)/libibverbs.so target=libibverbs.so.1.0.0 variant.opensolaris.zone=global
 link path=usr/lib/$(MACH64)/libibverbs.so.1 target=libibverbs.so.1.0.0
 link path=usr/lib/$(MACH64)/libmlx4.so target=libmlx4-rdmav2.so
 link path=usr/lib/$(MACH64)/libmthca.so target=libmthca-rdmav2.so
-link path=usr/lib/$(MACH64)/libopensm.so.4 target=libopensm.so.4.0.2 variant.opensolaris.zone=global
-link path=usr/lib/$(MACH64)/libosmcomp.so.3 target=libosmcomp.so.3.0.4 variant.opensolaris.zone=global
-link path=usr/lib/$(MACH64)/libosmvendor.so.3 target=libosmvendor.so.3.0.5 variant.opensolaris.zone=global
+link path=usr/lib/$(MACH64)/libopensm.so.5 target=libopensm.so.5.0.0 variant.opensolaris.zone=global
+link path=usr/lib/$(MACH64)/libosmcomp.so.3 target=libosmcomp.so.3.0.5 variant.opensolaris.zone=global
+link path=usr/lib/$(MACH64)/libosmvendor.so.3 target=libosmvendor.so.3.0.7 variant.opensolaris.zone=global
 link path=usr/lib/$(MACH64)/librdmacm.so target=librdmacm.so.1.0.0 variant.opensolaris.zone=global
 link path=usr/lib/$(MACH64)/librdmacm.so.1 target=librdmacm.so.1.0.0
-link path=usr/lib/libibmad.so.5 target=libibmad.so.5.1.2 variant.opensolaris.zone=global
-link path=usr/lib/libibnetdisc.so.5 target=libibnetdisc.so.5.0.1 variant.opensolaris.zone=global
+link path=usr/lib/libibmad.so.5 target=libibmad.so.5.2.2 variant.opensolaris.zone=global
+link path=usr/lib/libibnetdisc.so.5 target=libibnetdisc.so.5.2.0 variant.opensolaris.zone=global
 link path=usr/lib/libibumad.so.3 target=libibumad.so.3.0.2
 link path=usr/lib/libibverbs.so target=libibverbs.so.1.0.0 variant.opensolaris.zone=global
 link path=usr/lib/libibverbs.so.1 target=libibverbs.so.1.0.0 
 link path=usr/lib/libmlx4.so target=libmlx4-rdmav2.so
 link path=usr/lib/libmthca.so target=libmthca-rdmav2.so
-link path=usr/lib/libopensm.so.4 target=libopensm.so.4.0.2  variant.opensolaris.zone=global
-link path=usr/lib/libosmcomp.so.3 target=libosmcomp.so.3.0.4  variant.opensolaris.zone=global
-link path=usr/lib/libosmvendor.so.3 target=libosmvendor.so.3.0.5  variant.opensolaris.zone=global
+link path=usr/lib/libopensm.so.5 target=libopensm.so.5.0.0  variant.opensolaris.zone=global
+link path=usr/lib/libosmcomp.so.3 target=libosmcomp.so.3.0.5  variant.opensolaris.zone=global
+link path=usr/lib/libosmvendor.so.3 target=libosmvendor.so.3.0.7  variant.opensolaris.zone=global
 link path=usr/lib/librdmacm.so target=librdmacm.so.1.0.0 variant.opensolaris.zone=global
 link path=usr/lib/librdmacm.so.1 target=librdmacm.so.1.0.0
 link path=usr/lib/secure/$(MACH64)/libsdp.so target=libsdp.so.1.0.0 variant.opensolaris.zone=global
