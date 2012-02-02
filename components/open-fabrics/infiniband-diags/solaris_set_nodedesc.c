@@ -175,6 +175,7 @@ add_read_info_arr(char *nd_str, uint64_t guid)
 static void
 do_driver_read_ioctl(char *drivername)
 {
+#if 0
 	di_node_t	hcanode, childnode;
 	char		*devpath;
 	char		*access_devname;
@@ -247,13 +248,14 @@ do_driver_read_ioctl(char *drivername)
 		close(devfd);
 		hcanode = di_drv_next_node(hcanode);
 	}
-
+#endif
 }
 
 static int
 do_driver_update_ioctl(char *drivername, char *node_desc, char *hca_desc,
     uint64_t inp_hca_guid, uint32_t update_flag)
 {
+#if 0
 	di_node_t	hcanode, childnode;
 	char		*devpath;
 	char		*access_devname;
@@ -341,6 +343,9 @@ do_driver_update_ioctl(char *drivername, char *node_desc, char *hca_desc,
 	free(access_devname);
 	close(devfd);
 	return (rc);
+#else
+	return (-1);
+#endif
 }
 
 static void
