@@ -130,8 +130,9 @@ class UserlandActionChecker(base.ActionChecker):
                 for manifest in engine.lint_manifests:
                         seed_dict(manifest, "path", self.lint_paths)
 
-                self.__merge_dict(self.lint_paths, self.ref_paths,
-                    ignore_pubs=engine.ignore_pubs)
+                #self.__merge_dict(self.lint_paths, self.ref_paths,
+                #    ignore_pubs=engine.ignore_pubs)
+                self.__merge_dict(self.lint_paths, self.ref_paths)
 
         def __merge_dict(self, src, target, ignore_pubs=True):
                 """Merges the given src dictionary into the target
