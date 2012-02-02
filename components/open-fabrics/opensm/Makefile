@@ -23,10 +23,10 @@
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		opensm
-COMPONENT_VERSION=	3.3.9
+COMPONENT_VERSION=	3.3.13
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	sha1:9b8a37da3471bd17aa5b86ac7804a48fdc4a4efa
+COMPONENT_ARCHIVE_HASH=	sha1:a6a49b1904e162965a418474157bd7ccf44ddfd2
 COMPONENT_ARCHIVE_URL=	http://www.openfabrics.org/downloads/management/$(COMPONENT_ARCHIVE)
 
 include $(WS_TOP)/make-rules/prep.mk

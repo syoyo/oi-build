@@ -1,28 +1,7 @@
-diff -r -u /tmp/opensm-3.3.9/complib/Makefile.in opensm-3.3.9/complib/Makefile.in
---- /tmp/opensm-3.3.9/complib/Makefile.in	Mon Mar  7 00:01:52 2011
-+++ opensm-3.3.9/complib/Makefile.in	Mon Mar 14 03:17:52 2011
-@@ -239,7 +239,8 @@
- lib_LTLIBRARIES = libosmcomp.la
- @DEBUG_FALSE@DBGFLAGS = -g
- @DEBUG_TRUE@DBGFLAGS = -ggdb -D_DEBUG_
--libosmcomp_la_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-+libosmcomp_la_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1 \
-+	-D__EXTENSIONS__
- @HAVE_LD_VERSION_SCRIPT_FALSE@libosmcomp_version_script = 
- @HAVE_LD_VERSION_SCRIPT_TRUE@libosmcomp_version_script = -Wl,--version-script=$(srcdir)/libosmcomp.map
- complib_api_version = $(shell grep LIBVERSION= $(srcdir)/libosmcomp.ver | sed 's/LIBVERSION=//')
-@@ -343,7 +344,7 @@
- 	done; \
- 	test -z "$$list2" || { \
- 	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
--	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
- 	}
- 
- uninstall-libLTLIBRARIES:
-diff -r -u /tmp/opensm-3.3.9/complib/cl_spinlock.c opensm-3.3.9/complib/cl_spinlock.c
---- /tmp/opensm-3.3.9/complib/cl_spinlock.c	Sun Mar  6 23:51:11 2011
-+++ opensm-3.3.9/complib/cl_spinlock.c	Mon Mar 14 03:13:30 2011
+Only in opensm-3.3.13: .unpacked
+diff -r -u /tmp/opensm-3.3.13/complib/cl_spinlock.c opensm-3.3.13/complib/cl_spinlock.c
+--- /tmp/opensm-3.3.13/complib/cl_spinlock.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/complib/cl_spinlock.c	2012-02-02 20:11:38.709330629 +0900
 @@ -63,7 +63,21 @@
  void cl_spinlock_destroy(IN cl_spinlock_t * const p_spinlock)
  {
@@ -45,247 +24,96 @@ diff -r -u /tmp/opensm-3.3.9/complib/cl_spinlock.c opensm-3.3.9/complib/cl_spinl
  
  	if (p_spinlock->state == CL_INITIALIZED) {
  		p_spinlock->state = CL_UNINITIALIZED;
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_qos_policy.c opensm-3.3.9/opensm/osm_qos_policy.c
---- /tmp/opensm-3.3.9/opensm/osm_qos_policy.c	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/opensm/osm_qos_policy.c	Mon Mar 14 03:13:57 2011
-@@ -46,7 +46,11 @@
- #include <stdio.h>
- #include <assert.h>
- #include <stdlib.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <string.h>
-+#else
-+#include <strings.h>
-+#endif
- #include <ctype.h>
- #include <arpa/inet.h>
- #include <opensm/osm_log.h>
-diff -r -u /tmp/opensm-3.3.9/opensm/Makefile.am opensm-3.3.9/opensm/Makefile.am
---- /tmp/opensm-3.3.9/opensm/Makefile.am	Sun Mar  6 23:54:55 2011
-+++ opensm-3.3.9/opensm/Makefile.am	Mon Mar 14 03:13:52 2011
-@@ -25,7 +25,7 @@
- libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
- 
- sbin_PROGRAMS = opensm
--opensm_LDFLAGS = -rdynamic
-+opensm_LDFLAGS =
- opensm_DEPENDENCIES = libopensm.la
- opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
- 		 osm_db_pack.c osm_drop_mgr.c \
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_opensm.c opensm-3.3.9/opensm/osm_opensm.c
---- /tmp/opensm-3.3.9/opensm/osm_opensm.c	Sun Mar  6 23:54:55 2011
-+++ opensm-3.3.9/opensm/osm_opensm.c	Mon Mar 14 03:13:56 2011
-@@ -46,7 +46,11 @@
- 
- #include <stdio.h>
- #include <stdlib.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <string.h>
-+#else
-+#include <strings.h>
-+#endif
- #include <complib/cl_dispatcher.h>
- #include <complib/cl_passivelock.h>
- #include <vendor/osm_vendor_api.h>
-diff -r -u /tmp/opensm-3.3.9/opensm/Makefile.in opensm-3.3.9/opensm/Makefile.in
---- /tmp/opensm-3.3.9/opensm/Makefile.in	Mon Mar  7 00:01:53 2011
-+++ opensm-3.3.9/opensm/Makefile.in	Mon Mar 14 03:17:51 2011
-@@ -284,7 +284,8 @@
- top_builddir = @top_builddir@
- top_srcdir = @top_srcdir@
- INCLUDES = $(OSMV_INCLUDES)
--AM_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
-+AM_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1 \
-+      -D__EXTENSIONS__
- lib_LTLIBRARIES = libopensm.la
+diff -r -u /tmp/opensm-3.3.13/complib/Makefile.in opensm-3.3.13/complib/Makefile.in
+--- /tmp/opensm-3.3.13/complib/Makefile.in	2012-01-17 23:57:43.000000000 +0900
++++ opensm-3.3.13/complib/Makefile.in	2012-02-02 20:11:38.708979216 +0900
+@@ -246,7 +246,8 @@
+ lib_LTLIBRARIES = libosmcomp.la
  @DEBUG_FALSE@DBGFLAGS = -g
  @DEBUG_TRUE@DBGFLAGS = -ggdb -D_DEBUG_
-@@ -296,7 +297,7 @@
- 	-export-dynamic $(libopensm_version_script)
- 
- libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
--opensm_LDFLAGS = -rdynamic
-+opensm_LDFLAGS =
- opensm_DEPENDENCIES = libopensm.la
- opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
- 		 osm_db_pack.c osm_drop_mgr.c \
-@@ -436,8 +437,8 @@
- 	  else :; fi; \
+-libosmcomp_la_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
++libosmcomp_la_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1 \
++	-D__EXTENSIONS__
+ @HAVE_LD_VERSION_SCRIPT_FALSE@libosmcomp_version_script = 
+ @HAVE_LD_VERSION_SCRIPT_TRUE@libosmcomp_version_script = -Wl,--version-script=$(srcdir)/libosmcomp.map
+ complib_api_version = $(shell grep LIBVERSION= $(srcdir)/libosmcomp.ver | sed 's/LIBVERSION=//')
+@@ -350,7 +351,7 @@
  	done; \
  	test -z "$$list2" || { \
--	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+ 	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
 -	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
 +	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
  	}
  
  uninstall-libLTLIBRARIES:
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_mcast_mgr.c opensm-3.3.9/opensm/osm_mcast_mgr.c
---- /tmp/opensm-3.3.9/opensm/osm_mcast_mgr.c	Sun Mar  6 23:56:08 2011
-+++ opensm-3.3.9/opensm/osm_mcast_mgr.c	Mon Mar 14 03:17:13 2011
-@@ -751,7 +751,7 @@
- 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
- 			"MLID 0x%X has %u members - nothing to do\n",
- 			mbox->mlid, num_ports);
--		drop_port_list(&port_list);
-+				drop_port_list(&port_list);
- 		goto Exit;
- 	}
+diff -r -u /tmp/opensm-3.3.13/configure opensm-3.3.13/configure
+--- /tmp/opensm-3.3.13/configure	2012-01-17 23:57:44.000000000 +0900
++++ opensm-3.3.13/configure	2012-02-02 20:11:38.740903564 +0900
+@@ -8564,7 +8564,7 @@
+     # are reset later if shared libraries are not supported. Putting them
+     # here allows them to be overridden if necessary.
+     runpath_var=LD_RUN_PATH
+-    hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
++    hardcode_libdir_flag_spec='${wl}-R ${wl}$libdir'
+     export_dynamic_flag_spec='${wl}--export-dynamic'
+     # ancient GNU ld didn't support --whole-archive et. al.
+     if $LD --help 2>&1 | $GREP 'no-whole-archive' > /dev/null; then
+@@ -8801,7 +8801,7 @@
+ 	  # DT_RUNPATH tag from executables and libraries.  But doing so
+ 	  # requires that you compile everything twice, which is a pain.
+ 	  if $LD --help 2>&1 | $GREP ': supported targets:.* elf' > /dev/null; then
+-	    hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
++	    hardcode_libdir_flag_spec='${wl}-R ${wl}$libdir'
+ 	    archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags ${wl}-soname $wl$soname -o $lib'
+ 	    archive_expsym_cmds='$CC -shared $libobjs $deplibs $compiler_flags ${wl}-soname $wl$soname ${wl}-retain-symbols-file $wl$export_symbols -o $lib'
+ 	  else
+@@ -9082,7 +9082,7 @@
+       ;;
  
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_helper.c opensm-3.3.9/opensm/osm_helper.c
---- /tmp/opensm-3.3.9/opensm/osm_helper.c	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/opensm/osm_helper.c	Mon Mar 14 03:13:53 2011
-@@ -48,6 +48,7 @@
- #include <stdio.h>
- #include <string.h>
- #include <arpa/inet.h>
-+#include <netinet/in.h>
- #include <complib/cl_debug.h>
- #include <iba/ib_types.h>
- #include <opensm/osm_helper.h>
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_log.c opensm-3.3.9/opensm/osm_log.c
---- /tmp/opensm-3.3.9/opensm/osm_log.c	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/opensm/osm_log.c	Mon Mar 14 03:13:54 2011
-@@ -191,7 +191,7 @@
- 		    (result.tm_mon <
- 		     12 ? month_str[result.tm_mon] : "???"),
- 		    result.tm_mday, result.tm_hour, result.tm_min,
--		    result.tm_sec, usecs, pid, verbosity, buffer);
-+		    result.tm_sec, usecs, (int)pid, verbosity, buffer);
- #endif
+     bsdi[45]*)
+-      export_dynamic_flag_spec=-rdynamic
++      export_dynamic_flag_spec=
+       ;;
  
- 	/*  flush log */
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_db_files.c opensm-3.3.9/opensm/osm_db_files.c
---- /tmp/opensm-3.3.9/opensm/osm_db_files.c	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/opensm/osm_db_files.c	Mon Mar 14 03:13:53 2011
-@@ -375,7 +375,7 @@
- 					p_accum_val);
+     cygwin* | mingw* | pw32* | cegcc*)
+@@ -9510,6 +9510,7 @@
+ 	;;
+       esac
+       link_all_deplibs=yes
++      hardcode_libdir_flag_spec=
+       ;;
  
- 				/* check that the key is a number */
--				if (!strtouq(p_key, &endptr, 0)
-+				if (!strtoull(p_key, &endptr, 0)
- 				    && *endptr != '\0') {
- 					OSM_LOG(p_log, OSM_LOG_ERROR,
- 						"ERR 610B: "
-diff -r -u /tmp/opensm-3.3.9/opensm/osm_qos_parser_y.h opensm-3.3.9/opensm/osm_qos_parser_y.h
---- /tmp/opensm-3.3.9/opensm/osm_qos_parser_y.h	Mon Mar  7 00:02:04 2011
-+++ opensm-3.3.9/opensm/osm_qos_parser_y.h	Mon Mar 14 03:18:09 2011
-@@ -1,23 +1,24 @@
-+/* A Bison parser, made by GNU Bison 2.3.  */
+     sunos4*)
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_byteswap_osd.h opensm-3.3.13/include/complib/cl_byteswap_osd.h
+--- /tmp/opensm-3.3.13/include/complib/cl_byteswap_osd.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_byteswap_osd.h	2012-02-02 20:11:38.719686708 +0900
+@@ -44,8 +44,12 @@
+ /*
+  * This provides defines __LITTLE_ENDIAN, __BIG_ENDIAN and __BYTE_ORDER
+  */
++#if !(defined(__SVR4) && defined(__sun))
+ #include <endian.h>
+ #include <byteswap.h>
++#else
++#include <infiniband/ofa_solaris.h>
++#endif
  
--/* A Bison parser, made by GNU Bison 2.4.1.  */
--
- /* Skeleton interface for Bison's Yacc-like parsers in C
--   
--      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-+
-+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-    Free Software Foundation, Inc.
--   
--   This program is free software: you can redistribute it and/or modify
-+
-+   This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
--   the Free Software Foundation, either version 3 of the License, or
--   (at your option) any later version.
--   
-+   the Free Software Foundation; either version 2, or (at your option)
-+   any later version.
-+
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
--   
-+
-    You should have received a copy of the GNU General Public License
--   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-+   along with this program; if not, write to the Free Software
-+   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-+   Boston, MA 02110-1301, USA.  */
+ #ifdef __cplusplus
+ #  define BEGIN_C_DECLS extern "C" {
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_debug_osd.h opensm-3.3.13/include/complib/cl_debug_osd.h
+--- /tmp/opensm-3.3.13/include/complib/cl_debug_osd.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_debug_osd.h	2012-02-02 20:11:38.719951551 +0900
+@@ -42,7 +42,6 @@
+ #define _CL_DEBUG_OSD_H_
  
- /* As a special exception, you may create a larger work that contains
-    part or all of the Bison parser skeleton and distribute that work
-@@ -28,11 +29,10 @@
-    special exception, which will cause the skeleton and the resulting
-    Bison output files to be licensed under the GNU General Public
-    License without this special exception.
--   
-+
-    This special exception was added by the Free Software Foundation in
-    version 2.2 of Bison.  */
+ #include <complib/cl_types.h>
+-#include <bits/wordsize.h>
  
--
- /* Tokens.  */
- #ifndef YYTOKENTYPE
- # define YYTOKENTYPE
-@@ -198,11 +198,10 @@
- 
- #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
- typedef int YYSTYPE;
--# define YYSTYPE_IS_TRIVIAL 1
- # define yystype YYSTYPE /* obsolescent; will be withdrawn */
- # define YYSTYPE_IS_DECLARED 1
-+# define YYSTYPE_IS_TRIVIAL 1
- #endif
- 
- extern YYSTYPE yylval;
--
- 
-diff -r -u /tmp/opensm-3.3.9/libvendor/Makefile.in opensm-3.3.9/libvendor/Makefile.in
---- /tmp/opensm-3.3.9/libvendor/Makefile.in	Mon Mar  7 00:01:52 2011
-+++ opensm-3.3.9/libvendor/Makefile.in	Mon Mar 14 03:17:51 2011
-@@ -424,8 +424,8 @@
- 	  else :; fi; \
- 	done; \
- 	test -z "$$list2" || { \
--	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
--	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
- 	}
- 
- uninstall-libLTLIBRARIES:
-diff -r -u /tmp/opensm-3.3.9/libvendor/osm_vendor_ibumad.c opensm-3.3.9/libvendor/osm_vendor_ibumad.c
---- /tmp/opensm-3.3.9/libvendor/osm_vendor_ibumad.c	Sun Mar  6 23:54:55 2011
-+++ opensm-3.3.9/libvendor/osm_vendor_ibumad.c	Mon Mar 14 03:13:49 2011
-@@ -265,7 +265,8 @@
- 					   &length, -1)) < 0) {
- 			if (length <= MAD_BLOCK_SIZE) {
- 				OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5404: "
--					"recv error on MAD sized umad (%m)\n");
-+					"recv error on MAD sized umad (%s)\n",
-+					strerror(errno));
- 				continue;
- 			} else {
- 				umad_free(umad);
-@@ -284,8 +285,9 @@
- 							   -1)) < 0) {
- 					OSM_LOG(p_ur->p_log, OSM_LOG_ERROR,
- 						"ERR 5406: "
--						"recv error on umad length %d (%m)\n",
--						length);
-+						"recv error on umad length %d "
-+						"(%s)\n", length,
-+						strerror(errno));
- 					continue;
- 				}
- 			}
-@@ -1073,8 +1075,9 @@
- 			     resp_expected ? p_bind->timeout : 0,
- 			     p_bind->max_retries)) < 0) {
- 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
--			"Send p_madw = %p of size %d TID 0x%" PRIx64 " failed %d (%m)\n",
--			p_madw, sent_mad_size, cl_ntoh64(p_mad->trans_id), ret);
-+			"Send p_madw = %p of size %d TID 0x%" PRIx64 "" 
-+			"failed %d (%s)\n", p_madw, sent_mad_size,
-+			cl_ntoh64(p_mad->trans_id), ret, strerror(errno));
- 		if (resp_expected) {
- 			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
- 			p_madw->status = IB_ERROR;
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_map.h opensm-3.3.9/include/complib/cl_map.h
---- /tmp/opensm-3.3.9/include/complib/cl_map.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_map.h	Mon Mar 14 03:13:35 2011
+ #ifdef __cplusplus
+ #  define BEGIN_C_DECLS extern "C" {
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_map.h opensm-3.3.13/include/complib/cl_map.h
+--- /tmp/opensm-3.3.13/include/complib/cl_map.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_map.h	2012-02-02 20:11:38.717335796 +0900
 @@ -275,7 +275,11 @@
  	 * The map's pool of map items is the last thing initialized.
  	 * We can therefore use it to test for initialization.
@@ -298,9 +126,70 @@ diff -r -u /tmp/opensm-3.3.9/include/complib/cl_map.h opensm-3.3.9/include/compl
  }
  
  /*
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_types.h opensm-3.3.9/include/complib/cl_types.h
---- /tmp/opensm-3.3.9/include/complib/cl_types.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_types.h	Mon Mar 14 03:13:37 2011
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_qlist.h opensm-3.3.13/include/complib/cl_qlist.h
+--- /tmp/opensm-3.3.13/include/complib/cl_qlist.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_qlist.h	2012-02-02 20:11:38.719391467 +0900
+@@ -508,7 +508,11 @@
+ 	/* CL_ASSERT that the list was initialized. */
+ 	CL_ASSERT(p_list->state == CL_INITIALIZED);
+ 
++#if !(defined(__SVR4) && defined(__sun))
+ 	return (!cl_qlist_count(p_list));
++#else
++	return (boolean_t)(!cl_qlist_count(p_list));
++#endif
+ }
+ 
+ /*
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_qmap.h opensm-3.3.13/include/complib/cl_qmap.h
+--- /tmp/opensm-3.3.13/include/complib/cl_qmap.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_qmap.h	2012-02-02 20:11:38.720363871 +0900
+@@ -346,7 +346,11 @@
+ 	CL_ASSERT(p_map);
+ 	CL_ASSERT(p_map->state == CL_INITIALIZED);
+ 
++#if !(defined(__SVR4) && defined(__sun))
+ 	return (p_map->count == 0);
++#else
++	return (boolean_t)(p_map->count == 0);
++#endif
+ }
+ 
+ /*
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_thread_osd.h opensm-3.3.13/include/complib/cl_thread_osd.h
+--- /tmp/opensm-3.3.13/include/complib/cl_thread_osd.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_thread_osd.h	2012-02-02 20:11:38.718114483 +0900
+@@ -61,7 +61,11 @@
+ 
+ static inline boolean_t cl_is_blockable(void)
+ {
++#if !(defined(__SVR4) && defined(__sun))
+ 	return TRUE;
++#else
++	return ((boolean_t)TRUE);
++#endif
+ }
+ 
+ END_C_DECLS
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_types_osd.h opensm-3.3.13/include/complib/cl_types_osd.h
+--- /tmp/opensm-3.3.13/include/complib/cl_types_osd.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_types_osd.h	2012-02-02 20:11:38.718397655 +0900
+@@ -72,7 +72,12 @@
+ /*
+  * Types not explicitly defined are native to the platform.
+  */
++#if !(defined(__SVR4) && defined(__sun))
+ typedef int boolean_t;
++#else
++#include <infiniband/ofa_solaris.h>
++#endif
++
+ typedef volatile int32_t atomic32_t;
+ 
+ #ifndef NULL
+diff -r -u /tmp/opensm-3.3.13/include/complib/cl_types.h opensm-3.3.13/include/complib/cl_types.h
+--- /tmp/opensm-3.3.13/include/complib/cl_types.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/complib/cl_types.h	2012-02-02 20:11:38.717741867 +0900
 @@ -428,8 +428,13 @@
  */
  static inline boolean_t cl_is_state_valid(IN const cl_state_t state)
@@ -315,142 +204,9 @@ diff -r -u /tmp/opensm-3.3.9/include/complib/cl_types.h opensm-3.3.9/include/com
  }
  
  /*
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_thread_osd.h opensm-3.3.9/include/complib/cl_thread_osd.h
---- /tmp/opensm-3.3.9/include/complib/cl_thread_osd.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_thread_osd.h	Mon Mar 14 03:13:37 2011
-@@ -61,7 +61,11 @@
- 
- static inline boolean_t cl_is_blockable(void)
- {
-+#if !(defined(__SVR4) && defined(__sun))
- 	return TRUE;
-+#else
-+	return ((boolean_t)TRUE);
-+#endif
- }
- 
- END_C_DECLS
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_types_osd.h opensm-3.3.9/include/complib/cl_types_osd.h
---- /tmp/opensm-3.3.9/include/complib/cl_types_osd.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_types_osd.h	Mon Mar 14 03:13:37 2011
-@@ -72,7 +72,12 @@
- /*
-  * Types not explicitly defined are native to the platform.
-  */
-+#if !(defined(__SVR4) && defined(__sun))
- typedef int boolean_t;
-+#else
-+#include <infiniband/ofa_solaris.h>
-+#endif
-+
- typedef volatile int32_t atomic32_t;
- 
- #ifndef NULL
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_qlist.h opensm-3.3.9/include/complib/cl_qlist.h
---- /tmp/opensm-3.3.9/include/complib/cl_qlist.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_qlist.h	Mon Mar 14 03:13:36 2011
-@@ -508,7 +508,11 @@
- 	/* CL_ASSERT that the list was initialized. */
- 	CL_ASSERT(p_list->state == CL_INITIALIZED);
- 
-+#if !(defined(__SVR4) && defined(__sun))
- 	return (!cl_qlist_count(p_list));
-+#else
-+	return (boolean_t)(!cl_qlist_count(p_list));
-+#endif
- }
- 
- /*
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_byteswap_osd.h opensm-3.3.9/include/complib/cl_byteswap_osd.h
---- /tmp/opensm-3.3.9/include/complib/cl_byteswap_osd.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_byteswap_osd.h	Mon Mar 14 03:13:33 2011
-@@ -44,8 +44,12 @@
- /*
-  * This provides defines __LITTLE_ENDIAN, __BIG_ENDIAN and __BYTE_ORDER
-  */
-+#if !(defined(__SVR4) && defined(__sun))
- #include <endian.h>
- #include <byteswap.h>
-+#else
-+#include <infiniband/ofa_solaris.h>
-+#endif
- 
- #ifdef __cplusplus
- #  define BEGIN_C_DECLS extern "C" {
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_debug_osd.h opensm-3.3.9/include/complib/cl_debug_osd.h
---- /tmp/opensm-3.3.9/include/complib/cl_debug_osd.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_debug_osd.h	Mon Mar 14 03:13:34 2011
-@@ -42,7 +42,6 @@
- #define _CL_DEBUG_OSD_H_
- 
- #include <complib/cl_types.h>
--#include <bits/wordsize.h>
- 
- #ifdef __cplusplus
- #  define BEGIN_C_DECLS extern "C" {
-diff -r -u /tmp/opensm-3.3.9/include/complib/cl_qmap.h opensm-3.3.9/include/complib/cl_qmap.h
---- /tmp/opensm-3.3.9/include/complib/cl_qmap.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/complib/cl_qmap.h	Mon Mar 14 03:13:36 2011
-@@ -346,7 +346,11 @@
- 	CL_ASSERT(p_map);
- 	CL_ASSERT(p_map->state == CL_INITIALIZED);
- 
-+#if !(defined(__SVR4) && defined(__sun))
- 	return (p_map->count == 0);
-+#else
-+	return (boolean_t)(p_map->count == 0);
-+#endif
- }
- 
- /*
-diff -r -u /tmp/opensm-3.3.9/include/opensm/osm_madw.h opensm-3.3.9/include/opensm/osm_madw.h
---- /tmp/opensm-3.3.9/include/opensm/osm_madw.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/opensm/osm_madw.h	Mon Mar 14 03:13:40 2011
-@@ -489,7 +489,11 @@
- 	p_madw->mad_size = mad_size;
- 	if (p_mad_addr)
- 		p_madw->mad_addr = *p_mad_addr;
-+#if !(defined(__SVR4) && defined(__sun))
- 	p_madw->resp_expected = FALSE;
-+#else
-+	p_madw->resp_expected = (boolean_t)FALSE;
-+#endif
- }
- 
- /*
-diff -r -u /tmp/opensm-3.3.9/include/opensm/osm_log.h opensm-3.3.9/include/opensm/osm_log.h
---- /tmp/opensm-3.3.9/include/opensm/osm_log.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/opensm/osm_log.h	Mon Mar 14 03:13:40 2011
-@@ -355,7 +355,11 @@
- static inline boolean_t osm_log_is_active(IN const osm_log_t * p_log,
- 					  IN osm_log_level_t level)
- {
-+#if !(defined(__SVR4) && defined(__sun))
- 	return ((p_log->level & level) != 0);
-+#else
-+	return (boolean_t)((p_log->level & level) != 0);
-+#endif
- }
- 
- /*
-diff -r -u /tmp/opensm-3.3.9/include/opensm/osm_helper.h opensm-3.3.9/include/opensm/osm_helper.h
---- /tmp/opensm-3.3.9/include/opensm/osm_helper.h	Sun Mar  6 23:51:12 2011
-+++ opensm-3.3.9/include/opensm/osm_helper.h	Mon Mar 14 03:13:39 2011
-@@ -182,7 +182,11 @@
- */
- static inline boolean_t ib_gid_is_notzero(IN const ib_gid_t * p_gid)
- {
-+#if !(defined(__SVR4) && defined(__sun))
- 	return memcmp(p_gid, &ib_zero_gid, sizeof(*p_gid));
-+#else
-+	return (boolean_t)memcmp(p_gid, &ib_zero_gid, sizeof(*p_gid));
-+#endif
- }
- 
- /*
-diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_types.h
---- /tmp/opensm-3.3.9/include/iba/ib_types.h	Sun Mar  6 23:54:55 2011
-+++ opensm-3.3.9/include/iba/ib_types.h	Mon Mar 14 03:13:38 2011
+diff -r -u /tmp/opensm-3.3.13/include/iba/ib_types.h opensm-3.3.13/include/iba/ib_types.h
+--- /tmp/opensm-3.3.13/include/iba/ib_types.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/iba/ib_types.h	2012-02-02 20:11:38.733429484 +0900
 @@ -578,8 +578,13 @@
  static inline boolean_t OSM_API
  ib_class_is_vendor_specific_low(IN const uint8_t class_code)
@@ -513,7 +269,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -2186,7 +2209,11 @@
+@@ -2198,7 +2221,11 @@
  */
  static inline boolean_t OSM_API ib_pkey_is_full_member(IN const ib_net16_t pkey)
  {
@@ -525,7 +281,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -2217,7 +2244,11 @@
+@@ -2229,7 +2256,11 @@
  */
  static inline boolean_t OSM_API ib_pkey_is_invalid(IN const ib_net16_t pkey)
  {
@@ -537,7 +293,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -2280,7 +2311,11 @@
+@@ -2292,7 +2323,11 @@
  */
  static inline boolean_t OSM_API ib_gid_is_multicast(IN const ib_gid_t * p_gid)
  {
@@ -549,7 +305,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /****f* IBA Base: Types/ib_gid_get_scope
-@@ -2388,8 +2423,13 @@
+@@ -2400,8 +2435,13 @@
  static inline boolean_t OSM_API
  ib_gid_is_link_local(IN const ib_gid_t * const p_gid)
  {
@@ -563,7 +319,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -2420,9 +2460,15 @@
+@@ -2432,9 +2472,15 @@
  static inline boolean_t OSM_API
  ib_gid_is_site_local(IN const ib_gid_t * const p_gid)
  {
@@ -579,7 +335,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -3912,8 +3958,13 @@
+@@ -3943,8 +3989,13 @@
  ib_mad_is_response(IN const ib_mad_t * const p_mad)
  {
  	CL_ASSERT(p_mad);
@@ -593,7 +349,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -3968,7 +4019,11 @@
+@@ -3999,7 +4050,11 @@
  		    IN const uint8_t flag)
  {
  	CL_ASSERT(p_rmpp_mad);
@@ -605,7 +361,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -4189,7 +4244,11 @@
+@@ -4220,7 +4275,11 @@
  */
  static inline boolean_t OSM_API ib_smp_is_d(IN const ib_smp_t * const p_smp)
  {
@@ -617,7 +373,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -6114,7 +6173,11 @@
+@@ -6396,7 +6455,11 @@
  static inline boolean_t OSM_API
  ib_switch_info_get_state_change(IN const ib_switch_info_t * const p_si)
  {
@@ -629,7 +385,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -6170,7 +6233,11 @@
+@@ -6452,7 +6515,11 @@
  static inline boolean_t OSM_API
  ib_switch_info_get_opt_sl2vlmapping(IN const ib_switch_info_t * const p_si)
  {
@@ -641,7 +397,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -6200,7 +6267,11 @@
+@@ -6482,7 +6549,11 @@
  static inline boolean_t OSM_API
  ib_switch_info_is_enhanced_port0(IN const ib_switch_info_t * const p_si)
  {
@@ -653,7 +409,7 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-@@ -7460,7 +7531,11 @@
+@@ -7758,7 +7829,11 @@
  static inline boolean_t OSM_API
  ib_notice_is_generic(IN const ib_mad_notice_attr_t * p_ntc)
  {
@@ -665,41 +421,250 @@ diff -r -u /tmp/opensm-3.3.9/include/iba/ib_types.h opensm-3.3.9/include/iba/ib_
  }
  
  /*
-diff -r -u /tmp/opensm-3.3.9/configure opensm-3.3.9/configure
---- /tmp/opensm-3.3.9/configure	Mon Mar  7 00:01:54 2011
-+++ opensm-3.3.9/configure	Mon Mar 14 03:13:28 2011
-@@ -8022,7 +8022,7 @@
-     # are reset later if shared libraries are not supported. Putting them
-     # here allows them to be overridden if necessary.
-     runpath_var=LD_RUN_PATH
--    hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
-+    hardcode_libdir_flag_spec='${wl}-R ${wl}$libdir'
-     export_dynamic_flag_spec='${wl}--export-dynamic'
-     # ancient GNU ld didn't support --whole-archive et. al.
-     if $LD --help 2>&1 | $GREP 'no-whole-archive' > /dev/null; then
-@@ -8245,7 +8245,7 @@
- 	  # DT_RUNPATH tag from executables and libraries.  But doing so
- 	  # requires that you compile everything twice, which is a pain.
- 	  if $LD --help 2>&1 | $GREP ': supported targets:.* elf' > /dev/null; then
--	    hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
-+	    hardcode_libdir_flag_spec='${wl}-R ${wl}$libdir'
- 	    archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags ${wl}-soname $wl$soname -o $lib'
- 	    archive_expsym_cmds='$CC -shared $libobjs $deplibs $compiler_flags ${wl}-soname $wl$soname ${wl}-retain-symbols-file $wl$export_symbols -o $lib'
- 	  else
-@@ -8493,7 +8493,7 @@
-       ;;
+diff -r -u /tmp/opensm-3.3.13/include/opensm/osm_helper.h opensm-3.3.13/include/opensm/osm_helper.h
+--- /tmp/opensm-3.3.13/include/opensm/osm_helper.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/opensm/osm_helper.h	2012-02-02 20:11:38.722911717 +0900
+@@ -182,7 +182,11 @@
+ */
+ static inline boolean_t ib_gid_is_notzero(IN const ib_gid_t * p_gid)
+ {
++#if !(defined(__SVR4) && defined(__sun))
+ 	return memcmp(p_gid, &ib_zero_gid, sizeof(*p_gid));
++#else
++	return (boolean_t)memcmp(p_gid, &ib_zero_gid, sizeof(*p_gid));
++#endif
+ }
  
-     bsdi[45]*)
--      export_dynamic_flag_spec=-rdynamic
-+      export_dynamic_flag_spec=
-       ;;
+ /*
+diff -r -u /tmp/opensm-3.3.13/include/opensm/osm_log.h opensm-3.3.13/include/opensm/osm_log.h
+--- /tmp/opensm-3.3.13/include/opensm/osm_log.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/opensm/osm_log.h	2012-02-02 20:11:38.722251150 +0900
+@@ -355,7 +355,11 @@
+ static inline boolean_t osm_log_is_active(IN const osm_log_t * p_log,
+ 					  IN osm_log_level_t level)
+ {
++#if !(defined(__SVR4) && defined(__sun))
+ 	return ((p_log->level & level) != 0);
++#else
++	return (boolean_t)((p_log->level & level) != 0);
++#endif
+ }
  
-     cygwin* | mingw* | pw32* | cegcc*)
-@@ -8822,6 +8822,7 @@
- 	;;
-       esac
-       link_all_deplibs=yes
-+      hardcode_libdir_flag_spec=
-       ;;
+ /*
+diff -r -u /tmp/opensm-3.3.13/include/opensm/osm_madw.h opensm-3.3.13/include/opensm/osm_madw.h
+--- /tmp/opensm-3.3.13/include/opensm/osm_madw.h	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/include/opensm/osm_madw.h	2012-02-02 20:11:38.720848073 +0900
+@@ -489,7 +489,11 @@
+ 	p_madw->mad_size = mad_size;
+ 	if (p_mad_addr)
+ 		p_madw->mad_addr = *p_mad_addr;
++#if !(defined(__SVR4) && defined(__sun))
+ 	p_madw->resp_expected = FALSE;
++#else
++	p_madw->resp_expected = (boolean_t)FALSE;
++#endif
+ }
  
-     sunos4*)
+ /*
+diff -r -u /tmp/opensm-3.3.13/libvendor/Makefile.in opensm-3.3.13/libvendor/Makefile.in
+--- /tmp/opensm-3.3.13/libvendor/Makefile.in	2012-01-17 23:57:43.000000000 +0900
++++ opensm-3.3.13/libvendor/Makefile.in	2012-02-02 20:11:38.715329795 +0900
+@@ -431,8 +431,8 @@
+ 	  else :; fi; \
+ 	done; \
+ 	test -z "$$list2" || { \
+-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
++	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
++	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+ 	}
+ 
+ uninstall-libLTLIBRARIES:
+diff -r -u /tmp/opensm-3.3.13/libvendor/osm_vendor_ibumad.c opensm-3.3.13/libvendor/osm_vendor_ibumad.c
+--- /tmp/opensm-3.3.13/libvendor/osm_vendor_ibumad.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/libvendor/osm_vendor_ibumad.c	2012-02-02 20:16:57.864175459 +0900
+@@ -294,7 +294,8 @@
+ 					   &length, -1)) < 0) {
+ 			if (length <= MAD_BLOCK_SIZE) {
+ 				OSM_LOG(p_ur->p_log, OSM_LOG_ERROR, "ERR 5404: "
+-					"recv error on MAD sized umad (%m)\n");
++					"recv error on MAD sized umad (%s)\n",
++					strerror(errno));
+ 				continue;
+ 			} else {
+ 				umad_free(umad);
+@@ -313,8 +314,9 @@
+ 							   -1)) < 0) {
+ 					OSM_LOG(p_ur->p_log, OSM_LOG_ERROR,
+ 						"ERR 5406: "
+-						"recv error on umad length %d (%m)\n",
+-						length);
++						"recv error on umad length %d "
++						"(%s)\n", length,
++						strerror(errno));
+ 					continue;
+ 				}
+ 			}
+@@ -1078,8 +1080,9 @@
+ 			     resp_expected ? p_bind->timeout : 0,
+ 			     p_bind->max_retries)) < 0) {
+ 		OSM_LOG(p_vend->p_log, OSM_LOG_ERROR, "ERR 5430: "
+-			"Send p_madw = %p of size %d TID 0x%" PRIx64 " failed %d (%m)\n",
+-			p_madw, sent_mad_size, tid, ret);
++			"Send p_madw = %p of size %d TID 0x%" PRIx64 "" 
++			"failed %d (%s)\n", p_madw, sent_mad_size,
++			cl_ntoh64(p_mad->trans_id), ret, strerror(errno));
+ 		if (resp_expected) {
+ 			get_madw(p_vend, &p_mad->trans_id);	/* remove from aging table */
+ 			p_madw->status = IB_ERROR;
+diff -r -u /tmp/opensm-3.3.13/opensm/Makefile.am opensm-3.3.13/opensm/Makefile.am
+--- /tmp/opensm-3.3.13/opensm/Makefile.am	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/Makefile.am	2012-02-02 20:11:38.710515983 +0900
+@@ -25,7 +25,7 @@
+ libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
+ 
+ sbin_PROGRAMS = opensm
+-opensm_LDFLAGS = -rdynamic
++opensm_LDFLAGS =
+ opensm_DEPENDENCIES = libopensm.la
+ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
+ 		 osm_db_pack.c osm_drop_mgr.c \
+diff -r -u /tmp/opensm-3.3.13/opensm/Makefile.in opensm-3.3.13/opensm/Makefile.in
+--- /tmp/opensm-3.3.13/opensm/Makefile.in	2012-01-17 23:57:43.000000000 +0900
++++ opensm-3.3.13/opensm/Makefile.in	2012-02-02 20:11:38.711756233 +0900
+@@ -293,7 +293,8 @@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ INCLUDES = $(OSMV_INCLUDES)
+-AM_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1
++AM_CFLAGS = -Wall $(DBGFLAGS) -D_XOPEN_SOURCE=600 -D_BSD_SOURCE=1 \
++      -D__EXTENSIONS__
+ lib_LTLIBRARIES = libopensm.la
+ @DEBUG_FALSE@DBGFLAGS = -g
+ @DEBUG_TRUE@DBGFLAGS = -ggdb -D_DEBUG_
+@@ -305,7 +306,7 @@
+ 	-export-dynamic $(libopensm_version_script)
+ 
+ libopensm_la_DEPENDENCIES = $(srcdir)/libopensm.map
+-opensm_LDFLAGS = -rdynamic
++opensm_LDFLAGS =
+ opensm_DEPENDENCIES = libopensm.la
+ opensm_SOURCES = main.c osm_console_io.c osm_console.c osm_db_files.c \
+ 		 osm_db_pack.c osm_drop_mgr.c \
+@@ -445,8 +446,8 @@
+ 	  else :; fi; \
+ 	done; \
+ 	test -z "$$list2" || { \
+-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
++	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
++	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) -m 755 $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+ 	}
+ 
+ uninstall-libLTLIBRARIES:
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_db_files.c opensm-3.3.13/opensm/osm_db_files.c
+--- /tmp/opensm-3.3.13/opensm/osm_db_files.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_db_files.c	2012-02-02 20:11:38.714199405 +0900
+@@ -383,7 +383,7 @@
+ 					p_accum_val);
+ 
+ 				/* check that the key is a number */
+-				if (!strtouq(p_key, &endptr, 0)
++				if (!strtoull(p_key, &endptr, 0)
+ 				    && *endptr != '\0') {
+ 					OSM_LOG(p_log, OSM_LOG_ERROR,
+ 						"ERR 610B: "
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_helper.c opensm-3.3.13/opensm/osm_helper.c
+--- /tmp/opensm-3.3.13/opensm/osm_helper.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_helper.c	2012-02-02 20:11:38.713377216 +0900
+@@ -48,6 +48,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <arpa/inet.h>
++#include <netinet/in.h>
+ #include <complib/cl_debug.h>
+ #include <iba/ib_types.h>
+ #include <opensm/osm_helper.h>
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_log.c opensm-3.3.13/opensm/osm_log.c
+--- /tmp/opensm-3.3.13/opensm/osm_log.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_log.c	2012-02-02 20:11:38.713786993 +0900
+@@ -191,7 +191,7 @@
+ 		    (result.tm_mon <
+ 		     12 ? month_str[result.tm_mon] : "???"),
+ 		    result.tm_mday, result.tm_hour, result.tm_min,
+-		    result.tm_sec, usecs, pid, verbosity, buffer);
++		    result.tm_sec, usecs, (int)pid, verbosity, buffer);
+ #endif
+ 
+ 	/*  flush log */
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_mcast_mgr.c opensm-3.3.13/opensm/osm_mcast_mgr.c
+--- /tmp/opensm-3.3.13/opensm/osm_mcast_mgr.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_mcast_mgr.c	2012-02-02 20:11:38.712371950 +0900
+@@ -751,7 +751,7 @@
+ 		OSM_LOG(sm->p_log, OSM_LOG_VERBOSE,
+ 			"MLID 0x%X has %u members - nothing to do\n",
+ 			mbox->mlid, num_ports);
+-		drop_port_list(&port_list);
++				drop_port_list(&port_list);
+ 		goto Exit;
+ 	}
+ 
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_opensm.c opensm-3.3.13/opensm/osm_opensm.c
+--- /tmp/opensm-3.3.13/opensm/osm_opensm.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_opensm.c	2012-02-02 20:11:38.710969215 +0900
+@@ -46,7 +46,11 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <string.h>
++#else
++#include <strings.h>
++#endif
+ #include <complib/cl_dispatcher.h>
+ #include <complib/cl_passivelock.h>
+ #include <vendor/osm_vendor_api.h>
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_qos_parser_y.h opensm-3.3.13/opensm/osm_qos_parser_y.h
+--- /tmp/opensm-3.3.13/opensm/osm_qos_parser_y.h	2012-01-17 22:23:11.000000000 +0900
++++ opensm-3.3.13/opensm/osm_qos_parser_y.h	2012-02-02 20:11:38.714599745 +0900
+@@ -26,11 +26,10 @@
+    special exception, which will cause the skeleton and the resulting
+    Bison output files to be licensed under the GNU General Public
+    License without this special exception.
+-   
++
+    This special exception was added by the Free Software Foundation in
+    version 2.2 of Bison.  */
+ 
+-
+ /* Tokens.  */
+ #ifndef YYTOKENTYPE
+ # define YYTOKENTYPE
+@@ -200,11 +199,10 @@
+ 
+ #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+ typedef int YYSTYPE;
+-# define YYSTYPE_IS_TRIVIAL 1
+ # define yystype YYSTYPE /* obsolescent; will be withdrawn */
+ # define YYSTYPE_IS_DECLARED 1
++# define YYSTYPE_IS_TRIVIAL 1
+ #endif
+ 
+ extern YYSTYPE yylval;
+ 
+-
+diff -r -u /tmp/opensm-3.3.13/opensm/osm_qos_policy.c opensm-3.3.13/opensm/osm_qos_policy.c
+--- /tmp/opensm-3.3.13/opensm/osm_qos_policy.c	2012-01-17 22:22:40.000000000 +0900
++++ opensm-3.3.13/opensm/osm_qos_policy.c	2012-02-02 20:11:38.710192178 +0900
+@@ -46,7 +46,11 @@
+ #include <stdio.h>
+ #include <assert.h>
+ #include <stdlib.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <string.h>
++#else
++#include <strings.h>
++#endif
+ #include <ctype.h>
+ #include <arpa/inet.h>
+ #include <opensm/osm_log.h>
