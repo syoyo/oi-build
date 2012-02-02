@@ -39,3 +39,7 @@ Note
  * AF_INET_SDP is set to PROTO_SDP.
    * For future release, this should be a 33 and will be defined in /usr/include/sys/socket.h
 
+License
+-------
+
+CDDL.
