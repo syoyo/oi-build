@@ -23,10 +23,10 @@
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		libibmad
-COMPONENT_VERSION=	1.3.7
+COMPONENT_VERSION=	1.3.8
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	sha1:ed9a8f3cc27a2e5ae55629c0cc90ab43ee450fc4
+COMPONENT_ARCHIVE_HASH=	sha1:fd457120dc1b55e03854e605f1d55f48d77abefd
 COMPONENT_ARCHIVE_URL=	http://www.openfabrics.org/downloads/management/$(COMPONENT_ARCHIVE)
 
 include $(WS_TOP)/make-rules/prep.mk

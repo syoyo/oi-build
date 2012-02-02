@@ -1,7 +1,7 @@
-diff -r -u /tmp/librdmacm-1.0.14.1/configure librdmacm-1.0.14.1/configure
---- /tmp/librdmacm-1.0.14.1/configure	Tue Feb 15 17:12:14 2011
-+++ librdmacm-1.0.14.1/configure	Thu Feb 24 08:39:24 2011
-@@ -7625,6 +7625,7 @@
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/configure librdmacm-1.0.15/configure
+--- /tmp/librdmacm-1.0.15/configure	2011-09-15 03:41:59.000000000 +0900
++++ librdmacm-1.0.15/configure	2012-02-02 08:56:34.322225068 +0900
+@@ -7626,6 +7626,7 @@
   	esac ;;
        esac
        link_all_deplibs=yes
@@ -9,10 +9,293 @@ diff -r -u /tmp/librdmacm-1.0.14.1/configure librdmacm-1.0.14.1/configure
        ;;
  
      sunos4*)
-diff -r -u /tmp/librdmacm-1.0.14.1/Makefile.in librdmacm-1.0.14.1/Makefile.in
---- /tmp/librdmacm-1.0.14.1/Makefile.in	Tue Feb 15 17:12:13 2011
-+++ librdmacm-1.0.14.1/Makefile.in	Mon Mar 28 16:49:13 2011
-@@ -69,7 +69,7 @@
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/examples/cmatose.c librdmacm-1.0.15/examples/cmatose.c
+--- /tmp/librdmacm-1.0.15/examples/cmatose.c	2011-09-15 03:41:12.000000000 +0900
++++ librdmacm-1.0.15/examples/cmatose.c	2012-02-02 08:56:34.337168683 +0900
+@@ -40,7 +40,9 @@
+ #include <netinet/in.h>
+ #include <sys/socket.h>
+ #include <netdb.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <byteswap.h>
++#endif
+ #include <getopt.h>
+ 
+ #include <rdma/rdma_cma.h>
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/examples/mckey.c librdmacm-1.0.15/examples/mckey.c
+--- /tmp/librdmacm-1.0.15/examples/mckey.c	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/examples/mckey.c	2012-02-02 08:56:34.336497289 +0900
+@@ -41,7 +41,9 @@
+ #include <arpa/inet.h>
+ #include <sys/socket.h>
+ #include <netdb.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <byteswap.h>
++#endif
+ #include <unistd.h>
+ #include <getopt.h>
+ 
+@@ -329,6 +331,16 @@
+ 
+ 	while (1) {
+ 		ret = rdma_get_cm_event(test.channel, &event);
++
++/* 
++ * Solaris returns EBADF if we close the channel while we're waiting
++ * for any events to occur. It is safe to ignore EBADF here.
++ */
++#if defined(__SVR4) && defined(__sun)
++		if (ret && (errno == EBADF))
++			break;
++#endif
++
+ 		if (ret) {
+ 			perror("rdma_get_cm_event");
+ 			break;
+@@ -461,6 +473,7 @@
+ 	return ret;
+ }
+ 
++#if !(defined(__SVR4) && defined(__sun))
+ static int get_dst_addr(char *dst, struct sockaddr *addr)
+ {
+ 	struct sockaddr_ib *sib;
+@@ -474,6 +487,7 @@
+ 	inet_pton(AF_INET6, dst, &sib->sib_addr);
+ 	return 0;
+ }
++#endif
+ 
+ static int run(void)
+ {
+@@ -486,7 +500,12 @@
+ 			return ret;
+ 	}
+ 
++/* Solaris does not yet support family AF_IB */
++#if defined(__SVR4) && defined(__sun)
++	ret = get_addr(dst_addr, (struct sockaddr *) &test.dst_in);
++#else
+ 	ret = get_dst_addr(dst_addr, (struct sockaddr *) &test.dst_in);
++#endif
+ 	if (ret)
+ 		return ret;
+ 
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/examples/rping.c librdmacm-1.0.15/examples/rping.c
+--- /tmp/librdmacm-1.0.15/examples/rping.c	2011-03-29 23:18:03.000000000 +0900
++++ librdmacm-1.0.15/examples/rping.c	2012-02-02 09:17:26.397954161 +0900
+@@ -40,11 +40,17 @@
+ #include <netinet/in.h>
+ #include <sys/socket.h>
+ #include <netdb.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <byteswap.h>
++#endif
+ #include <semaphore.h>
+ #include <arpa/inet.h>
+ #include <pthread.h>
+ #include <inttypes.h>
++#if defined(__SVR4) && defined(__sun)
++#include <unistd.h>
++#include <libgen.h>
++#endif
+ 
+ #include <rdma/rdma_cma.h>
+ #include <infiniband/arch.h>
+@@ -85,6 +91,13 @@
+ 	ERROR
+ };
+ 
++enum disconnect_state {
++	DISCONNECT_NONE,
++	CALLING_DISCONNECT = 1,
++	DISCONNECT_CALLED,
++	DISCONNECT_DONE
++};
++
+ struct rping_rdma_info {
+ 	uint64_t buf;
+ 	uint32_t rkey;
+@@ -143,6 +156,9 @@
+ 	enum test_state state;		/* used for cond/signalling */
+ 	sem_t sem;
+ 
++	enum disconnect_state  dis_state;
++	sem_t dis_sem;
++
+ 	struct sockaddr_storage sin;
+ 	uint16_t port;			/* dst port in NBO */
+ 	int verbose;			/* verbose logging */
+@@ -218,6 +234,8 @@
+ 		fprintf(stderr, "%s DISCONNECT EVENT...\n",
+ 			cb->server ? "server" : "client");
+ 		sem_post(&cb->sem);
++		cb->dis_state = DISCONNECT_DONE;
++		sem_post(&cb->dis_sem);
+ 		break;
+ 
+ 	case RDMA_CM_EVENT_DEVICE_REMOVAL:
+@@ -280,10 +298,36 @@
+ 		ret = 0;
+ 
+ 		if (wc.status) {
+-			if (wc.status != IBV_WC_WR_FLUSH_ERR)
++			if (wc.status != IBV_WC_WR_FLUSH_ERR) {
+ 				fprintf(stderr,
+ 					"cq completion failed status %d\n",
+ 					wc.status);
++			} else {
++				/*
++				 * FLUSH Error can be polled before RDMA-CM
++				 * DISCONNECT is notified. Ensure that cb_state
++				 * is set appropriately in such a case.
++				 * sleep for sometime if Disconnect has not
++				 * been called. The FLUSH WR can be because
++				 * the remote end initiated the disconnect.
++				 */
++				if (cb->dis_state == DISCONNECT_NONE)
++					sleep(2);
++
++				if (cb->dis_state == DISCONNECT_DONE)
++					return (0);
++
++				/* Wait if disconnect is called. */
++				if (cb->dis_state == DISCONNECT_CALLED) {
++					sem_wait(&cb->dis_sem);
++					if (cb->dis_state == DISCONNECT_DONE)
++						return (0);
++					else {
++						ret = -1;
++						goto error;
++					}
++				}
++ 			}
+ 			ret = -1;
+ 			goto error;
+ 		}
+@@ -570,9 +614,15 @@
+ 
+ 	while (1) {
+ 		ret = rdma_get_cm_event(cb->cm_channel, &event);
+-		if (ret) {
++		/*
++		 * If the retry of read() syscall returned EBADF, as the
++		 * file was closed on process exit. Ignore this error.
++		 */
++		if (ret && errno != EBADF) {
+ 			perror("rdma_get_cm_event");
+ 			exit(ret);
++		} else if (ret && errno == EBADF) {
++			exit(0);
+ 		}
+ 		ret = rping_cma_event_handler(event->id, event);
+ 		rdma_ack_cm_event(event);
+@@ -594,8 +644,14 @@
+ 		pthread_testcancel();
+ 
+ 		ret = ibv_get_cq_event(cb->channel, &ev_cq, &ev_ctx);
+-		if (ret) {
++		/*
++		 * If the retry of write() syscall returned EBADF, as the
++		 * file was closed on process exit. Ignore this error.
++		 */
++		if (ret && errno != EBADF) {
+ 			fprintf(stderr, "Failed to get cq event!\n");
++			 pthread_exit(NULL);
++		} else if (ret && errno == EBADF) {
+ 			pthread_exit(NULL);
+ 		}
+ 		if (ev_cq != cb->cq) {
+@@ -801,6 +857,8 @@
+ 
+ 	rping_test_server(cb);
+ 	rdma_disconnect(cb->child_cm_id);
++	cb->dis_state = CALLING_DISCONNECT;
++	sem_post(&cb->dis_sem);
+ 	pthread_join(cb->cqthread, NULL);
+ 	rping_free_buffers(cb);
+ 	rping_free_qp(cb);
+@@ -887,6 +945,8 @@
+ 	}
+ 
+ 	rping_test_server(cb);
++	cb->dis_state = CALLING_DISCONNECT;
++	sem_post(&cb->dis_sem);
+ 	rdma_disconnect(cb->child_cm_id);
+ 	pthread_join(cb->cqthread, NULL);
+ 	rdma_destroy_id(cb->child_cm_id);
+@@ -1055,6 +1115,8 @@
+ 	}
+ 
+ 	rping_test_client(cb);
++	cb->dis_state = CALLING_DISCONNECT;
++	sem_post(&cb->dis_sem);
+ 	rdma_disconnect(cb->cm_id);
+ 	pthread_join(cb->cqthread, NULL);
+ err2:
+@@ -1123,6 +1185,7 @@
+ 	cb->sin.ss_family = PF_INET;
+ 	cb->port = htons(7174);
+ 	sem_init(&cb->sem, 0, 0);
++	sem_init(&cb->dis_sem, 0, 0);
+ 
+ 	opterr = 0;
+ 	while ((op=getopt(argc, argv, "a:Pp:C:S:t:scvVd")) != -1) {
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/examples/udaddy.c librdmacm-1.0.15/examples/udaddy.c
+--- /tmp/librdmacm-1.0.15/examples/udaddy.c	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/examples/udaddy.c	2012-02-02 08:56:34.335720013 +0900
+@@ -40,7 +40,9 @@
+ #include <netinet/in.h>
+ #include <sys/socket.h>
+ #include <netdb.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <byteswap.h>
++#endif
+ #include <getopt.h>
+ 
+ #include <rdma/rdma_cma.h>
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/include/infiniband/ib.h librdmacm-1.0.15/include/infiniband/ib.h
+--- /tmp/librdmacm-1.0.15/include/infiniband/ib.h	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/include/infiniband/ib.h	2012-02-02 08:56:34.333447552 +0900
+@@ -33,7 +33,11 @@
+ #if !defined(_RDMA_IB_H)
+ #define _RDMA_IB_H
+ 
++#if !(defined(__SVR4) && defined(__sun))
+ #include <linux/types.h>
++#else
++#include <infiniband/ofa_solaris.h>
++#endif
+ #include <string.h>
+ 
+ #ifndef AF_IB
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/include/rdma/rdma_cma_abi.h librdmacm-1.0.15/include/rdma/rdma_cma_abi.h
+--- /tmp/librdmacm-1.0.15/include/rdma/rdma_cma_abi.h	2011-09-15 03:41:12.000000000 +0900
++++ librdmacm-1.0.15/include/rdma/rdma_cma_abi.h	2012-02-02 08:56:34.334944912 +0900
+@@ -113,6 +113,9 @@
+ 	__u64 response;
+ 	struct sockaddr_in6 addr;
+ 	__u32 id;
++#if defined(__SVR4) && defined(__sun)
++	uint32_t	reserved;
++#endif
+ };
+ 
+ struct ucma_abi_bind {
+@@ -291,6 +294,9 @@
+ 	__u64 uid;
+ 	struct sockaddr_in6 addr;
+ 	__u32 id;
++#if defined(__SVR4) && defined(__sun)
++	uint32_t	reserved;
++#endif
+ };
+ 
+ struct ucma_abi_join_mcast {
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/Makefile.in librdmacm-1.0.15/Makefile.in
+--- /tmp/librdmacm-1.0.15/Makefile.in	2011-09-15 03:41:59.000000000 +0900
++++ librdmacm-1.0.15/Makefile.in	2012-02-02 08:56:34.324565300 +0900
+@@ -70,14 +70,14 @@
  	"$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man3dir)" \
  	"$(DESTDIR)$(man7dir)" "$(DESTDIR)$(infinibandincludedir)" \
  	"$(DESTDIR)$(librdmacmincludedir)"
@@ -21,7 +304,6 @@ diff -r -u /tmp/librdmacm-1.0.14.1/Makefile.in librdmacm-1.0.14.1/Makefile.in
  LTLIBRARIES = $(lib_LTLIBRARIES)
  src_librdmacm_la_LIBADD =
  am_src_librdmacm_la_OBJECTS = src_librdmacm_la-cma.lo \
-@@ -76,7 +76,7 @@
  	src_librdmacm_la-addrinfo.lo src_librdmacm_la-acm.lo
  src_librdmacm_la_OBJECTS = $(am_src_librdmacm_la_OBJECTS)
  am__dirstamp = $(am__leading_dot)dirstamp
@@ -30,124 +312,9 @@ diff -r -u /tmp/librdmacm-1.0.14.1/Makefile.in librdmacm-1.0.14.1/Makefile.in
  PROGRAMS = $(bin_PROGRAMS)
  am_examples_mckey_OBJECTS = mckey.$(OBJEXT)
  examples_mckey_OBJECTS = $(am_examples_mckey_OBJECTS)
-diff -r -u /tmp/librdmacm-1.0.14.1/src/cma.h librdmacm-1.0.14.1/src/cma.h
---- /tmp/librdmacm-1.0.14.1/src/cma.h	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/src/cma.h	Fri Feb 11 04:08:57 2011
-@@ -40,8 +40,10 @@
- 
- #include <stdlib.h>
- #include <errno.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <endian.h>
- #include <byteswap.h>
-+#endif
- 
- #include <rdma/rdma_cma.h>
- 
-@@ -58,14 +60,6 @@
- 
- #define PFX "librdmacm: "
- 
--#if __BYTE_ORDER == __LITTLE_ENDIAN
--static inline uint64_t htonll(uint64_t x) { return bswap_64(x); }
--static inline uint64_t ntohll(uint64_t x) { return bswap_64(x); }
--#else
--static inline uint64_t htonll(uint64_t x) { return x; }
--static inline uint64_t ntohll(uint64_t x) { return x; }
--#endif
--
- #define min(a, b) (a < b ? a : b)
- 
- static inline int ERR(int err)
-diff -r -u /tmp/librdmacm-1.0.14.1/src/cma.c librdmacm-1.0.14.1/src/cma.c
---- /tmp/librdmacm-1.0.14.1/src/cma.c	Fri Dec 10 12:05:34 2010
-+++ librdmacm-1.0.14.1/src/cma.c	Mon Mar 28 16:44:55 2011
-@@ -46,12 +46,15 @@
- #include <poll.h>
- #include <unistd.h>
- #include <pthread.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <endian.h>
- #include <byteswap.h>
-+#endif
- #include <stddef.h>
- #include <netdb.h>
- 
- #include "cma.h"
-+#include <infiniband/arch.h>
- #include <infiniband/driver.h>
- #include <infiniband/marshall.h>
- #include <rdma/rdma_cma.h>
-@@ -354,9 +357,18 @@
- 	if (!channel)
- 		return NULL;
- 
-+#if defined(__SVR4) && defined(__sun)
-+	channel->fd = open("/dev/infiniband/ofs/rdma_cm", O_RDWR);
-+#else
- 	channel->fd = open("/dev/infiniband/rdma_cm", O_RDWR);
-+#endif
-+
- 	if (channel->fd < 0) {
-+#if defined(__SVR4) && defined(__sun)
-+		printf("CMA: unable to open /dev/infiniband/ofs/rdma_cm\n");
-+#else
- 		printf("CMA: unable to open /dev/infiniband/rdma_cm\n");
-+#endif
- 		goto err;
- 	}
- 	return channel;
-@@ -1186,6 +1198,10 @@
- 	if (ret)
- 		return ret;
- 
-+#if defined(__SVR4) && defined(__sun)
-+	qp_init_attr->sq_sig_all |= LIB_RDMACM_QP_BIT;
-+#endif
-+
- 	qp = ibv_create_qp(pd, qp_init_attr);
- 	if (!qp) {
- 		ret = ERR(ENOMEM);
-@@ -1787,6 +1803,9 @@
- 
- 	CMA_CREATE_MSG_CMD(msg, cmd, UCMA_CMD_ACCEPT, size);
- 	cmd->id = id_priv->handle;
-+#if defined(__SVR4) && defined(__sun)
-+	cmd->conn_param.qp_num = ((id_priv->id).qp)->qp_num;
-+#endif
- 
- 	ret = write(id_priv->id.channel->fd, msg, size);
- 	if (ret != size) {
-diff -r -u /tmp/librdmacm-1.0.14.1/man/rdma_create_id.3 librdmacm-1.0.14.1/man/rdma_create_id.3
---- /tmp/librdmacm-1.0.14.1/man/rdma_create_id.3	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/man/rdma_create_id.3	Mon Mar 28 03:11:48 2011
-@@ -31,9 +31,7 @@
- explicitly binding to a specified RDMA device before communication
- can occur, and most operations are asynchronous in nature.  Asynchronous
- communication events on an rdma_cm_id are reported through the associated
--event channel.  If the channel parameter is NULL, the rdma_cm_id will
--be placed into synchronous operation.  While operating synchronously,
--calls that result in an event will block until the operation completes.
-+event channel.
- The event will be returned to the user through the rdma_cm_id structure,
- and be available for access until another rdma_cm call is made.
- .P
-diff -r -u /tmp/librdmacm-1.0.14.1/man/rdma_create_qp.3 librdmacm-1.0.14.1/man/rdma_create_qp.3
---- /tmp/librdmacm-1.0.14.1/man/rdma_create_qp.3	Fri Dec 10 12:05:34 2010
-+++ librdmacm-1.0.14.1/man/rdma_create_qp.3	Mon Mar 28 03:11:48 2011
-@@ -33,8 +33,7 @@
- the rdma_cm_id will be created using a default protection domain.  One
- default protection domain is allocated per RDMA device.
- .P
--The initial QP attributes are specified by the qp_init_attr parameter.  The
--send_cq and recv_cq fields in the ibv_qp_init_attr are optional.  If
-+The initial QP attributes are specified by the qp_init_attr parameter.  If
- a send or receive completion queue is not specified, then a CQ will be
- allocated by the rdma_cm for the QP, along with corresponding completion
- channels.  Completion channels and CQ data created by the rdma_cm are
-diff -r -u /tmp/librdmacm-1.0.14.1/man/rdma_cm.7 librdmacm-1.0.14.1/man/rdma_cm.7
---- /tmp/librdmacm-1.0.14.1/man/rdma_cm.7	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/man/rdma_cm.7	Mon Mar 28 03:11:47 2011
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/man/rdma_cm.7 librdmacm-1.0.15/man/rdma_cm.7
+--- /tmp/librdmacm-1.0.15/man/rdma_cm.7	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/man/rdma_cm.7	2012-02-02 08:56:34.332985272 +0900
 @@ -19,7 +19,7 @@
  API defined by the libibverbs library.  The libibverbs library provides the
  underlying interfaces needed to send and receive data.
@@ -212,285 +379,117 @@ diff -r -u /tmp/librdmacm-1.0.14.1/man/rdma_cm.7 librdmacm-1.0.14.1/man/rdma_cm.
  rdma_reject(3),
  rdma_resolve_addr(3),
  rdma_resolve_route(3),
-diff -r -u /tmp/librdmacm-1.0.14.1/include/infiniband/ib.h librdmacm-1.0.14.1/include/infiniband/ib.h
---- /tmp/librdmacm-1.0.14.1/include/infiniband/ib.h	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/include/infiniband/ib.h	Fri Feb 11 04:08:56 2011
-@@ -33,7 +33,11 @@
- #if !defined(_RDMA_IB_H)
- #define _RDMA_IB_H
- 
-+#if !(defined(__SVR4) && defined(__sun))
- #include <linux/types.h>
-+#else
-+#include <infiniband/ofa_solaris.h>
-+#endif
- #include <string.h>
- 
- #ifndef AF_IB
-diff -r -u /tmp/librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h
---- /tmp/librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h	Fri Feb 11 04:08:48 2011
-@@ -104,6 +104,9 @@
- 	__u64 response;
- 	struct sockaddr_in6 addr;
- 	__u32 id;
-+#if defined(__SVR4) && defined(__sun)
-+	uint32_t	reserved;
-+#endif
- };
- 
- struct ucma_abi_bind {
-@@ -243,6 +246,9 @@
- 	__u64 uid;
- 	struct sockaddr_in6 addr;
- 	__u32 id;
-+#if defined(__SVR4) && defined(__sun)
-+	uint32_t	reserved;
-+#endif
- };
- 
- struct ucma_abi_join_mcast {
-diff -r -u /tmp/librdmacm-1.0.14.1/examples/udaddy.c librdmacm-1.0.14.1/examples/udaddy.c
---- /tmp/librdmacm-1.0.14.1/examples/udaddy.c	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/examples/udaddy.c	Fri Feb 11 04:08:48 2011
-@@ -40,7 +40,9 @@
- #include <netinet/in.h>
- #include <sys/socket.h>
- #include <netdb.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <byteswap.h>
-+#endif
- #include <getopt.h>
- 
- #include <rdma/rdma_cma.h>
-diff -r -u /tmp/librdmacm-1.0.14.1/examples/mckey.c librdmacm-1.0.14.1/examples/mckey.c
---- /tmp/librdmacm-1.0.14.1/examples/mckey.c	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/examples/mckey.c	Fri Feb 11 04:08:48 2011
-@@ -41,7 +41,9 @@
- #include <arpa/inet.h>
- #include <sys/socket.h>
- #include <netdb.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <byteswap.h>
-+#endif
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/man/rdma_create_id.3 librdmacm-1.0.15/man/rdma_create_id.3
+--- /tmp/librdmacm-1.0.15/man/rdma_create_id.3	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/man/rdma_create_id.3	2012-02-02 08:56:34.331746265 +0900
+@@ -31,9 +31,7 @@
+ explicitly binding to a specified RDMA device before communication
+ can occur, and most operations are asynchronous in nature.  Asynchronous
+ communication events on an rdma_cm_id are reported through the associated
+-event channel.  If the channel parameter is NULL, the rdma_cm_id will
+-be placed into synchronous operation.  While operating synchronously,
+-calls that result in an event will block until the operation completes.
++event channel.
+ The event will be returned to the user through the rdma_cm_id structure,
+ and be available for access until another rdma_cm call is made.
+ .P
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/man/rdma_create_qp.3 librdmacm-1.0.15/man/rdma_create_qp.3
+--- /tmp/librdmacm-1.0.15/man/rdma_create_qp.3	2011-03-29 23:18:06.000000000 +0900
++++ librdmacm-1.0.15/man/rdma_create_qp.3	2012-02-02 08:56:34.332350936 +0900
+@@ -33,8 +33,7 @@
+ the rdma_cm_id will be created using a default protection domain.  One
+ default protection domain is allocated per RDMA device.
+ .P
+-The initial QP attributes are specified by the qp_init_attr parameter.  The
+-send_cq and recv_cq fields in the ibv_qp_init_attr are optional.  If
++The initial QP attributes are specified by the qp_init_attr parameter.  If
+ a send or receive completion queue is not specified, then a CQ will be
+ allocated by the rdma_cm for the QP, along with corresponding completion
+ channels.  Completion channels and CQ data created by the rdma_cm are
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/src/cma.c librdmacm-1.0.15/src/cma.c
+--- /tmp/librdmacm-1.0.15/src/cma.c	2011-09-15 03:41:12.000000000 +0900
++++ librdmacm-1.0.15/src/cma.c	2012-02-02 09:34:44.394830636 +0900
+@@ -44,12 +44,15 @@
+ #include <poll.h>
  #include <unistd.h>
- #include <getopt.h>
- 
-@@ -329,6 +331,16 @@
- 
- 	while (1) {
- 		ret = rdma_get_cm_event(test.channel, &event);
-+
-+/* 
-+ * Solaris returns EBADF if we close the channel while we're waiting
-+ * for any events to occur. It is safe to ignore EBADF here.
-+ */
-+#if defined(__SVR4) && defined(__sun)
-+		if (ret && (errno == EBADF))
-+			break;
-+#endif
-+
- 		if (ret) {
- 			perror("rdma_get_cm_event");
- 			break;
-@@ -461,6 +473,7 @@
- 	return ret;
- }
- 
-+#if !(defined(__SVR4) && defined(__sun))
- static int get_dst_addr(char *dst, struct sockaddr *addr)
- {
- 	struct sockaddr_ib *sib;
-@@ -474,6 +487,7 @@
- 	inet_pton(AF_INET6, dst, &sib->sib_addr);
- 	return 0;
- }
-+#endif
- 
- static int run(void)
- {
-@@ -486,7 +500,12 @@
- 			return ret;
- 	}
- 
-+/* Solaris does not yet support family AF_IB */
-+#if defined(__SVR4) && defined(__sun)
-+	ret = get_addr(dst_addr, (struct sockaddr *) &test.dst_in);
-+#else
- 	ret = get_dst_addr(dst_addr, (struct sockaddr *) &test.dst_in);
-+#endif
- 	if (ret)
- 		return ret;
- 
-diff -r -u /tmp/librdmacm-1.0.14.1/examples/cmatose.c librdmacm-1.0.14.1/examples/cmatose.c
---- /tmp/librdmacm-1.0.14.1/examples/cmatose.c	Mon Oct  4 17:00:18 2010
-+++ librdmacm-1.0.14.1/examples/cmatose.c	Fri Feb 11 04:08:48 2011
-@@ -40,7 +40,9 @@
- #include <netinet/in.h>
- #include <sys/socket.h>
- #include <netdb.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <byteswap.h>
-+#endif
- #include <getopt.h>
- 
- #include <rdma/rdma_cma.h>
-diff -r -u /tmp/librdmacm-1.0.14.1/examples/rping.c librdmacm-1.0.14.1/examples/rping.c
---- /tmp/librdmacm-1.0.14.1/examples/rping.c	Tue Feb 15 17:10:48 2011
-+++ librdmacm-1.0.14.1/examples/rping.c	Wed May 25 14:46:30 2011
-@@ -40,11 +40,17 @@
- #include <netinet/in.h>
- #include <sys/socket.h>
- #include <netdb.h>
-+#if !(defined(__SVR4) && defined(__sun))
- #include <byteswap.h>
-+#endif
- #include <semaphore.h>
- #include <arpa/inet.h>
  #include <pthread.h>
- #include <inttypes.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <endian.h>
+ #include <byteswap.h>
++#endif
+ #include <stddef.h>
+ #include <netdb.h>
+ 
+ #include "cma.h"
++#include <infiniband/arch.h>
+ #include <infiniband/driver.h>
+ #include <infiniband/marshall.h>
+ #include <rdma/rdma_cma.h>
+@@ -335,9 +338,18 @@
+ 	if (!channel)
+ 		return NULL;
+ 
 +#if defined(__SVR4) && defined(__sun)
-+#include <unistd.h>
-+#include <libgen.h>
++	channel->fd = open("/devices/pseudo/sol_ucma@0:sol_ucma", O_RDWR);
++#else
+ 	channel->fd = open("/dev/infiniband/rdma_cm", O_RDWR);
++#endif
++
+ 	if (channel->fd < 0) {
++#if defined(__SVR4) && defined(__sun)
++		printf("CMA: unable to open /devices/pseudo/sol_ucma@0:sol_ucma\n");
++#else
+ 		printf("CMA: unable to open /dev/infiniband/rdma_cm\n");
++#endif
+ 		goto err;
+ 	}
+ 	return channel;
+@@ -1193,6 +1205,9 @@
+ 		qp_init_attr->send_cq = id->send_cq;
+ 	if (!qp_init_attr->recv_cq)
+ 		qp_init_attr->recv_cq = id->recv_cq;
++#if defined(__SVR4) && defined(__sun)
++	qp_init_attr->sq_sig_all |= LIB_RDMACM_QP_BIT;
++#endif
+ 	qp = ibv_create_qp(pd, qp_init_attr);
+ 	if (!qp) {
+ 		ret = ERR(ENOMEM);
+@@ -1302,6 +1317,9 @@
+ 
+ 	CMA_INIT_CMD(&cmd, sizeof cmd, CONNECT);
+ 	cmd.id = id_priv->handle;
++#if defined(__SVR4) && defined(__sun)
++	cmd.conn_param.qp_num = ((id_priv->id).qp)->qp_num;
++#endif
+ 	if (id->qp) {
+ 		ucma_copy_conn_param_to_kern(id_priv, &cmd.conn_param,
+ 					     conn_param, id->qp->qp_num,
+diff -r -u -x '*.~1~' -x '*.rej' -x .unpacked /tmp/librdmacm-1.0.15/src/cma.h librdmacm-1.0.15/src/cma.h
+--- /tmp/librdmacm-1.0.15/src/cma.h	2010-10-05 09:00:18.000000000 +0900
++++ librdmacm-1.0.15/src/cma.h	2012-02-02 08:56:34.325173728 +0900
+@@ -40,8 +40,10 @@
+ 
+ #include <stdlib.h>
+ #include <errno.h>
++#if !(defined(__SVR4) && defined(__sun))
+ #include <endian.h>
+ #include <byteswap.h>
 +#endif
  
  #include <rdma/rdma_cma.h>
- #include <infiniband/arch.h>
-@@ -85,6 +91,13 @@
- 	ERROR
- };
  
-+enum disconnect_state {
-+	DISCONNECT_NONE,
-+	CALLING_DISCONNECT = 1,
-+	DISCONNECT_CALLED,
-+	DISCONNECT_DONE
-+};
-+
- struct rping_rdma_info {
- 	uint64_t buf;
- 	uint32_t rkey;
-@@ -143,6 +156,9 @@
- 	enum test_state state;		/* used for cond/signalling */
- 	sem_t sem;
+@@ -58,14 +60,6 @@
  
-+	enum disconnect_state  dis_state;
-+	sem_t dis_sem;
-+
- 	struct sockaddr_storage sin;
- 	uint16_t port;			/* dst port in NBO */
- 	int verbose;			/* verbose logging */
-@@ -218,6 +234,8 @@
- 		fprintf(stderr, "%s DISCONNECT EVENT...\n",
- 			cb->server ? "server" : "client");
- 		sem_post(&cb->sem);
-+		cb->dis_state = DISCONNECT_DONE;
-+		sem_post(&cb->dis_sem);
- 		break;
+ #define PFX "librdmacm: "
  
- 	case RDMA_CM_EVENT_DEVICE_REMOVAL:
-@@ -285,6 +303,29 @@
- 					"cq completion failed status %d\n",
- 					wc.status);
- 				ret = -1;
-+			} else {
-+				/*
-+				 * FLUSH Error can be polled before RDMA-CM
-+				 * DISCONNECT is notified. Ensure that cb_state
-+				 * is set appropriately in such a case.
-+				 * sleep for sometime if Disconnect has not
-+				 * been called. The FLUSH WR can be because
-+				 * the remote end initiated the disconnect.
-+				 */
-+				if (cb->dis_state == DISCONNECT_NONE)
-+					sleep(2);
-+
-+				if (cb->dis_state == DISCONNECT_DONE)
-+					return (0);
-+
-+				/* Wait if disconnect is called. */
-+				if (cb->dis_state == DISCONNECT_CALLED) {
-+					sem_wait(&cb->dis_sem);
-+					if (cb->dis_state == DISCONNECT_DONE)
-+						return (0);
-+					else
-+						goto error;
-+				}
- 			}
- 			goto error;
- 		}
-@@ -571,9 +612,15 @@
+-#if __BYTE_ORDER == __LITTLE_ENDIAN
+-static inline uint64_t htonll(uint64_t x) { return bswap_64(x); }
+-static inline uint64_t ntohll(uint64_t x) { return bswap_64(x); }
+-#else
+-static inline uint64_t htonll(uint64_t x) { return x; }
+-static inline uint64_t ntohll(uint64_t x) { return x; }
+-#endif
+-
+ #define min(a, b) (a < b ? a : b)
  
- 	while (1) {
- 		ret = rdma_get_cm_event(cb->cm_channel, &event);
--		if (ret) {
-+		/*
-+		 * If the retry of read() syscall returned EBADF, as the
-+		 * file was closed on process exit. Ignore this error.
-+		 */
-+		if (ret && errno != EBADF) {
- 			perror("rdma_get_cm_event");
- 			exit(ret);
-+		} else if (ret && errno == EBADF) {
-+			exit(0);
- 		}
- 		ret = rping_cma_event_handler(event->id, event);
- 		rdma_ack_cm_event(event);
-@@ -595,8 +642,14 @@
- 		pthread_testcancel();
- 
- 		ret = ibv_get_cq_event(cb->channel, &ev_cq, &ev_ctx);
--		if (ret) {
-+		/*
-+		 * If the retry of write() syscall returned EBADF, as the
-+		 * file was closed on process exit. Ignore this error.
-+		 */
-+		if (ret && errno != EBADF) {
- 			fprintf(stderr, "Failed to get cq event!\n");
-+			 pthread_exit(NULL);
-+		} else if (ret && errno == EBADF) {
- 			pthread_exit(NULL);
- 		}
- 		if (ev_cq != cb->cq) {
-@@ -801,11 +854,13 @@
- 	}
- 
- 	rping_test_server(cb);
-+	cb->dis_state = CALLING_DISCONNECT;
-+	sem_post(&cb->dis_sem);
- 	rdma_disconnect(cb->child_cm_id);
--	rping_free_buffers(cb);
--	rping_free_qp(cb);
- 	pthread_cancel(cb->cqthread);
- 	pthread_join(cb->cqthread, NULL);
-+	rping_free_buffers(cb);
-+	rping_free_qp(cb);
- 	rdma_destroy_id(cb->child_cm_id);
- 	free_cb(cb);
- 	return NULL;
-@@ -889,6 +944,8 @@
- 	}
- 
- 	rping_test_server(cb);
-+	cb->dis_state = CALLING_DISCONNECT;
-+	sem_post(&cb->dis_sem);
- 	rdma_disconnect(cb->child_cm_id);
- 	rdma_destroy_id(cb->child_cm_id);
- err2:
-@@ -1056,6 +1113,8 @@
- 	}
- 
- 	rping_test_client(cb);
-+	cb->dis_state = CALLING_DISCONNECT;
-+	sem_post(&cb->dis_sem);
- 	rdma_disconnect(cb->cm_id);
- err2:
- 	rping_free_buffers(cb);
-@@ -1123,6 +1182,7 @@
- 	cb->sin.ss_family = PF_INET;
- 	cb->port = htons(7174);
- 	sem_init(&cb->sem, 0, 0);
-+	sem_init(&cb->dis_sem, 0, 0);
- 
- 	opterr = 0;
- 	while ((op=getopt(argc, argv, "a:Pp:C:S:t:scvVd")) != -1) {
+ static inline int ERR(int err)

@@ -493,7 +493,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/verbs.c libibverbs-1.1.4/src/verbs.c
  
  	IBV_INIT_CMD_RESP(&cmd, sizeof cmd, CREATE_COMP_CHANNEL, &resp, sizeof resp);
 +#if defined(__SVR4) && defined(__sun)
-+	event_fd = open("/dev/infiniband/ofs/uverbs:event", O_RDWR);
++	event_fd = open("/devices/ib/sol_uverbs@0:event", O_RDWR);
 +	if (event_fd < 0) {
 +		free(channel);
 +		return NULL;
@@ -533,7 +533,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/device.c libibverbs-1.1.4/src/device
  	if (asprintf(&devpath, "/dev/infiniband/%s", device->dev_name) < 0)
  		return NULL;
 +#else
-+	if (asprintf(&devpath, "/dev/infiniband/ofs/%s", device->dev_name) < 0)
++	if (asprintf(&devpath, "/devices/ib/%s", device->dev_name) < 0)
 +		return NULL;
 +#endif		
  
@@ -643,7 +643,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/cmd.c libibverbs-1.1.4/src/cmd.c
  	IBV_INIT_CMD_RESP(cmd, cmd_size, GET_CONTEXT, resp, resp_size);
  	cmd->cq_fd_tab = (uintptr_t) &cq_fd;
 +#if defined(__SVR4) && defined(__sun)
-+	event_fd = open("/dev/infiniband/ofs/uverbs:event", O_RDWR);
++	event_fd = open("/devices/ib/sol_uverbs@0:event", O_RDWR);
 +	if (event_fd < 0)
 +		return (errno);	
 +	if (fstat(event_fd, &fstat_buf))
@@ -672,7 +672,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/cmd.c libibverbs-1.1.4/src/cmd.c
  
  	IBV_INIT_CMD_RESP(cmd, cmd_size, GET_CONTEXT, resp, resp_size);
 +#if defined(__SVR4) && defined(__sun)
-+	event_fd = open("/dev/infiniband/ofs/uverbs:event", O_RDWR);
++	event_fd = open("/devices/ib/sol_uverbs@0:event", O_RDWR);
 +	if (event_fd < 0)
 +		return (errno);	
 +	if (fstat(event_fd, &fstat_buf))
@@ -768,7 +768,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/init.c libibverbs-1.1.4/src/init.c
  	int ret = 0;
  
 +#if defined(__SVR4) && defined(__sun)
-+	snprintf(device_path, sizeof device_path, "/dev/infiniband/ofs");
++	snprintf(device_path, sizeof device_path, "/devices/ib");
 +#endif
  	snprintf(class_path, sizeof class_path, "%s/class/infiniband_verbs",
  		 ibv_get_sysfs_path());
@@ -792,7 +792,7 @@ diff -r -u /tmp/846623/libibverbs-1.1.4/src/init.c libibverbs-1.1.4/src/init.c
  			continue;
  
 +#if defined(__SVR4) && defined(__sun)
-+		if (sscanf(dent->d_name, "uverbs%d",
++		if (sscanf(dent->d_name, "sol_uverbs@0:uverbs%d",
 +		    &adapter_num) != 1)
 +			continue;
 +#endif

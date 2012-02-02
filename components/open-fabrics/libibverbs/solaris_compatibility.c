@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2011, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, Oracle and/or its affiliates. All rights reserved.
  *
  * This software is available to you under a choice of one of two
  * licenses.  You may choose to be licensed under the terms of the GNU
@@ -29,8 +29,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #if HAVE_CONFIG_H
-#include <config.h>
+#  include <config.h>
 #endif /* HAVE_CONFIG_H */
 
 /*
@@ -46,106 +47,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
-#include <sys/param.h>
-#include <sys/ib/adapters/hermon/hermon_ioctl.h>
-#include <sys/ib/adapters/tavor/tavor_ioctl.h>
+#include <kstat.h>
 
 #include <alloca.h>
 #include "../include/infiniband/arch.h"
 #include "../include/infiniband/verbs.h"
-#include <errno.h>
-#include <pthread.h>
-#include <kstat.h>
+#include "../../libmthca/libmthca-1.0.5/src/mthca-abi.h"
+#include "../../libmlx4/libmlx4-1.0.1/src/mlx4-abi.h"
+#include "../../librdmacm/librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h"
+#include <libdevinfo.h>
 
-/*
- * The followings will be removed when sol_uverbs_ioctl.h and sol_umad_ioctl.h
- * are delivered through ON.
- */
-
-#define	UVERBS_IOCTL		('v' << 8)
-
-#define	IB_USER_VERBS_SOLARIS_ABI_VERSION	1
-
-typedef enum {
-	UVERBS_IOCTL_GET_HCA_INFO	= UVERBS_IOCTL | 0x01
-} uverbs_ioctl_enum_t;
-
-typedef struct sol_uverbs_hca_info_s {
-	char		uverbs_hca_psid_string[MAXNAMELEN];
-	char		uverbs_hca_ibdev_name[MAXNAMELEN];
-	char		uverbs_hca_driver_name[MAXNAMELEN];
-	uint32_t	uverbs_hca_driver_instance;
-	uint32_t	uverbs_hca_vendorid;
-	uint16_t	uverbs_hca_deviceid;
-	uint8_t		uverbs_hca_devidx;
-	uint8_t		uverbs_hca_pad1[5];
-} sol_uverbs_hca_info_t;
-
-typedef struct sol_uverbs_info_s {
-	int32_t			uverbs_abi_version;
-	int32_t			uverbs_solaris_abi_version;
-	int16_t			uverbs_hca_cnt;
-	int8_t			uverbs_pad1[6];    /* Padding for alignment */
-	sol_uverbs_hca_info_t	uverbs_hca_info[];
-} sol_uverbs_info_t;
-
-#define	UMAD_IOCTL		('m' << 8)
-
-#define	IB_USER_MAD_SOLARIS_ABI_VERSION	1
-
-typedef enum {
-	IB_USER_MAD_GET_PORT_INFO	= UMAD_IOCTL | 0x01
-} umad_ioctl_enum_t;
-
-typedef struct sol_umad_ioctl_port_info_s {
-	char		umad_port_ibdev_name[MAXNAMELEN];
-	uint32_t	umad_port_num;
-	uint16_t	umad_port_idx;
-	uint8_t		umad_port_pad1[2];
-} sol_umad_ioctl_port_info_t;
-
-typedef struct sol_umad_ioctl_info_s {
-	int32_t				umad_abi_version;
-	int32_t				umad_solaris_abi_version;
-	int16_t				umad_port_cnt;
-	int8_t				umad_pad1[6];    /* alignment padding */
-	sol_umad_ioctl_port_info_t	umad_port_info[];
-} sol_umad_ioctl_info_t;
-
-/* end of sol_uverbs_ioctl.h and sol_umad_ioctl.h contents */
-
-/*
- * duplicate ABI definitions for HCAs as the HCA abi headers are not
- * installed in proto.
- */ 
-#define	MTHCA_UVERBS_ABI_VERSION	1 /* mthca-abi.h */
-#define	MLX4_UVERBS_MAX_ABI_VERSION	3 /* mlx4-abi.h */
-#define	RDMA_USER_CM_MIN_ABI_VERSION	3 /* rdma_cma_abi.h */
-#define	RDMA_USER_CM_MAX_ABI_VERSION	4 /* rdma_cma_abi.h */
-
-#define	MLX4	0
-#define	MTHCA	1
-#define	MAX_HCAS				16
-#define	MAX_HCA_PORTS				16
-#define	HW_DRIVER_MAX_NAME_LEN			20
-#define	UVERBS_KERNEL_SYSFS_NAME_BASE		"uverbs"
-#define	UMAD_KERNEL_SYSFS_NAME_BASE		"umad"
-#define	IB_HCA_DEVPATH_PREFIX			"/dev/infiniband/hca"
-#define	IB_OFS_DEVPATH_PREFIX			"/dev/infiniband/ofs"
-#define	CONNECTX_NAME				"mlx4_"
-#define	INFINIHOST_NAME				"mthca"
+#define HW_DRIVER_MAX_NAME_LEN			20
+#define UVERBS_KERNEL_SYSFS_NAME		"sol_uverbs@0:uverbs0"
+#define UVERBS					"sol_uverbs"
+#define UMAD					"sol_umad"
+#define	UVERBS_IB_DEVPATH_PREFIX		"/devices/ib"
+#define CONNECTX_NAME				"mlx4_"
+#define INFINIHOST_NAME				"mthca"
 
 #define	MELLANOX_VENDOR_ID			0x15b3
-#define	PCI_DEVICE_ID_MELLANOX_TAVOR		0x5a44
-#define	PCI_DEVICE_ID_MELLANOX_ARBEL		0x6282
-#define	PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT	0x6278
-#define	PCI_DEVICE_ID_MELLANOX_HERMON_SDR	0x6340
-#define	PCI_DEVICE_ID_MELLANOX_HERMON_DDR	0x634a
-#define	PCI_DEVICE_ID_MELLANOX_HERMON_QDR	0x6354
-#define	PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2	0x6732
-#define	PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2	0x673c
+#define PCI_DEVICE_ID_MELLANOX_TAVOR		0x5a44
+#define PCI_DEVICE_ID_MELLANOX_ARBEL		0x6282
+#define PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT	0x6278
+#define PCI_DEVICE_ID_MELLANOX_HERMON_SDR	0x6340
+#define PCI_DEVICE_ID_MELLANOX_HERMON_DDR	0x634a
+#define PCI_DEVICE_ID_MELLANOX_HERMON_QDR	0x6354
+#define PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2	0x6732
+#define PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2	0x673c
 #define	INFINIHOST_DEVICE_ID_2			0x5a45
 #define	INFINIHOST_DEVICE_ID_4			0x6279
+
+
 
 /*
  * sol_uverbs_drv_status is the status of what libibverbs knows
@@ -157,14 +89,13 @@ typedef struct sol_umad_ioctl_info_s {
 
 static kstat_ctl_t	*kc = NULL;	/* libkstat cookie */
 static int sol_uverbs_drv_status = SOL_UVERBS_DRV_STATUS_UNKNOWN;
-static int sol_uverbs_minor_dev = -1;
 
 /*
  * check_path() prefixs
  */
 typedef enum cp_prefix_e {
 	CP_SOL_UVERBS		= 1,
-	CP_DEVICE		= 2,
+	CP_DEVICE		= 2,	
 	CP_D			= 3,
 	CP_GIDS			= 4,
 	CP_PKEYS		= 5,
@@ -181,258 +112,6 @@ typedef enum cp_prefix_e {
 	CP_MISC			= 16,
 	CP_RDMA_CM		= 17
 } cp_prefix_t;
-
-/*
- * Some temporary cache code, until things are cleaned up as part of DR
- * work. This will speed up the sysfs emulation.
- */
-typedef struct ibdev_cache_info_s {
-	uint_t		ibd_valid;
-	uint_t		ibd_hw_rev;
-	char		ibd_node_guid_str[20];
-	char		ibd_sys_image_guid[20];
-	char		ibd_fw_ver[16];
-	char		ibd_name[8];
-	int		ibd_boardid_index;
-} ibdev_cache_info_t;
-
-/* tavor and hermon - hence 2 */
-static ibdev_cache_info_t ibdev_cache[2][MAX_HCAS];
-
-typedef struct uverbs_cache_info_s {
-	uint_t		uvc_valid;
-	uint_t		uvc_ibdev_abi_version;
-	uint_t		uvc_vendor_id;
-	uint_t		uvc_device_id;
-	int		uvc_hca_instance;
-	char		uvc_ibdev_name[8];
-	char		uvc_ibdev_hca_path[MAXPATHLEN];
-} uverbs_cache_info_t;
-static uverbs_cache_info_t	uverbs_dev_cache[MAX_HCAS];
-static int			uverbs_abi_version = -1;
-
-typedef struct umad_cache_info_s {
-	uint_t		umc_valid;
-	int		umc_port;
-	char		umc_ib_dev[16];
-} umad_cache_info_t;
-static umad_cache_info_t	umad_dev_cache[MAX_HCAS * MAX_HCA_PORTS];
-static int			umad_abi_version = -1;
-
-/*
- * Structure to hold the part number  & PSID for an HCA card
- * This is a sub-set of the file :
- * /ws/onnv-clone/usr/src/cmd/fwflash/plugins/hdrs/MELLANOX.h
- */
-typedef struct mlx_mdr_s {
-	char *mlx_pn;
-	char *mlx_psid;
-} mlx_mdr_t;
-
-/*
- * Magic decoder ring for matching HCA hardware/firmware.
- * Part Number / PSID / String ID
- */
-mlx_mdr_t mlx_mdr[] = {
-	/* For failure case, use unknown as "board-id" */
-	{ "unknown",		"unknown"	},
-
-	/* Part No		PSID		*/
-	{ "375-3605-01",	"SUN0160000001" },
-	{ "375-3382-01",	"SUN0030000001" },
-	{ "375-3481-01",	"SUN0040000001" },
-	{ "375-3418-01",	"SUN0040000001" },
-	{ "375-3259-01",	"SUN0010000001" },
-	{ "375-3259-03",	"SUN0010000001" },
-	{ "X1289A-Z",		"SUN0010010001" },
-	{ "375-3548-01",	"SUN0060000001" },
-	{ "375-3549-01",	"SUN0070000001" },
-	{ "375-3549-01",	"SUN0070130001" },
-	{ "375-3481-01",	"SUN0050000001" },
-	{ "375-3439-01",	"SUN0051000001" },
-	{ "375-3260-03",	"SUN0020000001" },
-	{ "375-3605-01",	"SUN0160000002" },
-	{ "375-3697-01",	"SUN0160000002" },
-	{ "375-3606-01",	"SUN0150000001" },
-	{ "375-3606-02",	"SUN0150000009" },
-	{ "375-3606-03",	"SUN0150000009" },
-	{ "375-3606-02",	"SUN0170000009" },
-	{ "375-3696-01",	"SUN0170000009" },
-	{ "375-3551-05",	"SUN0080000001" },
-	{ "MHEA28-XS",		"MT_0250000001" },
-	{ "MHEA28-XSC",		"MT_0390110001" },
-	{ "MHEA28-XT",		"MT_0150000001" },
-	{ "MHEA28-XTC",		"MT_0370110001" },
-	{ "MHGA28-XT",		"MT_0150000002" },
-	{ "MHGA28-XTC",		"MT_0370110002" },
-	{ "MHGA28-XTC",		"MT_0370130002" },
-	{ "MHGA28-XS",		"MT_0250000002" },
-	{ "MHGA28-XSC",		"MT_0390110002" },
-	{ "MHGA28-XSC",		"MT_0390130002" },
-	{ "MHEL-CF128",		"MT_0190000001" },
-	{ "MHEL-CF128-T",	"MT_00A0000001" },
-	{ "MTLP25208-CF128T",	"MT_00A0000001" },
-	{ "MHEL-CF128-TC",	"MT_00A0010001" },
-	{ "MHEL-CF128-TC",	"MT_0140010001" },
-	{ "MHEL-CF128-SC",	"MT_0190010001" },
-	{ "MHEA28-1TC",		"MT_02F0110001" },
-	{ "MHEA28-1SC",		"MT_0330110001" },
-	{ "MHGA28-1T",		"MT_0200000001" },
-	{ "MHGA28-1TC",		"MT_02F0110002" },
-	{ "MHGA28-1SC",		"MT_0330110002" },
-	{ "MHGA28-1S",		"MT_0430000001" },
-	{ "MHEL-CF256-T",	"MT_00B0000001" },
-	{ "MTLP25208-CF256T",	"MT_00B0000001" },
-	{ "MHEL-CF256-TC",	"MT_00B0010001" },
-	{ "MHEA28-2TC",		"MT_0300110001" },
-	{ "MHEA28-2SC",		"MT_0340110001" },
-	{ "MHGA28-2T",		"MT_0210000001" },
-	{ "MHGA28-2TC",		"MT_0300110002" },
-	{ "MHGA28-2SC",		"MT_0340110002" },
-	{ "MHEL-CF512-T",	"MT_00C0000001" },
-	{ "MTLP25208-CF512T",	"MT_00C0000001" },
-	{ "MHGA28-5T",		"MT_0220000001" },
-	{ "MHES14-XSC",		"MT_0410110001" },
-	{ "MHES14-XT",		"MT_01F0000001" },
-	{ "MHES14-XTC",		"MT_03F0110001" },
-	{ "MHES18-XS",		"MT_0260000001" },
-	{ "MHES18-XS",		"MT_0260010001" },
-	{ "MHES18-XSC",		"MT_03D0110001" },
-	{ "MHES18-XSC",		"MT_03D0120001" },
-	{ "MHES18-XSC",		"MT_03D0130001" },
-	{ "MHES18-XT",		"MT_0230000002" },
-	{ "MHES18-XT",		"MT_0230010002" },
-	{ "MHES18-XTC",		"MT_03B0110001" },
-	{ "MHES18-XTC",		"MT_03B0120001" },
-	{ "MHES18-XTC",		"MT_03B0140001" },
-	{ "MHGS18-XS",		"MT_0260000002" },
-	{ "MHGS18-XSC",		"MT_03D0110002" },
-	{ "MHGS18-XSC",		"MT_03D0120002" },
-	{ "MHGS18-XSC",		"MT_03D0130002" },
-	{ "MHGS18-XT",		"MT_0230000001" },
-	{ "MHGS18-XTC",		"MT_03B0110002" },
-	{ "MHGS18-XTC",		"MT_03B0120002" },
-	{ "MHGS18-XTC",		"MT_03B0140002" },
-	{ "MHXL-CF128",		"MT_0180000001" },
-	{ "MHXL-CF128-T",	"MT_0030000001" },
-	{ "MTLP23108-CF128T",	"MT_0030000001" },
-	{ "MHET2X-1SC",		"MT_0280110001" },
-	{ "MHET2X-1SC",		"MT_0280120001" },
-	{ "MHET2X-1TC",		"MT_0270110001" },
-	{ "MHET2X-1TC",		"MT_0270120001" },
-	{ "MHXL-CF256-T",	"MT_0040000001" },
-	{ "MHET2X-2SC",		"MT_02D0110001" },
-	{ "MHET2X-2SC",		"MT_02D0120001" },
-	{ "MHET2X-2TC",		"MT_02B0110001" },
-	{ "MHET2X-2TC",		"MT_02B0120001" },
-	{ "MHX-CE128-T",	"MT_0000000001" },
-	{ "MTPB23108-CE128",	"MT_0000000001" },
-	{ "MHX-CE256-T",	"MT_0010000001" },
-	{ "MTPB23108-CE256",	"MT_0010000001" },
-	{ "MHX-CE512-T",	"MT_0050000001" },
-	{ "MTPB23108-CE512",	"MT_0050000001" },
-	{ "MHEH28-XSC",		"MT_04C0110001" },
-	{ "MHEH28-XSC",		"MT_04C0130005" },
-	{ "MHEH28-XTC",		"MT_04A0110001" },
-	{ "MHEH28-XTC",		"MT_04A0130005" },
-	{ "MHGH28-XSC",		"MT_04C0110002" },
-	{ "MHGH28-XSC",		"MT_04C0120002" },
-	{ "MHGH28-XSC",		"MT_04C0140005" },
-	{ "MHGH28-XTC",		"MT_04A0110002" },
-	{ "MHGH28-XTC",		"MT_04A0120002" },
-	{ "MHGH28-XTC",		"MT_04A0140005" },
-	{ "MHGH29-XSC",		"MT_0A60110002" },
-	{ "MHGH29-XSC",		"MT_0A60120005" },
-	{ "MHGH29-XTC",		"MT_0A50110002" },
-	{ "MHGH29-XTC",		"MT_0A50120005" },
-	{ "MHJH29-XTC",		"MT_04E0110003" },
-	{ "MHJH29-XSC",		"MT_0500120005" },
-	{ "MHQH29-XTC",		"MT_04E0120005" },
-	{ "MHQH19-XTC",		"MT_0C40110009" },
-	{ "MHQH29-XTC",		"MT_0BB0110003" },
-	{ "MHQH29-XTC",		"MT_0BB0120003" },
-	{ "MHEH28B-XSR",	"MT_0D10110001" },
-	{ "MHEH28B-XTR",	"MT_0D20110001" },
-	{ "MHGH28B-XSR",	"MT_0D10110002" },
-	{ "MHGH28B-XTR",	"MT_0D20110002" },
-	{ "MHGH18B-XTR",	"MT_0D30110002" },
-	{ "MNEH28B-XSR",	"MT_0D40110004" },
-	{ "MNEH28B-XTR",	"MT_0D50110004" },
-	{ "MNEH29B-XSR",	"MT_0D40110010" },
-	{ "MNEH29B-XTR",	"MT_0D50110010" },
-	{ "MHGH29B-XSR",	"MT_0D10110008" },
-	{ "MHGH29B-XTR",	"MT_0D20110008" },
-	{ "MHJH29B-XSR",	"MT_0D10110009" },
-	{ "MHJH29B-XSR",	"MT_0D10120009" },
-	{ "MHJH29B-XTR",	"MT_0D20110009" },
-	{ "MHJH29B-XTR",	"MT_0D20120009" },
-	{ "MHGH19B-XSR",	"MT_0D60110008" },
-	{ "MHGH19B-XTR",	"MT_0D30110008" },
-	{ "MHJH19B-XTR",	"MT_0D30110009" },
-	{ "MHQH29B-XSR",	"MT_0D70110009" },
-	{ "MHQH29B-XTR",	"MT_0D80110009" },
-	{ "MHQH29B-XTR",	"MT_0D80120009" },
-	{ "MHQH29B-XTR",	"MT_0D80130009" },
-	{ "MHQH29B-XTR",	"MT_0E30110009" },
-	{ "MHRH29B-XSR",	"MT_0D70110008" },
-	{ "MHRH29B-XTR",	"MT_0D80110008" },
-	{ "MHQH19B-XTR",	"MT_0D90110009" },
-	{ "MHRH19B-XSR",	"MT_0E40110009" },
-	{ "MHRH19B-XTR",	"MT_0D90110008" },
-	{ "MNPH28C-XSR",	"MT_0DA0110004" },
-	{ "MNPH28C-XTR",	"MT_0DB0110004" },
-	{ "MNPH29C-XSR",	"MT_0DA0110010" },
-	{ "MNPH29C-XTR",	"MT_0DB0110010" },
-	{ "MNPH29C-XTR",	"MT_0DB0120010" },
-	{ "MNPH29C-XTR",	"MT_0DB0130010" },
-	{ "MNZH29-XSR",		"MT_0DC0110009" },
-	{ "MNZH29-XTR",		"MT_0DD0110009" },
-	{ "MNZH29-XTR",		"MT_0DD0120009" },
-	{ "MHQH19B-XNR",	"MT_0DF0110009" },
-	{ "MHQH19B-XNR",	"MT_0DF0120009" },
-	{ "MNQH19-XTR",		"MT_0D80110017" },
-	{ "MNQH19C-XTR",	"MT_0E20110017" },
-	{ "MHZH29B-XSR",	"MT_0E80110009" },
-	{ "MHZH29B-XTR",	"MT_0E90110009" },
-	{ "MHZH29B-XTR",	"MT_0E90110009" },
-	{ "MHQA19-XTR",		"MT_0EA0110009" },
-	{ "MHRA19-XTR",		"MT_0EB0110008" },
-	{ "MHQH29C-XTR",	"MT_0EF0110009" },
-	{ "MHQH29C-XSR",	"MT_0F00110009" },
-	{ "MHRH29C-XTR",	"MT_0F10110008" },
-	{ "MHRH29C-XSR",	"MT_0F20110008" },
-	{ "MHPH29D-XTR",	"MT_0F30110010" },
-	{ "MHPH29D-XSR",	"MT_0F40110010" },
-	{ "MNPA19-XTR",		"MT_0F60110010" },
-	{ "MNPA19-XSR",		"MT_0F70110010" },
-
-	/* Ethernet cards */
-	{ "MNEH28B-XTR",	"MT_0D50110004" },
-	{ "MNEH29B-XSR",	"MT_0D40110010" },
-	{ "MNEH29B-XTR",	"MT_0D50110010" },
-	{ "MNPH28C-XSR",	"MT_0DA0110004" },
-	{ "MNPH28C-XTR",	"MT_0DB0110004" },
-	{ "MNPH29C-XSR",	"MT_0DA0110010" },
-	{ "MNPH29C-XTR",	"MT_0DB0110010" },
-	{ "X6275 M2 10GbE",	"X6275M2_10G"   }
-};
-
-/* Get mlx_mdr[] array size */
-#define	MLX_SZ_MLX_MDR		sizeof (mlx_mdr)
-#define	MLX_SZ_MLX_MDR_STRUCT	sizeof (mlx_mdr[0])
-#define	MLX_MAX_ID		(MLX_SZ_MLX_MDR / MLX_SZ_MLX_MDR_STRUCT)
-
-pthread_once_t		oneTimeInit = PTHREAD_ONCE_INIT;
-static int 		umad_cache_cnt = 0;
-static int 		ibdev_cache_cnt = 0;
-static int 		uverbs_cache_cnt = 0;
-static boolean_t	initialized = B_FALSE;
-static boolean_t	umad_cache_initialized = B_FALSE;
-static boolean_t	ibdev_cache_initialized = B_FALSE;
-static boolean_t	uverbs_cache_initialized = B_FALSE;
-static pthread_mutex_t	umad_cache_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t	ibdev_cache_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t	uverbs_cache_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void __attribute__((constructor))solaris_init(void);
 void __attribute__((destructor))solaris_fini(void);
@@ -455,369 +134,23 @@ solaris_fini(void)
 	(void) kstat_close(kc);
 }
 
-static int
-umad_cache_add(uint_t dev_num, int port, char *ibdev)
-{
-	if ((dev_num >= (MAX_HCAS  * MAX_HCA_PORTS)) ||
-	    (umad_cache_cnt >= (MAX_HCAS  * MAX_HCA_PORTS))) {
-		fprintf(stderr, "dev %d: exceeds umad cache size\n", dev_num);
-		return (1);
-	}
-
-	umad_dev_cache[dev_num].umc_port = port;
-	strcpy(umad_dev_cache[dev_num].umc_ib_dev, ibdev);
-	umad_dev_cache[dev_num].umc_valid = 1;
-	umad_cache_cnt++;
-	return (0);
-}
-
-static int
-ibdev_cache_add(uint_t dev_num, ibdev_cache_info_t *info_p)
-{
-	if ((dev_num >= MAX_HCAS) || (ibdev_cache_cnt >= (MAX_HCAS * 2))) {
-		fprintf(stderr, "dev %d: exceeds hca cache size\n", dev_num);
-		return (1);
-	}
-
-	if (!(strncmp(info_p->ibd_name, "mlx4", 4))) {
-		memcpy(&(ibdev_cache[MLX4][dev_num]), info_p,
-		    sizeof (ibdev_cache_info_t));
-		ibdev_cache[MLX4][dev_num].ibd_valid = 1;
-	} else {
-		memcpy(&(ibdev_cache[MTHCA][dev_num]), info_p,
-		    sizeof (ibdev_cache_info_t));
-		ibdev_cache[MTHCA][dev_num].ibd_valid = 1;
-	}
-
-	ibdev_cache_cnt++;
-	return (0);
-}
-
-static int
-uverbs_cache_add(uint_t dev_num, uverbs_cache_info_t *info_p)
-{
-	if ((dev_num >= MAX_HCAS) || (uverbs_cache_cnt >= MAX_HCAS)) {
-		fprintf(stderr, "dev %d: exceeds uverbs cache size\n", dev_num);
-		return (1);
-	}
-
-	memcpy(&(uverbs_dev_cache[dev_num]), info_p,
-	    sizeof (uverbs_cache_info_t));
-
-	uverbs_dev_cache[dev_num].uvc_valid = 1;
-	uverbs_cache_cnt++;
-	return (0);
-}
-
-static int
-ibdev_cache_init()
-{
-	ibdev_cache_info_t	info;
-	struct ibv_device	**root_dev_list, **dev_list = NULL;
-	struct ibv_context	*ctx = NULL;
-	struct ibv_device_attr	device_attr;
-	int			i, num_dev, dev_num, ret = 1;
-	uint64_t		guid;
-	const char		*p, *ibdev;
-
-
-	root_dev_list = dev_list = ibv_get_device_list(&num_dev);
-	if (!dev_list) {
-		fprintf(stderr, "No HCA devices found");
-		goto error_exit1;
-	}
-
-	for (i = 0; i < num_dev; i++, dev_list++) {
-
-		if (!(ctx = ibv_open_device(*dev_list))) {
-			fprintf(stderr, "failed to open device %p\n",
-			    *dev_list);
-			goto error_exit2;
-		}
-
-		if (ibv_query_device(ctx, &device_attr)) {
-			fprintf(stderr, "failed to query device %p\n", ctx);
-			goto error_exit3;
-		}
-
-		guid = ntohll(device_attr.node_guid);
-		sprintf(info.ibd_node_guid_str, "%04x:%04x:%04x:%04x",
-		    (unsigned)(guid >> 48) & 0xffff,
-		    (unsigned)(guid >> 32) & 0xffff,
-		    (unsigned)(guid >> 16) & 0xffff,
-		    (unsigned)(guid >>  0) & 0xffff);
-
-		guid = ntohll(device_attr.sys_image_guid);
-		sprintf(info.ibd_sys_image_guid, "%04x:%04x:%04x:%04x",
-		    (unsigned)(guid >> 48) & 0xffff,
-		    (unsigned)(guid >> 32) & 0xffff,
-		    (unsigned)(guid >> 16) & 0xffff,
-		    (unsigned)(guid >>  0) & 0xffff);
-
-		(void) strcpy(info.ibd_fw_ver, device_attr.fw_ver);
-		info.ibd_hw_rev = device_attr.hw_ver;
-
-		ibdev = ibv_get_device_name(*dev_list);
-		p = ibdev + (strlen(ibdev)-1);
-		dev_num = atoi(p);
-		(void) strcpy(info.ibd_name, ibdev);
-
-		info.ibd_boardid_index = -1;
-
-		if (ibdev_cache_add(dev_num, &info)) {
-			fprintf(stderr, "failed to add dev %d to ibdev cache\n",
-			    dev_num);
-			goto error_exit3;
-		}
-	}
-
-	ret = 0;
-
-	/* clean up and Return */
-error_exit3:
-	if (ctx)
-		ibv_close_device(ctx);
-error_exit2:
-	if (root_dev_list)
-		ibv_free_device_list(root_dev_list);
-error_exit1:
-	return (ret);
-}
-
-static int
-uverbs_cache_init()
-{
-	uverbs_cache_info_t	info;
-	int			dev_num, fd, i, bufsize, hca_cnt;
-	char			uverbs_devpath[MAXPATHLEN];
-	sol_uverbs_info_t	*uverbs_infop;
-	sol_uverbs_hca_info_t	*hca_infop;
-	char *buf;
-
-	snprintf(uverbs_devpath, MAXPATHLEN, "%s/%s%d",
-	    IB_OFS_DEVPATH_PREFIX, UVERBS_KERNEL_SYSFS_NAME_BASE,
-		    sol_uverbs_minor_dev);
-
-	/*
-	 * using the first sol_uverbs minor node that can be opened to get
-	 * all the HCA information
-	 */
-	if ((fd = open(uverbs_devpath, O_RDWR)) < 0) {
-		fprintf(stderr, "sol_uverbs failed to open: %s\n",
-		    strerror(errno));
-		goto error_exit1;
-	}
-	
-	bufsize = sizeof(sol_uverbs_info_t) + sizeof(sol_uverbs_hca_info_t) *
-	    MAX_HCAS;
- 
-	buf = malloc(bufsize);
-	memset(buf, 0, bufsize);
-	uverbs_infop = (sol_uverbs_info_t *)buf;
-	uverbs_infop->uverbs_hca_cnt = MAX_HCAS;
-
-	if (ioctl(fd, UVERBS_IOCTL_GET_HCA_INFO, uverbs_infop) != 0) {
-		fprintf(stderr, "sol_uverbs ioctl failed: %s\n",
-		    strerror(errno));
-		
-		goto error_exit2;
-	}
-
-	if (uverbs_infop->uverbs_solaris_abi_version !=
-	    IB_USER_VERBS_SOLARIS_ABI_VERSION) {
-		fprintf(stderr, "sol_uverbs solaris_abi_version !="
-		    "IB_USER_VERBS_SOLARIS_ABI_VERSION : %d\n",
-		    uverbs_infop->uverbs_solaris_abi_version);
-		goto error_exit2;
-	}
-
-	hca_cnt = uverbs_infop->uverbs_hca_cnt;	/* hca count returned */
-	hca_infop = uverbs_infop->uverbs_hca_info;
-
-	if (uverbs_abi_version == -1)
-		uverbs_abi_version = uverbs_infop->uverbs_abi_version;
-
-	for (i = 0; i < hca_cnt; i++, hca_infop++) {
-		info.uvc_vendor_id = hca_infop->uverbs_hca_vendorid;
-		info.uvc_device_id = hca_infop->uverbs_hca_deviceid;
-		info.uvc_hca_instance =
-		    hca_infop->uverbs_hca_driver_instance;
-
-		snprintf(info.uvc_ibdev_hca_path, sizeof (info.uvc_ibdev_hca_path),
-		    "%s/%s%d", IB_HCA_DEVPATH_PREFIX,
-		    hca_infop->uverbs_hca_driver_name,
-		    hca_infop->uverbs_hca_driver_instance);
-
-		if (! strncmp(hca_infop->uverbs_hca_ibdev_name, "mlx4_", 5))
-			info.uvc_ibdev_abi_version =
-			    MLX4_UVERBS_MAX_ABI_VERSION;
-		else
-			info.uvc_ibdev_abi_version = MTHCA_UVERBS_ABI_VERSION;
-
-		strcpy(info.uvc_ibdev_name, hca_infop->uverbs_hca_ibdev_name);
-
-		dev_num = hca_infop->uverbs_hca_devidx;
-		if (uverbs_cache_add(dev_num, &info)) {
-			fprintf(stderr, "failed to add dev %d to uverbs "
-			    "cache\n", dev_num);
-			goto error_exit2;
-		}
-	}
-
-	free(buf);
-	close(fd);
-	return (1);
-
-error_exit2:
-	free(buf);
-	close(fd);
-
-error_exit1:
-	return(0);
-}
-
-static int
-umad_cache_init()
-{
-	int				i, fd, minor;
-	int				save_errno = 0;
-	int				port_cnt, bufsize;
-	char				umad_devpath[MAXPATHLEN], *buf;
-	sol_umad_ioctl_info_t		*umad_infop;
-	sol_umad_ioctl_port_info_t	*port_infop;
-
-	for (minor = 0; minor < MAX_HCAS * MAX_HCA_PORTS; minor++) {
-		snprintf(umad_devpath, MAXPATHLEN, "%s/%s%d",
-		    IB_OFS_DEVPATH_PREFIX, UMAD_KERNEL_SYSFS_NAME_BASE,
-		    minor);
-
-		if ((fd = open(umad_devpath, O_RDWR)) > 0)
-			break;
-
-		if ((! save_errno) && (errno != ENOENT))
-			save_errno = errno;
-	}
-
-	if ((minor == MAX_HCAS * MAX_HCA_PORTS) && (fd < 0)) {
-		if (! save_errno)
-			save_errno = errno;
-		fprintf(stderr, "failed to open sol_umad: %s\n",
-		    strerror(save_errno));
-		return (0);
-	}
-
-	bufsize = sizeof(sol_umad_ioctl_info_t) +
-	    (sizeof(sol_umad_ioctl_port_info_t) * MAX_HCAS * MAX_HCA_PORTS);
- 
-	buf = malloc(bufsize);
-	memset(buf, 0, bufsize);
-	umad_infop = (sol_umad_ioctl_info_t *)buf;
-	umad_infop->umad_port_cnt = MAX_HCAS * MAX_HCA_PORTS;
-
-	if (ioctl(fd, IB_USER_MAD_GET_PORT_INFO, umad_infop) != 0) {
-		fprintf(stderr, "sol_umad ioctl failed: %s\n",
-		    strerror(errno));
-		
-		goto error_exit;
-	}
-
-	if (umad_infop->umad_solaris_abi_version !=
-	    IB_USER_MAD_SOLARIS_ABI_VERSION) {
-		fprintf(stderr, "sol_umad solaris_abi_version !="
-		    "IB_USER_MAD_SOLARIS_ABI_VERSION : %d\n",
-		    umad_infop->umad_solaris_abi_version);
-		goto error_exit;
-	}
-
-	/*
-	 * set port_cnt to the number of total ports for all HCAs returned
-	 */
-	port_cnt = umad_infop->umad_port_cnt;
-	port_infop = umad_infop->umad_port_info;
-
-	if (umad_abi_version == -1)
-		umad_abi_version = umad_infop->umad_abi_version;
-
-	for (i = 0; i < port_cnt; i++, port_infop++) {
-		if (umad_cache_add(port_infop->umad_port_idx,
-		    port_infop->umad_port_num,
-		    port_infop->umad_port_ibdev_name)) {
-			fprintf(stderr, "failed to add dev %d to umad cache",
-			    port_infop->umad_port_idx);
-			goto error_exit;
-		}
-	}
-
-	free(buf);
-	close(fd);
-	return (1);
-
-error_exit:
-	free(buf);
-	close(fd);
-	return (0);
-}
-
-void
-initialize(void)
-{
-	int		fd, minor;
-	char		uverbs_devpath[MAXPATHLEN];
-
-	/*
-	 * find the first sol_uverbs minor node that can be opened successfully
-	 * and set sol_uverbs_mino_dev to that minor no.
-	 */
-	for (minor = 0; minor < MAX_HCAS; minor++) {
-		snprintf(uverbs_devpath, MAXPATHLEN, "%s/%s%d",
-		    IB_OFS_DEVPATH_PREFIX, UVERBS_KERNEL_SYSFS_NAME_BASE,
-		    minor);
-
-		if ((fd = open(uverbs_devpath, O_RDWR)) < 0) {
-			continue;
-		} else {
-			sol_uverbs_drv_status = SOL_UVERBS_DRV_STATUS_LOADED;
-			sol_uverbs_minor_dev = minor;
-			close(fd);
-			break;
-		}
-	}
-
-	/*
-	 * All minor nodes failed to open, so set sol_uverbs_drv_status to
-	 * SOL_UVERBS_DRV_STATUS_UNLOADED to reflect that
-	 */
-	if (minor == MAX_HCAS && sol_uverbs_minor_dev == -1) {
-		sol_uverbs_drv_status = SOL_UVERBS_DRV_STATUS_UNLOADED;
-		return;
-	}
-
-	memset(&uverbs_dev_cache, 0, (sizeof (uverbs_cache_info_t) * MAX_HCAS));
-	memset(&ibdev_cache, 0, (sizeof (ibdev_cache_info_t) * MAX_HCAS * 2));
-	memset(&umad_dev_cache, 0,
-	    (sizeof (umad_cache_info_t) * MAX_HCAS * MAX_HCA_PORTS));
-
-	initialized = B_TRUE;
-}
-
 /*
  * Some sysfs emulation software
  */
 
 
-/*
+/* 
  * Check whether a path starts with prefix, and if it does, remove it
- * from the string. The prefix can also contain one %d scan argument.
+ * from the string. The prefix can also contains one %d scan argument.
  */
-static int
-check_path(char *path, cp_prefix_t prefix, unsigned int *arg)
+static int check_path(char *path, cp_prefix_t prefix, unsigned int *arg)
 {
 	int	ret, pos = 0;
 
 	switch (prefix) {
 		case CP_SOL_UVERBS:
-			ret = sscanf(path, "uverbs%d%n/", arg,
-			    &pos);
+			ret = sscanf(path, "sol_uverbs@0:uverbs%d%n/", arg,
+			    &pos);	
 			break;
 		case CP_DEVICE:
 			ret = sscanf(path, "device%n/", &pos);
@@ -832,16 +165,16 @@ check_path(char *path, cp_prefix_t prefix, unsigned int *arg)
 			ret = sscanf(path, "pkeys%n/", &pos);
 			break;
 		case CP_MTHCA:
-			ret = sscanf(path, "mthca%d%n/", arg, &pos);
+			ret = sscanf(path, "mthca%d%n/", arg, &pos);	
 			break;
 		case CP_MLX4:
-			ret = sscanf(path, "mlx4_%d%n/", arg, &pos);
+			ret = sscanf(path, "mlx4_%d%n/", arg, &pos);	
 			break;
 		case CP_PORTS:
 			ret = sscanf(path, "ports%n/", &pos);
 			break;
 		case CP_UMAD:
-			ret = sscanf(path, "umad%d%n/", arg, &pos);
+			ret = sscanf(path, "umad%d%n/", arg, &pos);	
 			break;
 		case CP_SLASH:
 			ret = sscanf(path, "%n/", &pos);
@@ -869,7 +202,7 @@ check_path(char *path, cp_prefix_t prefix, unsigned int *arg)
 			break;
 		default:
 			/* Unkown prefix */
-			return (0);
+			return 0;
 	}
 
 	if (path[pos] == '/') {
@@ -878,127 +211,108 @@ check_path(char *path, cp_prefix_t prefix, unsigned int *arg)
 			pos ++;
 
 		memmove(path, &path[pos], strlen(path)-pos+1);
-		return (1);
+		return 1;
 	}
 
-	return (0);
+	return 0;
 }
 
-static ibdev_cache_info_t *
-get_device_info(const char *devname)
+static struct ibv_context *get_device_context(const char *devname)
 {
-	ibdev_cache_info_t 	*info;
-	const char		*p = devname;
-	int			dev_num;
+	struct ibv_device **root_dev_list, **dev_list = NULL;
+	struct ibv_context *ctx = NULL;
 
-	if (pthread_mutex_lock(&ibdev_cache_mutex) != 0) {
-		fprintf(stderr, "failed: to acquire ibdev_cache_mutex %s\n",
-		    strerror(errno));
-		return (NULL);
+	/* We need some specific infos. Open the device. */
+	root_dev_list = dev_list = ibv_get_device_list(NULL);
+	if (!dev_list) {
+		goto cleanup;
 	}
 
-	if (!ibdev_cache_initialized) {
-		if (ibdev_cache_init()) {
-			(void) pthread_mutex_unlock(&ibdev_cache_mutex);
-			fprintf(stderr, "failed to init ibdev_cache\n");
-			return (NULL);
-		} else {
-			ibdev_cache_initialized = B_TRUE;
-		}
-	}
-	(void) pthread_mutex_unlock(&ibdev_cache_mutex);
-
-	p = p+(strlen(p)-1);
-	dev_num = atoi(p);
-
-	if (dev_num >= MAX_HCAS) {
-		fprintf(stderr, "Invalid device %s\n", devname);
-		return (NULL);
+	while (*dev_list) {
+		if (!strcmp(ibv_get_device_name(*dev_list), devname))
+			break;
+		++dev_list;
 	}
 
-	if (strncmp(devname, "mlx4", 4) == 0) {
-		if (ibdev_cache[MLX4][dev_num].ibd_valid)
-			info = &(ibdev_cache[MLX4][dev_num]);
-		else
-			info = NULL;
-	} else {
-		if (ibdev_cache[MTHCA][dev_num].ibd_valid)
-			info = &(ibdev_cache[MTHCA][dev_num]);
-		else
-			info = NULL;
+	if (!*dev_list) {
+		goto cleanup;
 	}
 
-	return (info);
+	ctx = ibv_open_device(*dev_list);
+
+ cleanup:
+	if (root_dev_list) ibv_free_device_list(root_dev_list);
+
+	return ctx;
+}
+
+static int
+get_device_info(const char *devname, struct ibv_device_attr *device_attr)
+{
+	struct ibv_context *ctx = NULL;
+	int ret;
+
+	ctx = get_device_context(devname);
+	if (!ctx) {
+		ret = -1;
+		goto cleanup;
+	}
+
+	if (ibv_query_device(ctx, device_attr)) {
+		ret = -1;
+		goto cleanup;
+	}
+
+	ret = 0;
+
+ cleanup:
+	if (ctx) ibv_close_device(ctx);
+
+	return ret;
 }
 
 /*
  * Get the IB user verbs port info attributes for the specified device/port.
  * If the address of a gid pointer is passed for "gid_table", the memory
- * will be allocated and the ports gid table and returned as well. The caller
+ * will be allocated and the ports gid table returned as well.  The caller
  * must free this memory on successful completion.  If the address of a
  * pkey pointer is passed for "pkey_table", the memory will be allocated
  * and the ports pkey table returned as well.  The caller must free this
  * memory on successful completion.
  */
-static int
+int
 get_port_info(const char *devname, uint8_t port_num,
-    struct ibv_port_attr *port_attr, union ibv_gid **gid_table,
-    uint16_t **pkey_table)
+	 struct ibv_port_attr *port_attr, union ibv_gid **gid_table,
+	 uint16_t **pkey_table)
 {
-	struct ibv_device 	**root_dev_list, **dev_list = NULL;
-	struct ibv_context 	*ctx = NULL;
-	union ibv_gid 		*gids = NULL;
-	uint16_t		*pkeys = NULL;
-	int 			i, num_dev, rv, ret = 1;
+	struct ibv_context *ctx = NULL;
+	union ibv_gid *gids     = NULL;
+	uint16_t      *pkeys    = NULL;
+	int ret;
+	int i;
 
-	root_dev_list = dev_list = ibv_get_device_list(&num_dev);
-	if (!dev_list) {
-		fprintf(stderr, "No HCA devices found\n");
-		goto error_exit1;
-	}
-
-	for (i = 0; i < num_dev; i++, dev_list++) {
-		if (strcmp(ibv_get_device_name(*dev_list), devname) == 0) {
-			break;
-		}
-	}
-
-	if (i == num_dev) {
-		fprintf(stderr, "failed to find %s\n", devname);
-		goto error_exit2;
-	}
-
-	if (!(ctx = ibv_open_device(*dev_list))) {
-		fprintf(stderr, "failed to open device %p\n", *dev_list);
-		goto error_exit2;
+	ctx = get_device_context(devname);
+	if (!ctx) {
+		ret = -1;
+		goto cleanup;
 	}
 
 	if (ibv_query_port(ctx, port_num, port_attr)) {
-		fprintf(stderr, "failed to query dev %p, port %d\n",
-		    ctx, port_num);
-		goto error_exit3;
+		ret = -1;
+		goto cleanup;
 	}
 
 	if (gid_table) {
 		*gid_table = NULL;
-		gids = malloc(sizeof (union ibv_gid) * port_attr->gid_tbl_len);
-		if (!gids)
-			goto error_exit3;
-		/*
-		 * set high bit of port_num, and try get all gids in one go.
-		 */
-		port_num |= 0x80;
-		rv = ibv_query_gid(ctx, port_num, port_attr->gid_tbl_len, gids);
-
-		if (rv != 0) {
-			/*
-			 * Quering all gids didn't work try one at a time.
-			 */
-			port_num &= 0x7f;
-
-			for (i = 0; i < port_attr->gid_tbl_len; i++) {
-				if (ibv_query_gid(ctx, port_num, i, &gids[i]))
-					goto error_exit4;
+		gids = malloc(sizeof(union ibv_gid) * port_attr->gid_tbl_len);
+		if (!gids) {
+			ret = -1;
+			goto cleanup;
+		}
+		for (i=0; i<port_attr->gid_tbl_len; i++) {
+			if (ibv_query_gid(ctx, port_num, i, &gids[i])) {
+				ret = -1;
+				goto cleanup;
 			}
 		}
 		*gid_table = gids;
@@ -1007,24 +321,15 @@ get_port_info(const char *devname, uint8_t port_num,
 
 	if (pkey_table) {
 		*pkey_table = NULL;
-		pkeys = malloc(sizeof (uint16_t) * port_attr->pkey_tbl_len);
-		if (!pkeys)
-			goto error_exit4;
-
-		port_num |= 0x80;
-
-		rv = ibv_query_pkey(ctx, port_num, port_attr->pkey_tbl_len,
-		    pkeys);
-
-		if (rv != 0) {
-			/*
-			 * Quering all gids didn't work try one at a time.
-			 */
-			port_num &= 0x7f;
-
-			for (i = 0; i < port_attr->pkey_tbl_len; i++) {
-				if (ibv_query_pkey(ctx, port_num, i, &pkeys[i]))
-					goto error_exit5;
+		pkeys = malloc(sizeof(uint16_t) * port_attr->pkey_tbl_len);
+		if (!pkeys) {
+			ret = -1;
+			goto cleanup;
+		}
+		for (i=0; i<port_attr->pkey_tbl_len; i++) {
+			if (ibv_query_pkey(ctx, port_num, i, &pkeys[i])) {
+				ret = -1;
+				goto cleanup;
 			}
 		}
 		*pkey_table = pkeys;
@@ -1033,23 +338,462 @@ get_port_info(const char *devname, uint8_t port_num,
 
 	ret = 0;
 
-	/*
-	 * clean up and Return
-	 */
-error_exit5:
-	if (pkeys)
-		free(pkeys);
-error_exit4:
-	if (gids)
-		free(gids);
-error_exit3:
+ cleanup:
 	if (ctx)
 		ibv_close_device(ctx);
-error_exit2:
-	if (root_dev_list)
-		ibv_free_device_list(root_dev_list);
-error_exit1:
-	return (ret);
+	if (gids) {
+		free(gids);
+	}
+	if (pkeys) {
+		free(pkeys);
+	}
+
+	return ret;
+}
+
+static void uverbs_driver_check()
+{
+	int	fd;
+	char	uverbs_devpath[MAXPATHLEN];
+
+	snprintf(uverbs_devpath, MAXPATHLEN, "%s/%s",
+	    UVERBS_IB_DEVPATH_PREFIX, UVERBS_KERNEL_SYSFS_NAME);
+
+	if ((fd = open(uverbs_devpath, O_RDWR)) < 0) {
+		sol_uverbs_drv_status = SOL_UVERBS_DRV_STATUS_UNLOADED;
+		return;
+	}
+
+	sol_uverbs_drv_status = SOL_UVERBS_DRV_STATUS_LOADED;
+	close(fd);
+}
+
+/*
+ * Generic routine to return int attributes associated with a specific
+ * user verbs device.  The Solaris user verbs agent exports some 
+ * properties that would normally be exported via the sysfs in Linux.
+ */
+int get_device_int_attr(char *driver, int minor, char *attr)
+{
+	di_node_t           root_node;
+	di_node_t           node;
+	di_minor_t          node_minor;
+	int                 *ret;
+	int                 int_value;
+
+	if (sol_uverbs_drv_status == SOL_UVERBS_DRV_STATUS_UNKNOWN)
+		uverbs_driver_check();
+
+	if (sol_uverbs_drv_status == SOL_UVERBS_DRV_STATUS_UNLOADED)
+		return (-1);
+			
+	root_node = di_init("/", DINFOCPYALL);
+	if (root_node == DI_NODE_NIL) {
+		goto err_dev;
+	}
+
+	node = di_drv_first_node(driver, root_node);
+	if (node == DI_NODE_NIL) {
+		goto err_dev;
+	}
+
+	node_minor = di_minor_next(node, DI_MINOR_NIL);
+	while (node_minor != DI_MINOR_NIL) {
+		if ((di_minor_devt(node_minor) & 0x0000FFFF) == minor)
+			break;
+		node_minor = di_minor_next(node, node_minor);
+	}
+
+	if (node_minor == DI_MINOR_NIL) {
+		goto err_dev;
+	}
+
+	/*
+	 * We have the uverbs node, return the requested int attribute.
+	 */
+	if (di_prop_lookup_ints(di_minor_devt(node_minor), node,
+	                        attr, &ret) != 1) {
+		goto err_dev;
+	}
+
+	int_value = *ret;
+	di_fini(root_node);
+
+	return int_value;
+
+err_dev:
+	di_fini(root_node);
+	return -1;	
+}
+
+static char *
+umad_convert_vendorid_deviceid_to_name(int vendor, int device, int hca)
+{
+	char *hca_name = "<unknown>";
+	char *ibdev_name;
+	int ret;
+
+	if (vendor == MELLANOX_VENDOR_ID) {
+		switch (device) {
+		case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+			hca_name = CONNECTX_NAME;
+			break;
+		case PCI_DEVICE_ID_MELLANOX_TAVOR:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+		case INFINIHOST_DEVICE_ID_2:
+		case INFINIHOST_DEVICE_ID_4:
+			hca_name = INFINIHOST_NAME;
+			break;
+		}
+	}
+	ret = snprintf(NULL, 0, "%s%d", hca_name, hca);
+	ibdev_name = malloc((size_t) ret);
+	if (ibdev_name != NULL)
+		(void) snprintf(ibdev_name, ret + 1, "%s%d", hca_name, hca);
+
+	return ibdev_name;
+}
+
+static char *
+umad_get_ibdev(char *minor_dev)
+{
+	di_node_t	root, umad_node;
+	di_minor_t	minor_node;
+	dev_t		dev;
+	int		ret, *vendorids, *deviceids, *hcas;
+	char		*ibdev, *minor_str;
+
+	root = di_init("/", DINFOCPYALL);
+	if (root == DI_NODE_NIL)
+		return NULL;
+
+	umad_node = di_drv_first_node("sol_umad", root);
+	if (umad_node == DI_MINOR_NIL) {
+		di_fini(root);
+		return NULL;
+	}
+	minor_node = di_minor_next(umad_node, DI_MINOR_NIL);
+	while (minor_node != DI_NODE_NIL) {
+		minor_str = di_minor_name(minor_node);
+		if (strcmp(minor_str, minor_dev) == 0)
+			break;
+		minor_node = di_minor_next(umad_node, minor_node);
+	}
+	if (minor_node == DI_MINOR_NIL) {
+		di_fini(root);
+		return NULL;
+	}
+	dev = di_minor_devt(minor_node);
+	ret = di_prop_lookup_ints(dev, umad_node, "vendor-id", &vendorids);
+	if (ret < 1) {
+		di_fini(root);
+		return NULL;
+	}
+	ret = di_prop_lookup_ints(dev, umad_node, "device-id", &deviceids);
+	if (ret < 1) {
+		di_fini(root);
+		return NULL;
+	}
+	ret = di_prop_lookup_ints(dev, umad_node, "hca-instance",
+	    &hcas);
+	if (ret < 1) {
+		di_fini(root);
+		return NULL;
+	}
+	ibdev = umad_convert_vendorid_deviceid_to_name(*vendorids,
+	    *deviceids, *hcas);
+
+	di_fini(root);
+
+	return ibdev;
+}
+
+static int
+umad_get_port(char *minor_dev)
+{
+	di_node_t root, umad_node;
+	di_minor_t minor_node;
+	int ret;
+	int *ports;
+	char *minor_str;
+	dev_t dev;
+
+	root = di_init("/", DINFOCPYALL);
+	if (root == DI_NODE_NIL)
+		return -1;
+
+	umad_node = di_drv_first_node("sol_umad", root);
+	if (umad_node == DI_MINOR_NIL) {
+		di_fini(root);
+		return -1;
+	}
+	minor_node = di_minor_next(umad_node, DI_MINOR_NIL);
+	while (minor_node != DI_NODE_NIL) {
+		minor_str = di_minor_name(minor_node);
+		if (strcmp(minor_str, minor_dev) == 0)
+			break;
+		minor_node = di_minor_next(umad_node, minor_node);
+	}
+	if (minor_node == DI_MINOR_NIL) {
+		di_fini(root);
+		return -1;
+	}
+	dev = di_minor_devt(minor_node);
+	ret = di_prop_lookup_ints(dev, umad_node, "port", &ports);
+	if (ret < 1) {
+		di_fini(root);
+		return -1;
+	}
+	ret = *ports;
+
+	di_fini(root);
+
+	return ret;
+}
+
+/*
+ * Given the uverbs device number, determine the appropriate IB device
+ * name for the desired uverbs interface, e.g. mthca0, mlx4_0, mlx4_1, etc.
+ */
+int uverbs_get_device_name(int devnum, char *name, size_t size)
+{
+	di_node_t           root_node;
+	di_node_t           uverbs_node;
+	di_minor_t          node_minor;
+	int                 vendor_id;
+	int                 device_id;
+	int                 *ret_vendor_id;
+	int                 *ret_device_id;
+	int                 mthca_devs = 0;
+	int                 mlx4_devs = 0;
+	int                 unknown_devs = 0;
+
+	if (name == NULL) {
+		return -1;
+	}
+
+	root_node = di_init("/", DINFOCPYALL);
+	if (root_node == DI_NODE_NIL) {
+		goto err_dev;
+	}
+
+	uverbs_node = di_drv_first_node(UVERBS, root_node);
+	if (uverbs_node == DI_NODE_NIL) {
+		goto err_dev;
+	}
+
+	/*
+	 * Since the actual hardware drivers don't export an OFED equivalent 
+	 * name we go through the minor nodes counting the device indices for
+	 * each hardware type up to the uverbs minor device requested.  
+	 */
+	node_minor = di_minor_next(uverbs_node, DI_MINOR_NIL);
+	while (node_minor != DI_MINOR_NIL) {
+		if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+	                                "vendor-id", &ret_vendor_id) != 1) {
+			goto err_dev;
+		}
+		if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+	                                "device-id", &ret_device_id) != 1) {
+			goto err_dev;
+		}
+
+		/*
+		 * If the minor number requested, we are done.  Update the
+		 * PCI vendor/device ID used to create the OFED IBDEV name;
+		 * Otherwise update the appropriate IBDEV count.
+		 */
+		if ((di_minor_devt(node_minor) & 0x0000FFFF) == devnum) {
+			vendor_id = *ret_vendor_id;
+			device_id = *ret_device_id;
+			break;
+		}
+
+		switch (*ret_device_id) {
+			case PCI_DEVICE_ID_MELLANOX_TAVOR:
+			case PCI_DEVICE_ID_MELLANOX_ARBEL:
+			case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+				mthca_devs++;
+			break;
+
+			case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+				mlx4_devs++;
+			break;
+
+			default:
+				unknown_devs++;
+			break;
+		}
+		node_minor = di_minor_next(uverbs_node, node_minor);
+	}
+
+	if (node_minor == DI_MINOR_NIL) {
+		goto err_dev;
+	}
+
+	if ((di_minor_devt(node_minor) & 0x0000FFFF) != devnum) {
+		goto err_dev;
+	}
+
+	switch (device_id) {
+		case PCI_DEVICE_ID_MELLANOX_TAVOR:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+			snprintf(name, size, "mthca%d", mthca_devs);
+		break;
+
+		case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+			snprintf(name, size, "mlx4_%d", mlx4_devs);
+		break;
+
+		default:
+			snprintf(name, size, "unknown%d", unknown_devs);
+		break;
+	}
+
+	di_fini(root_node);
+	return 0;
+
+err_dev:
+	di_fini(root_node);
+	return -1;
+}
+
+/*
+ * For a given Solaris IB verbs psuedo device minor, determine the
+ * associated driver name and device index.
+ */
+static int ibv_get_hw_driver_info(int devnum, char *name,
+                                  size_t size, int *index)
+{
+        di_node_t           root_node;
+        di_node_t           uverbs_node;
+        di_minor_t          node_minor;
+        int                 *ret_vendor_id;
+        int                 *ret_device_id;
+        int                 arbel_devs = 0;
+        int                 tavor_devs = 0;
+        int                 hermon_devs = 0;
+
+        if (name == NULL) {
+                return -1;
+        }
+
+        root_node = di_init("/", DINFOCPYALL);
+        if (root_node == DI_NODE_NIL) {
+                goto err_dev;
+
+        }
+
+        uverbs_node = di_drv_first_node(UVERBS, root_node);
+        if (uverbs_node == DI_NODE_NIL) {
+                goto err_dev;
+        }
+        /*
+         * Since the actual hardware drivers don't export an OFED equivalent
+         * name we go through the minor nodes counting the device indices for
+         * each hardware type up to the uverbs minor device requested.
+         */
+        node_minor = di_minor_next(uverbs_node, DI_MINOR_NIL);
+        while (node_minor != DI_MINOR_NIL) {
+                if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+                                        "vendor-id", &ret_vendor_id) != 1) {
+                        goto err_dev;
+                }
+                if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+                                        "device-id", &ret_device_id) != 1) {
+                        goto err_dev;
+                }
+
+                /*
+                 * If the minor number requested, we are done.  Update the
+                 * PCI vendor/device ID used to create the OFED IBDEV name;
+                 * Otherwise update the appropriate IBDEV count.
+                 */
+                if ((di_minor_devt(node_minor) & 0x0000FFFF) == devnum) {
+                        break;
+                }
+
+		switch (*ret_device_id) {
+
+			case PCI_DEVICE_ID_MELLANOX_TAVOR:
+			case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+				tavor_devs++;
+			break;
+
+			case PCI_DEVICE_ID_MELLANOX_ARBEL:
+				arbel_devs++;
+			break;
+
+			case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+				hermon_devs++;
+			break;
+	
+			default:
+				fprintf(stderr, "Unsupported device ID "
+				    "0x%04X\n", *ret_device_id);
+			break;
+		}
+                node_minor = di_minor_next(uverbs_node, node_minor);
+        }
+
+        if (node_minor == DI_MINOR_NIL) {
+                goto err_dev;
+        }
+
+        if ((di_minor_devt(node_minor) & 0x0000FFFF) != devnum) {
+                goto err_dev;
+        }
+	switch (*ret_device_id) {
+
+		case PCI_DEVICE_ID_MELLANOX_TAVOR:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+                	snprintf(name, size, "tavor");
+               		*index = tavor_devs;
+		break;
+
+		case PCI_DEVICE_ID_MELLANOX_ARBEL:
+                	snprintf(name, size, "arbel");
+               		*index = arbel_devs;
+		break;
+
+		case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+                	snprintf(name, size, "hermon");
+               		*index = hermon_devs;
+		break;
+	
+		default:
+			fprintf(stderr, "Unsupported driver, device ID "
+				"0x%04X\n", *ret_device_id);
+                	snprintf(name, size, "unknown");
+               		*index = -1;
+		break;
+	}
+        di_fini(root_node);
+        return 0;
+
+err_dev:
+        di_fini(root_node);
+        return -1;
 }
 
 /*
@@ -1057,132 +801,234 @@ error_exit1:
  * perform the memory mapping operations of kernel allocated memory
  * into the users address space.
  */
-int
-ibv_open_mmap_driver(char *dev_name)
+int ibv_open_mmap_driver(char *dev_name)
 {
-	int			fd;
+        int                  fd;
 #ifndef _LP64
-	int			tmpfd;
+        int                  tmpfd;
 #endif
-	int			uverbs_indx;
+        di_node_t            root_node;
+        di_node_t            hca_node;
+        int                  uverbs_minor;
+        char                 *dev_path;
+        char                 path_buf[MAXPATHLEN];
+        char                 driver_name[HW_DRIVER_MAX_NAME_LEN];
+        int                  driver_index;
+	int                  index;
 
-	/*
-	 * Map the user verbs device (uverbs) to the associated 
-	 * hca device. 
+        /*
+         * Map the user verbs device to the associated IBD interface to
+	 * determine the hardware driver. To avoid ordering issues, we use
+	 * associated GUID to perform the mapping.
+         */
+        uverbs_minor = strtol(dev_name + strlen(UVERBS_KERNEL_SYSFS_NAME) - 1,
+								NULL, 0);
+        root_node = di_init("/", DINFOCPYALL);
+        if (root_node == DI_NODE_NIL) {
+                goto err_out;
+        }
+
+        if (ibv_get_hw_driver_info(uverbs_minor, driver_name,
+	                           HW_DRIVER_MAX_NAME_LEN, &driver_index)) {
+                fprintf(stderr, "No hardware driver found for user verbs "
+								"instance\n");
+                goto err_out;
+        }
+
+#if 1 
+	/* 
+	 * Just map index to driver node instance directly for now; note
+	 * that this will not be sufficient for hot-plug.  This will
+	 * need to be addressed XXXX - SFW.
 	 */
-	uverbs_indx = strtol(dev_name + strlen(UVERBS_KERNEL_SYSFS_NAME_BASE),
-	    NULL, 0);
-	if (uverbs_indx >= MAX_HCAS) {
-		fprintf(stderr, "Invalid device %s\n", dev_name);
-		goto err_dev;
+	for (hca_node = di_drv_first_node(driver_name, root_node), index=0;
+	     hca_node != DI_NODE_NIL && index < driver_index; index++) {
+		hca_node = di_drv_next_node(hca_node);
 	}
+#else
+        hca_node = di_drv_first_node(driver_name, root_node);
+        while (hca_node != DI_NODE_NIL) {
+                if (di_instance(hca_node) == driver_index) {
+                        break;
+                }
+                hca_node = di_drv_next_node(hca_node);
+        }
+#endif
+        if (hca_node == DI_NODE_NIL) {
+                fprintf(stderr, "Could not find hca hardware driver "
+				"index: %s #%d\n", driver_name, driver_index);
+                goto err_dev;
+        }
 
-	if (!uverbs_dev_cache[uverbs_indx].uvc_valid) {
-		fprintf(stderr, "Invalid Device %s\n", dev_name);
-		goto err_dev;
-	}
+        dev_path = di_devfs_path(hca_node);
+        strncpy(path_buf, "/devices", sizeof path_buf);
+        strncat(path_buf, dev_path, sizeof path_buf);
+        strncat(path_buf, ":devctl", sizeof path_buf);
+        di_devfs_path_free(dev_path);
 
-	fd = open(uverbs_dev_cache[uverbs_indx].uvc_ibdev_hca_path, O_RDWR);
-	if (fd < 0) {
-		goto err_dev;
-	}
+        fd = open(path_buf, O_RDWR);
+        if (fd < 0) {
+                goto err_dev;
+        }
 
 #ifndef _LP64
-	/*
-	 * libc can't handle fd's greater than 255,  in order to
-	 * ensure that these values remain available make fd > 255.
-	 * Note: not needed for LP64
-	 */
-	tmpfd = fcntl(fd, F_DUPFD, 256);
-	if (tmpfd >=  0) {
-		(void) close(fd);
-		fd = tmpfd;
-	}
+        /*
+         * libc can't handle fd's greater than 255,  in order to
+         * ensure that these values remain available make fd > 255.
+         * Note: not needed for LP64
+         */
+        tmpfd = fcntl(fd, F_DUPFD, 256);
+        if (tmpfd >=  0) {
+                (void) close(fd);
+                fd = tmpfd;
+        }
 #endif  /* _LP64 */
 
-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
-		fprintf(stderr, "FD_CLOEXEC failed: %s\n", strerror(errno));
-		goto err_close;
-	}
-	return (fd);
+        if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+                fprintf(stderr, "FD_CLOEXEC failed: %s\n", strerror(errno));
+                goto err_close;
+        }
+        di_fini(root_node);
+        return fd;
 
 err_close:
-	close(fd);
+        close(fd);
+
 err_dev:
-	return (-1);
+        di_fini(root_node);
+
+err_out:
+        return -1;
 }
 
-static int
-infiniband_verbs(char *path, char *buf, size_t size)
+/*
+ * Given the uverbs device number, determine the appropriate ABI
+ * revision information.
+ */
+int uverbs_get_device_abi_version(int devnum, int *abi_version)
 {
-	unsigned int		device_num;
-	int 			len = -1;
-	uverbs_cache_info_t	*info_p;
+	di_node_t           root_node;
+	di_node_t           uverbs_node;
+	di_minor_t          node_minor;
+	int                 *ret_vendor_id;
+	int                 *ret_device_id;
 
-	if (pthread_mutex_lock(&uverbs_cache_mutex) != 0) {
-		fprintf(stderr, "failed: to acquire uverbs_cache_mutex %s\n",
-		    strerror(errno));
-		goto exit;
+	root_node = di_init("/", DINFOCPYALL);
+	if (root_node == DI_NODE_NIL) {
+		goto err_dev;
 	}
 
-	if (!uverbs_cache_initialized) {
-		if (uverbs_cache_init())
-			uverbs_cache_initialized = B_TRUE;
-		else
-			goto exit;
+	uverbs_node = di_drv_first_node(UVERBS, root_node);
+	if (uverbs_node == DI_NODE_NIL) {
+		goto err_dev;
 	}
-	(void) pthread_mutex_unlock(&uverbs_cache_mutex);
+
+	/*
+	 * Since the actual hardware drivers don't export an OFED equivalent 
+	 * ABI revision we go through the minor nodes counting the device
+	 * indices for
+	 * each hardware type up to the uverbs minor device requested.  
+	 */
+	node_minor = di_minor_next(uverbs_node, DI_MINOR_NIL);
+	while (node_minor != DI_MINOR_NIL) {
+		if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+	                                "vendor-id", &ret_vendor_id) != 1) {
+			node_minor = di_minor_next(uverbs_node, node_minor);
+			continue;
+		}
+		if (di_prop_lookup_ints(di_minor_devt(node_minor), uverbs_node,
+	                                "device-id", &ret_device_id) != 1) {
+			node_minor = di_minor_next(uverbs_node, node_minor);
+			continue;
+		}
+
+		if ((di_minor_devt(node_minor) & 0x0000FFFF) == devnum) {
+			break;
+		}
+		node_minor = di_minor_next(uverbs_node, node_minor);
+	}
+
+	if (node_minor == DI_MINOR_NIL) {
+		goto err_dev;
+	}
+
+	switch (*ret_device_id) {
+		case PCI_DEVICE_ID_MELLANOX_TAVOR:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL:
+		case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
+			*abi_version = MTHCA_UVERBS_ABI_VERSION;
+		break;
+
+		case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+		case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+			*abi_version = MLX4_UVERBS_MAX_ABI_VERSION;
+		break;
+
+		default:
+			goto err_dev;
+		break;
+	}
+
+	di_fini(root_node);
+	return 0;
+
+err_dev:
+	di_fini(root_node);
+	return -1;
+}
+
+int infiniband_verbs(char *path, char *buf, size_t size)
+{
+	unsigned int	device_num;
+	int 		len = -1;
 
 	if (check_path(path, CP_SOL_UVERBS, &device_num)) {
-
-		if (device_num >= MAX_HCAS) {
-			fprintf(stderr, "Invalid path%s\n", path);
-			goto exit;
-		}
-
-		if (!uverbs_dev_cache[device_num].uvc_valid) {
-			goto exit;
-		}
-
-		info_p = &uverbs_dev_cache[device_num];
 
 		if (check_path(path, CP_DEVICE, NULL)) {
 			/*
 			 * Under Linux, this is a link to the PCI device entry
-			 * in /sys/devices/pci...../....
+			 * in /sys/devices/pci...../.... 
 			 */
 			if (strcmp(path, "vendor") == 0) {
 				len = 1 + sprintf(buf, "0x%x",
-				    info_p->uvc_vendor_id);
+				    get_device_int_attr(UVERBS, device_num,
+				    "vendor-id"));
 			} else if (strcmp(path, "device") == 0) {
 				len = 1 + sprintf(buf, "0x%x",
-				    info_p->uvc_device_id);
+				    get_device_int_attr(UVERBS, device_num,
+				    "device-id"));
 			}
-		} else if (strcmp(path, "ibdev") == 0) {
-			len = 1 + sprintf(buf, "%s",
-			    info_p->uvc_ibdev_name);
-		} else if (strcmp(path, "abi_version") == 0) {
-			len = 1 + sprintf(buf, "%d",
-			    info_p->uvc_ibdev_abi_version);
-		}
-	} else if (strcmp(path, "abi_version") == 0) {
-
-		if (uverbs_abi_version == -1) {
-			fprintf(stderr, "UVerbs ABI Version invalid\n");
-
 			goto exit;
 		}
 
-		len = 1 + sprintf(buf, "%d", uverbs_abi_version); 
-	} else {
-		fprintf(stderr, "Unsupported read: %s\n", path);
+		if (strcmp(path, "ibdev") == 0) {
+			if (uverbs_get_device_name(device_num, buf, size)
+			    == 0) {
+				len = 1 + strlen(buf);
+			}
+		} else if (strcmp(path, "abi_version") == 0) {
+			int abi_version;
+
+			if (uverbs_get_device_abi_version(device_num,
+			    &abi_version) == 0) {
+				len = 1 + sprintf(buf, "%d", abi_version);
+			}
+		}
+		goto exit;
+	}
+
+	if (strcmp(path, "abi_version") == 0) {
+		len = 1 + sprintf(buf, "%d", get_device_int_attr(UVERBS, 0,
+		    "abi-version"));
 	}
 exit:
-	return (len);
+	return len;
 }
 
-static int
-infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
+int infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
 {
 	int 			len = -1;
 	unsigned int		port_num;
@@ -1198,10 +1044,11 @@ infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
 	if (!(check_path(path, CP_D, &port_num)))
 		goto exit;
 
+	
 	if (check_path(path, CP_GIDS, NULL)) {
 		if (get_port_info(dev_name, port_num, &port_attr, &gids, NULL))
 				goto exit;
-
+				
 		gid_num = atoi(path);
 
 		if (gid_num <  port_attr.gid_tbl_len) {
@@ -1211,34 +1058,34 @@ infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
 			interface_id =
 			    htonll(gids[gid_num].global.interface_id);
 			len = 1 + sprintf(buf,
-			    "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-			    (unsigned)(subnet_prefix >>  48) & 0xffff,
-			    (unsigned)(subnet_prefix >>  32) & 0xffff,
-			    (unsigned)(subnet_prefix >>  16) & 0xffff,
-			    (unsigned)(subnet_prefix >>   0) & 0xffff,
-			    (unsigned)(interface_id  >>  48) & 0xffff,
-			    (unsigned)(interface_id  >>  32) & 0xffff,
-			    (unsigned)(interface_id  >>  16) & 0xffff,
-			    (unsigned)(interface_id  >>   0) & 0xffff);
+				"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+				  (unsigned) (subnet_prefix >>  48) & 0xffff,
+				  (unsigned) (subnet_prefix >>  32) & 0xffff,
+				  (unsigned) (subnet_prefix >>  16) & 0xffff,
+				  (unsigned) (subnet_prefix >>   0) & 0xffff,
+				  (unsigned) (interface_id  >>  48) & 0xffff,
+				  (unsigned) (interface_id  >>  32) & 0xffff,
+				  (unsigned) (interface_id  >>  16) & 0xffff,
+				  (unsigned) (interface_id  >>   0) & 0xffff);
 		}
 		if (gids)
 			free(gids);
-
+		
 	} else if (check_path(path, CP_PKEYS, NULL)) {
 		if (get_port_info(dev_name, port_num, &port_attr, NULL, &pkeys))
 				goto exit;
 
 		pkey_num = atoi(path);
-		if (pkey_num <  port_attr.pkey_tbl_len)
+		if (pkey_num <  port_attr.pkey_tbl_len) {
 			len = 1 + sprintf(buf, "0x%04x", pkeys[pkey_num]);
-
+		}
 		if (pkeys)
 			free(pkeys);
 	} else {
 
 		if (get_port_info(dev_name, port_num, &port_attr, NULL, NULL))
 				goto exit;
-
+				
 		if (strcmp(path, "lid_mask_count") == 0) {
 			len = 1 + sprintf(buf, "%d", port_attr.lmc);
 		} else if (strcmp(path, "sm_lid") == 0) {
@@ -1248,75 +1095,13 @@ infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
 		} else if (strcmp(path, "lid") == 0) {
 			len = 1 + sprintf(buf, "0x%x", port_attr.lid);
 		} else if (strcmp(path, "state") == 0) {
-			switch (port_attr.state) {
-				case IBV_PORT_NOP:
-					len = 1 + sprintf(buf, "%d: NOP",
-					    port_attr.state);
-					break;
-				case IBV_PORT_DOWN:
-					len = 1 + sprintf(buf, "%d: DOWN",
-					    port_attr.state);
-					break;
-				case IBV_PORT_INIT:
-					len = 1 + sprintf(buf, "%d: INIT",
-					    port_attr.state);
-					break;
-				case IBV_PORT_ARMED:
-					len = 1 + sprintf(buf, "%d: ARMED",
-					    port_attr.state);
-					break;
-				case IBV_PORT_ACTIVE:
-					len = 1 + sprintf(buf, "%d: ACTIVE",
-					    port_attr.state);
-					break;
-				case IBV_PORT_ACTIVE_DEFER:
-					len = 1 + sprintf(buf,
-					    "%d: ACTIVE_DEFER",
-					    port_attr.state);
-					break;
-				default:
-					len = 1 + sprintf(buf, "%d: INVALID",
-					    port_attr.state);
-					break;
-			}
+			/* TODO: may need to add a string. Correct
+				 * output is "4: ACTIVE". */
+			len = 1 + sprintf(buf, "%d:", port_attr.state);
 		} else if (strcmp(path, "phys_state") == 0) {
-			switch (port_attr.phys_state) {
-				case 1:
-					len = 1 + sprintf(buf, "%d: Sleep",
-					    port_attr.phys_state);
-					break;
-				case 2:
-					len = 1 + sprintf(buf, "%d: Polling",
-					    port_attr.phys_state);
-					break;
-				case 3:
-					len = 1 + sprintf(buf, "%d: Disabled",
-					    port_attr.phys_state);
-					break;
-				case 4:
-					len = 1 + sprintf(buf,
-					    "%d: PortConfigurationTraining",
-					    port_attr.phys_state);
-					break;
-				case 5:
-					len = 1 + sprintf(buf, "%d: LinkUp",
-					    port_attr.phys_state);
-					break;
-				case 6:
-					len = 1 + sprintf(buf,
-					    "%d: LinkErrorRecovery",
-					    port_attr.phys_state);
-					break;
-				case 7:
-					len = 1 + sprintf(buf,
-					    "%d: Phy Test",
-					    port_attr.phys_state);
-					break;
-				default:
-					len = 1 + sprintf(buf, "%d: <unknown>",
-					    port_attr.phys_state);
-					break;
-			}
+			/* TODO: may need to add a string. Correct
+			 * output is "5: LinkUp". */
+			len = 1 + sprintf(buf, "%d", port_attr.phys_state);
 		} else if (strcmp(path, "rate") == 0) {
 			/* rate = speed * width */
 			switch (port_attr.active_speed) {
@@ -1350,225 +1135,138 @@ infiniband_ports(char *path, char *buf, size_t size, char *dev_name)
 			len = 1 + sprintf(buf, "%f", rate);
 		} else if (strcmp(path, "cap_mask") == 0) {
 			len = 1 + sprintf(buf, "0x%08x",
-			    port_attr.port_cap_flags);
+				port_attr.port_cap_flags);
 		}
 	}
 exit:
 	return (len);
 }
 
-
-/*
- * This function passes the HW Part number string obtained from driver
- * IOCTL. The memory for "hca_hwpn" argument has to be passed by the
- * caller and has to be at least 64 bytes in size.
- */
-static int
-get_hca_hwpn_str(char *ibd_name, int fd, char *hca_hwpn)
-{
-	hermon_flash_init_ioctl_t	hermon_flash_info;
-	tavor_flash_init_ioctl_t	tavor_flash_info;
-	int				rc;
-
-	if (strncmp(ibd_name, "mthca", 5) == 0) {
-		if ((rc = ioctl(fd, TAVOR_IOCTL_FLASH_INIT,
-		    &tavor_flash_info)) != 0)
-			return (rc);
-		strncpy(hca_hwpn, tavor_flash_info.tf_hwpn, 64);
-	} else {
-		if ((rc = ioctl(fd, HERMON_IOCTL_FLASH_INIT,
-		    &hermon_flash_info)) != 0)
-			return (rc);
-		strncpy(hca_hwpn, hermon_flash_info.af_hwpn, 64);
-	}
-	return (0);
-}
-
-static void
-init_boardid_index(ibdev_cache_info_t *ibd_info)
-{
-	int	i;
-	int	fd;
-	char	hca_hwpn[64];
-	char	*hwpnp;
-
-
-	if (pthread_mutex_lock(&uverbs_cache_mutex) != 0) {
-		fprintf(stderr, "failed: to acquire "
-		    "uverbs_cache_mutex %s\n",
-		    strerror(errno));
-		goto boardid_err;
-	}
-	if (!uverbs_cache_initialized) {
-		uverbs_cache_init();
-		uverbs_cache_initialized = B_TRUE;
-	}
-	(void) pthread_mutex_unlock(&uverbs_cache_mutex);
-
-	for (i = 0; i < MAX_HCAS; i++) {
-		if (uverbs_dev_cache[i].uvc_valid &&
-		    strcmp(uverbs_dev_cache[i].uvc_ibdev_name,
-		    ibd_info->ibd_name) == 0) {
-			break;
-		}
-	}
-
-	if (i == MAX_HCAS) {
-		fprintf(stderr, "failed to find uverbs_dev for %s\n",
-		    ibd_info->ibd_name);
-		goto boardid_err;
-	}
-
-	fd = open(uverbs_dev_cache[i].uvc_ibdev_hca_path, O_RDWR);
-	if (fd < 0) {
-		goto boardid_err;
-	}
-
-	if (get_hca_hwpn_str(ibd_info->ibd_name, fd, hca_hwpn)) {
-		close(fd);
-		goto boardid_err;
-	}
-	close(fd);
-	if ((hwpnp = strchr(hca_hwpn, ' ')) != NULL)
-		*hwpnp = '\0';
-
-	/*
-	 * Find part number, set the boardid_index,
-	 * Skip index 0, as it is for failure "unknown"
-	 * case.
-	 */
-	for (i = 1; i < MLX_MAX_ID; i++) {
-		if (strcmp((const char *)hca_hwpn,
-		    mlx_mdr[i].mlx_pn) == 0) {
-
-			/* Set boardid_index */
-			ibd_info->ibd_boardid_index = i;
-			return;
-		}
-	}
-
-boardid_err:
-	/* Failure case, default to "unknown" */
-	ibd_info->ibd_boardid_index = 0;
-}
-
-static int
-infiniband(char *path, char *buf, size_t size)
+int infiniband(char *path, char *buf, size_t size)
 {
 	int			len = -1;
 	unsigned int		device_num;
 	char			dev_name[10];
-	ibdev_cache_info_t	*info;
+	struct ibv_device_attr	device_attr;
 
 	memset(dev_name, 0, 10);
-
+	
 	if (check_path(path, CP_MTHCA, &device_num)) {
+
 		sprintf(dev_name, "mthca%d", device_num);
+
 	} else if (check_path(path, CP_MLX4, &device_num)) {
+
 		sprintf(dev_name, "mlx4_%d", device_num);
 	} else {
 		goto exit;
 	}
 
 	if (check_path(path, CP_PORTS, NULL)) {
+
 		len = infiniband_ports(path, buf, size, dev_name);
+
 	} else if (strcmp(path, "node_type") == 0) {
 		len = 1 + sprintf(buf, "%d", IBV_NODE_CA);
+
+	} else if (strcmp(path, "board_id") == 0) {
+		len = 1 + sprintf(buf, "unknown");
+
 	} else {
-		if (!(info = get_device_info(dev_name)))
+
+		/* 
+		 * We need some specific infos. Open the device.
+		 */
+		if (get_device_info(dev_name, &device_attr))
 			goto exit;
 
+		/* TODO: remove ntohll and swap bytes in sprintf instead */
 		if (strcmp(path, "node_guid") == 0) {
-			len = 1 + sprintf(buf, "%s", info->ibd_node_guid_str);
+			uint64_t node_guid = ntohll(device_attr.node_guid);
+			len = 1 + sprintf(buf, "%04x:%04x:%04x:%04x",
+				  (unsigned) (node_guid >> 48) & 0xffff,
+				  (unsigned) (node_guid >> 32) & 0xffff,
+				  (unsigned) (node_guid >> 16) & 0xffff,
+				  (unsigned) (node_guid >>  0) & 0xffff);
 		} else if (strcmp(path, "sys_image_guid") == 0) {
-			len = 1 + sprintf(buf, "%s", info->ibd_sys_image_guid);
+			uint64_t sys_image_guid =
+			    	ntohll(device_attr.sys_image_guid);
+			len = 1 + sprintf(buf, "%04x:%04x:%04x:%04x",
+				  (unsigned) (sys_image_guid >> 48) & 0xffff,
+				  (unsigned) (sys_image_guid >> 32) & 0xffff,
+				  (unsigned) (sys_image_guid >> 16) & 0xffff,
+				  (unsigned) (sys_image_guid >>  0) & 0xffff);
 		} else if (strcmp(path, "fw_ver") == 0) {
-			len = 1 + sprintf(buf, "%s", info->ibd_fw_ver);
+			len = 1 + sprintf(buf, "%s", device_attr.fw_ver);
 		} else if (strcmp(path, "hw_rev") == 0) {
-			len = 1 + sprintf(buf, "%d", info->ibd_hw_rev);
+			len = 1 + sprintf(buf, "%d", device_attr.hw_ver);
 		} else if (strcmp(path, "hca_type") == 0) {
-			if (!(strncmp(info->ibd_name, "mlx4", 4)))
-				len = 1 + sprintf(buf, "%d", 0);
-			else
+			switch (device_attr.vendor_part_id) {
+			case PCI_DEVICE_ID_MELLANOX_TAVOR:
+			case PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT:
 				len = 1 + sprintf(buf, "unavailable");
-		} else if (strcmp(path, "board_id") == 0) {
-			if (info->ibd_boardid_index == -1)
-				init_boardid_index(info);
+				break;
 
-			len = 1 + sprintf(buf, "%s",
-			    mlx_mdr[info->ibd_boardid_index].mlx_psid);
+			case PCI_DEVICE_ID_MELLANOX_ARBEL:
+				len = 1 + sprintf(buf, "unavailable");
+				break;
+
+			case PCI_DEVICE_ID_MELLANOX_HERMON_SDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_DDR_PCIE2:
+			case PCI_DEVICE_ID_MELLANOX_HERMON_QDR_PCIE2:
+				len = 1 + sprintf(buf, "%d", 0);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 exit:
 	return (len);
 }
 
-static int
-infiniband_mad(char *path, char *buf, size_t size)
+int infiniband_mad(char *path, char *buf, size_t size)
 {
 	int		len = -1;
-	unsigned int	dev_num;
+	int		port;
+	unsigned int	device_num;
+	char		umad_str[32];
+	char		*ibdev;
 
-	if (pthread_mutex_lock(&umad_cache_mutex) != 0) {
-		fprintf(stderr, "failed: to acquire umad_cache_mutex %s\n",
-		    strerror(errno));
-		goto exit;
-	}
-	if (!umad_cache_initialized) {
-		if (umad_cache_init())
-			umad_cache_initialized = B_TRUE;
-		else
-			goto exit;
-	}
-	(void) pthread_mutex_unlock(&umad_cache_mutex);
+	if (check_path(path, CP_UMAD, &device_num)) {
 
-	if (check_path(path, CP_UMAD, &dev_num)) {
-		if (dev_num >= MAX_HCAS * MAX_HCA_PORTS) {
-			fprintf(stderr, "Invalid Path: %s\n", path);
-			goto exit;
-		}
-		if (!umad_dev_cache[dev_num].umc_valid) {
-			goto exit;
-		}
+		(void) snprintf(umad_str, sizeof(umad_str),
+					"umad%d", device_num);
+
 		if (strcmp(path, "ibdev") == 0) {
-			len = strlcpy(buf, umad_dev_cache[dev_num].umc_ib_dev,
-			    size) + 1;
+
+			ibdev = umad_get_ibdev(umad_str);
+			if (ibdev != NULL) {
+				len = strlcpy(buf, umad_get_ibdev(umad_str),
+						      size) + 1;
+				free(ibdev);
+			} else {
+				len = strlcpy(buf, "unknown", size) + 1;
+			}
 		} else if (strcmp(path, "port") == 0) {
-			len = 1 + sprintf(buf, "%d",
-			    umad_dev_cache[dev_num].umc_port);
+			port = umad_get_port(umad_str);
+			len = 1 + sprintf(buf, "%d", port);
 		}
 	} else if (strcmp(path, "abi_version") == 0) {
-		if (umad_abi_version == -1) {
-			fprintf(stderr, "UMAD ABI Version invalid\n");
-			goto exit;
-		}
-		len =
-		    1 + sprintf(buf, "%d", umad_abi_version);
+		len = 1 + sprintf(buf, "%d", get_device_int_attr(UMAD, 0,
+			"abi_version")); 
 	}
-exit:
 	return (len);
 }
 
-/*
+/* 
  * Return -1 on error, or the length of the data (buf) on success.
  */
-int
-sol_read_sysfs_file(char *path, char *buf, size_t size)
+int sol_read_sysfs_file(char *path, char *buf, size_t size)
 {
 	int 			len = -1;
-
-	if (!initialized) {
-		if (pthread_once(&oneTimeInit, initialize)) {
-			fprintf(stderr, "failed to initialize: %s\n",
-			    strerror(errno));
-			goto exit;
-		}
-		if (!initialized)
-			/*
-			 * There was a problem in initialize()
-			 */
-			goto exit;
-	}
 
 	if (!check_path(path, CP_SLASH, NULL))
 		goto exit;
@@ -1580,23 +1278,30 @@ sol_read_sysfs_file(char *path, char *buf, size_t size)
 		goto exit;
 
 	if (check_path(path, CP_INFINIBAND_VERBS, NULL)) {
+
 		len = infiniband_verbs(path, buf, size);
+
 	} else if (check_path(path, CP_INFINIBAND, NULL)) {
+
 		len = infiniband(path, buf, size);
+
 	} else if (check_path(path, CP_INFINIBAND_MAD, NULL)) {
+
 		len = infiniband_mad(path, buf, size);
+
 	} else if (check_path(path, CP_MISC, NULL)) {
+
 		if (check_path(path, CP_RDMA_CM, NULL)) {
+
 			if (strcmp(path, "abi_version") == 0) {
 				len = 1 + sprintf(buf, "%d",
-				    RDMA_USER_CM_MAX_ABI_VERSION);
+					RDMA_USER_CM_MAX_ABI_VERSION);
 			}
-		}
+		}	
 	}
-exit:
-	return (len);
+exit:	
+	return len;
 }
-
 
 int
 sol_get_cpu_info(sol_cpu_info_t *info)

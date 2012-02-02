@@ -25,8 +25,8 @@ include ../../../make-rules/shared-macros.mk
 COMPONENT_NAME=		libibverbs
 COMPONENT_VERSION=	1.1.4
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
-COMPONENT_ARCHIVE=	$(COMPONENT_SRC)-1.22.g7257cd3.tar.gz
-COMPONENT_ARCHIVE_HASH=	sha1:7d7d466278ce5e18f74dd50ca14c3bba544f1e13
+COMPONENT_ARCHIVE=	$(COMPONENT_SRC)-1.24.gb89d4d7.tar.gz
+COMPONENT_ARCHIVE_HASH=	sha1:0269ef8e34d3847f66ba91b32c8ffeb7b009de4a
 COMPONENT_ARCHIVE_URL=	http://www.openfabrics.org/downloads/libibverbs/$(COMPONENT_ARCHIVE)
 
 include $(WS_TOP)/make-rules/prep.mk
@@ -36,9 +36,10 @@ include ../ofed.mk
 # add flags to get at extra bits from other components' source trees
 CPPFLAGS +=	-I$(PWD)/../libmthca/libmthca-1.0.5/src
 CPPFLAGS +=	-I$(PWD)/../libmlx4/libmlx4-1.0.1/src
-CPPFLAGS +=	-I$(PWD)/../librdmacm/librdmacm-1.0.14.1/include
+CPPFLAGS +=	-I$(PWD)/../librdmacm/librdmacm-1.0.15/include
 
-LIBS +=	-lsocket -lnsl -lkstat
+# include devinfo for sysfs emulation
+LIBS +=	-lsocket -lnsl -ldevinfo -lkstat
 
 # --disable-libcheck is not a supported option for this component
 DISABLE_LIBCHECK=

@@ -20,7 +20,7 @@ diff -r -u /tmp/libibumad-1.3.7/include/infiniband/umad.h libibumad-1.3.7/includ
  #define UMAD_MAX_PORTS		64
  
 +#if defined(__SVR4) && defined(__sun)
-+#define	UMAD_DEV_DIR		"/dev/infiniband/ofs"
++#define	UMAD_DEV_DIR		"/devices/ib"
 +#else
  #define UMAD_DEV_DIR		"/dev/infiniband"
 +#endif
