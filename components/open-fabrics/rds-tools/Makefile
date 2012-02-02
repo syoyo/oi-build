@@ -34,6 +34,7 @@ include $(WS_TOP)/make-rules/configure.mk
 include ../ofed.mk
 
 CFLAGS +=	-O2 -Wall -D_XOPEN_SOURCE=500 -D__EXTENSIONS__ $(CPPFLAGS)
+CFLAGS += -I$(PROTO_DIR)/usr/include
 
 LIBS +=	-lsocket -lnsl -llgrp -lkstat
 
