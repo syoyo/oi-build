@@ -89,6 +89,9 @@
 #define	NODEDESC_UPDATE_HCA_STRING	0x00000002
 #define	NODEDESC_READ			0x80000000
 
+// p_slot is a define macro and it conflists with a p_slot variable in umad.h
+#undef p_slot
+
 #include "ibdiag_common.h"
 
 static char *devpath_prefix = "/devices";

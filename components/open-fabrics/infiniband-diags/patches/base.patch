@@ -1,6 +1,266 @@
-diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.am infiniband-diags-1.5.8/Makefile.am
---- /tmp/infiniband-diags-1.5.8/Makefile.am	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/Makefile.am	Fri Feb 25 03:09:22 2011
+diff -r -u /tmp/infiniband-diags-1.5.13/configure infiniband-diags-1.5.13/configure
+--- /tmp/infiniband-diags-1.5.13/configure	2012-01-17 04:28:21.000000000 +0900
++++ infiniband-diags-1.5.13/configure	2012-02-03 02:35:45.707787504 +0900
+@@ -909,6 +909,7 @@
+ ac_subst_files=''
+ ac_user_opts='
+ enable_option_checking
++enable_libcheck
+ enable_debug
+ enable_dependency_tracking
+ enable_shared
+@@ -1562,6 +1563,7 @@
+   --disable-option-checking  ignore unrecognized --enable/--with options
+   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
++  --disable-libcheck      do not test for presence of ib libraries
+   --enable-debug Turn on debug mode
+   --disable-dependency-tracking  speeds up one-time build
+   --enable-dependency-tracking   do not reject slow dependency extractors
+@@ -2571,6 +2573,15 @@
+ TARBALL=${TARBALL:-${PACKAGE}-${VERSION}.tar.gz}
+ 
+ 
++# Check whether --enable-libcheck was given.
++if test "${enable_libcheck+set}" = set; then
++  enableval=$enable_libcheck;        if test x$enableval = xno ; then
++                disable_libcheck=yes
++        fi
++
++fi
++
++
+ # Check whether --enable-debug was given.
+ if test "${enable_debug+set}" = set; then
+   enableval=$enable_debug; case "${enableval}" in
+@@ -4417,13 +4428,13 @@
+ else
+   lt_cv_nm_interface="BSD nm"
+   echo "int some_variable = 0;" > conftest.$ac_ext
+-  (eval echo "\"\$as_me:4420: $ac_compile\"" >&5)
++  (eval echo "\"\$as_me:4431: $ac_compile\"" >&5)
+   (eval "$ac_compile" 2>conftest.err)
+   cat conftest.err >&5
+-  (eval echo "\"\$as_me:4423: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
++  (eval echo "\"\$as_me:4434: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
+   cat conftest.err >&5
+-  (eval echo "\"\$as_me:4426: output\"" >&5)
++  (eval echo "\"\$as_me:4437: output\"" >&5)
+   cat conftest.out >&5
+   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
+     lt_cv_nm_interface="MS dumpbin"
+@@ -5629,7 +5640,7 @@
+   ;;
+ *-*-irix6*)
+   # Find out which ABI we are using.
+-  echo '#line 5632 "configure"' > conftest.$ac_ext
++  echo '#line 5643 "configure"' > conftest.$ac_ext
+   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+   (eval $ac_compile) 2>&5
+   ac_status=$?
+@@ -7486,11 +7497,11 @@
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:7489: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:7500: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>conftest.err)
+    ac_status=$?
+    cat conftest.err >&5
+-   echo "$as_me:7493: \$? = $ac_status" >&5
++   echo "$as_me:7504: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s "$ac_outfile"; then
+      # The compiler can only warn and ignore the option if not recognized
+      # So say no if there are warnings other than the usual output.
+@@ -7825,11 +7836,11 @@
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:7828: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:7839: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>conftest.err)
+    ac_status=$?
+    cat conftest.err >&5
+-   echo "$as_me:7832: \$? = $ac_status" >&5
++   echo "$as_me:7843: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s "$ac_outfile"; then
+      # The compiler can only warn and ignore the option if not recognized
+      # So say no if there are warnings other than the usual output.
+@@ -7930,11 +7941,11 @@
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:7933: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:7944: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>out/conftest.err)
+    ac_status=$?
+    cat out/conftest.err >&5
+-   echo "$as_me:7937: \$? = $ac_status" >&5
++   echo "$as_me:7948: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s out/conftest2.$ac_objext
+    then
+      # The compiler can only warn and ignore the option if not recognized
+@@ -7985,11 +7996,11 @@
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:7988: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:7999: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>out/conftest.err)
+    ac_status=$?
+    cat out/conftest.err >&5
+-   echo "$as_me:7992: \$? = $ac_status" >&5
++   echo "$as_me:8003: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s out/conftest2.$ac_objext
+    then
+      # The compiler can only warn and ignore the option if not recognized
+@@ -10788,7 +10799,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 10791 "configure"
++#line 10802 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -10884,7 +10895,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 10887 "configure"
++#line 10898 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -11112,6 +11123,8 @@
+ 
+ 
+ 
++if test "$disable_libcheck" != "yes"
++then
+ 
+ { $as_echo "$as_me:$LINENO: checking for umad_init in -libumad" >&5
+ $as_echo_n "checking for umad_init in -libumad... " >&6; }
+@@ -11540,6 +11553,13 @@
+    { (exit 1); exit 1; }; }
+ fi
+ 
++else
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_UMAD_PORT_LINK_LAYER 1
++_ACEOF
++
++fi
+ 
+ { $as_echo "$as_me:$LINENO: checking for ANSI C header files" >&5
+ $as_echo_n "checking for ANSI C header files... " >&6; }
+@@ -11876,6 +11896,8 @@
+ 
+ done
+ 
++if test "$disable_libcheck" != "yes"
++then
+ if test "${ac_cv_header_infiniband_umad_h+set}" = set; then
+   { $as_echo "$as_me:$LINENO: checking for infiniband/umad.h" >&5
+ $as_echo_n "checking for infiniband/umad.h... " >&6; }
+@@ -12160,6 +12182,7 @@
+ fi
+ 
+ 
++fi
+ 
+ { $as_echo "$as_me:$LINENO: checking for error_at_line" >&5
+ $as_echo_n "checking for error_at_line... " >&6; }
+diff -r -u /tmp/infiniband-diags-1.5.13/configure.in infiniband-diags-1.5.13/configure.in
+--- /tmp/infiniband-diags-1.5.13/configure.in	2012-01-17 04:03:30.000000000 +0900
++++ infiniband-diags-1.5.13/configure.in	2012-02-03 02:35:35.559831741 +0900
+@@ -10,6 +10,12 @@
+ AC_SUBST(RELEASE, ${RELEASE:-unknown})
+ AC_SUBST(TARBALL, ${TARBALL:-${PACKAGE}-${VERSION}.tar.gz})
+ 
++AC_ARG_ENABLE(libcheck, [  --disable-libcheck      do not test for presence of ib libraries],
++[       if test x$enableval = xno ; then
++                disable_libcheck=yes
++        fi
++])
++
+ dnl support debug mode
+ AC_ARG_ENABLE(debug,
+ [  --enable-debug Turn on debug mode],
+@@ -24,6 +30,8 @@
+ AC_PROG_CC
+ AC_PROG_LIBTOOL
+ 
++if test "$disable_libcheck" != "yes"
++then
+ dnl Checks for libraries
+ AC_CHECK_LIB(ibumad, umad_init, [],
+ 	AC_MSG_ERROR([umad_init() not found. diags require libibumad.]))
+@@ -41,16 +49,23 @@
+ fi
+ AC_CHECK_LIB(osmcomp, cl_qmap_insert, [],
+ 	AC_MSG_ERROR([cl_qmap_insert() not found. diags require libosmcomp.]))
++else
++dnl assume libibumad 1.3.7
++AC_DEFINE([HAVE_UMAD_PORT_LINK_LAYER], 1, [Define to 1 if struct umad_port has link_layer member])
++fi
+ 
+ dnl Checks for header files.
+ AC_HEADER_STDC
+ AC_CHECK_HEADERS([stdlib.h string.h unistd.h fcntl.h inttypes.h netinet/in.h sys/ioctl.h])
++if test "$disable_libcheck" != "yes"
++then
+ AC_CHECK_HEADER(infiniband/umad.h, [],
+ 	AC_MSG_ERROR([<infiniband/umad.h> not found. diags require libibumad.])
+ )
+ AC_CHECK_HEADER(infiniband/mad.h, [],
+ 	AC_MSG_ERROR([<infiniband/mad.h> not found. diags require libibmad.])
+ )
++fi
+ 
+ dnl Checks for library functions
+ AC_FUNC_ERROR_AT_LINE
+diff -r -u /tmp/infiniband-diags-1.5.13/include/ibdiag_common.h infiniband-diags-1.5.13/include/ibdiag_common.h
+--- /tmp/infiniband-diags-1.5.13/include/ibdiag_common.h	2011-12-07 06:33:19.000000000 +0900
++++ infiniband-diags-1.5.13/include/ibdiag_common.h	2012-02-03 02:55:13.133240175 +0900
+@@ -39,7 +39,7 @@
+ #ifndef _IBDIAG_COMMON_H_
+ #define _IBDIAG_COMMON_H_
+ 
+-#include <infiniband/iba/ib_types.h>
++//#include <infiniband/iba/ib_types.h>
+ #include <infiniband/mad.h>
+ #include <infiniband/ibnetdisc.h>
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/infiniband-diags.spec.in infiniband-diags-1.5.13/infiniband-diags.spec.in
+--- /tmp/infiniband-diags-1.5.13/infiniband-diags.spec.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/infiniband-diags.spec.in	2012-02-03 02:35:35.560112099 +0900
+@@ -52,7 +52,7 @@
+ %{_includedir}/infiniband/*.h
+ %define _perldir %(perl -e 'use Config; $T=$Config{installvendorlib}; print $T;')
+ %{_perldir}/*
+-%{_mandir}/man8/*
++%{_mandir}/man1m/*
+ %{_mandir}/man3/*
+ %{_sysconfdir}/*
+ %doc README COPYING ChangeLog
+diff -r -u /tmp/infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c
+--- /tmp/infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c	2011-11-02 14:31:40.000000000 +0900
++++ infiniband-diags-1.5.13/libibnetdisc/src/query_smp.c	2012-02-03 02:35:35.560422869 +0900
+@@ -164,7 +164,7 @@
+ 	uint8_t *mad;
+ 	uint32_t trid;
+ 	uint8_t umad[sizeof(struct ib_user_mad) + IB_MAD_SIZE];
+-	int length = umad_size() + IB_MAD_SIZE;
++	int length = IB_MAD_SIZE;
+ 
+ 	memset(umad, 0, sizeof(umad));
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.am infiniband-diags-1.5.13/Makefile.am
+--- /tmp/infiniband-diags-1.5.13/Makefile.am	2012-01-17 04:00:05.000000000 +0900
++++ infiniband-diags-1.5.13/Makefile.am	2012-02-03 02:35:35.560727658 +0900
 @@ -13,7 +13,7 @@
  sbin_PROGRAMS = src/ibaddr src/ibnetdiscover src/ibping src/ibportstate \
  	        src/ibroute src/ibstat src/ibsysstat src/ibtracert \
@@ -29,9 +289,9 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.am infiniband-diags-1.5.8/Makefi
  man_MANS = man/ibaddr.8 man/ibcheckerrors.8 man/ibcheckerrs.8 \
  	man/ibchecknet.8 man/ibchecknode.8 man/ibcheckport.8 \
  	man/ibcheckportstate.8 man/ibcheckportwidth.8 man/ibcheckstate.8 \
-diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefile.in
---- /tmp/infiniband-diags-1.5.8/Makefile.in	Wed Feb 16 02:28:20 2011
-+++ infiniband-diags-1.5.8/Makefile.in	Fri Feb 25 03:21:49 2011
+diff -r -u /tmp/infiniband-diags-1.5.13/Makefile.in infiniband-diags-1.5.13/Makefile.in
+--- /tmp/infiniband-diags-1.5.13/Makefile.in	2012-01-17 04:28:21.000000000 +0900
++++ infiniband-diags-1.5.13/Makefile.in	2012-02-03 02:35:44.091890454 +0900
 @@ -44,7 +44,8 @@
  	src/smpdump$(EXEEXT) src/smpquery$(EXEEXT) \
  	src/saquery$(EXEEXT) src/vendstat$(EXEEXT) \
@@ -42,7 +302,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  @ENABLE_TEST_UTILS_TRUE@am__append_1 = src/ibsendtrap src/mcm_rereg_test
  subdir = .
  DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-@@ -190,6 +191,11 @@
+@@ -198,6 +199,11 @@
  src_vendstat_OBJECTS = $(am_src_vendstat_OBJECTS)
  src_vendstat_LDADD = $(LDADD)
  src_vendstat_DEPENDENCIES = libcommon.a
@@ -54,7 +314,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
  am__vpath_adj = case $$p in \
      $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-@@ -234,7 +240,8 @@
+@@ -242,7 +248,8 @@
  	$(src_ibtracert_SOURCES) $(src_mcm_rereg_test_SOURCES) \
  	$(src_perfquery_SOURCES) $(src_saquery_SOURCES) \
  	$(src_sminfo_SOURCES) $(src_smpdump_SOURCES) \
@@ -64,7 +324,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  DIST_SOURCES = $(libcommon_a_SOURCES) $(src_ibaddr_SOURCES) \
  	$(src_ibcacheedit_SOURCES) $(src_iblinkinfo_SOURCES) \
  	$(src_ibnetdiscover_SOURCES) $(src_ibping_SOURCES) \
-@@ -244,7 +251,8 @@
+@@ -252,7 +259,8 @@
  	$(src_ibtracert_SOURCES) $(src_mcm_rereg_test_SOURCES) \
  	$(src_perfquery_SOURCES) $(src_saquery_SOURCES) \
  	$(src_sminfo_SOURCES) $(src_smpdump_SOURCES) \
@@ -74,7 +334,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
  	html-recursive info-recursive install-data-recursive \
  	install-dvi-recursive install-exec-recursive \
-@@ -252,7 +260,11 @@
+@@ -260,7 +268,11 @@
  	install-pdf-recursive install-ps-recursive install-recursive \
  	installcheck-recursive installdirs-recursive pdf-recursive \
  	ps-recursive uninstall-recursive
@@ -87,7 +347,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  NROFF = nroff
  MANS = $(man_MANS)
  RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
-@@ -610,8 +622,8 @@
+@@ -623,8 +635,8 @@
  	while read type dir files; do \
  	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
  	    test -z "$$files" || { \
@@ -98,7 +358,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  	    } \
  	; done
  
-@@ -633,6 +645,13 @@
+@@ -646,6 +658,13 @@
  	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
  	echo " rm -f" $$list; \
  	rm -f $$list
@@ -112,7 +372,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  src/$(am__dirstamp):
  	@$(MKDIR_P) src
  	@: > src/$(am__dirstamp)
-@@ -693,6 +712,10 @@
+@@ -706,6 +725,10 @@
  src/vendstat$(EXEEXT): $(src_vendstat_OBJECTS) $(src_vendstat_DEPENDENCIES) src/$(am__dirstamp)
  	@rm -f src/vendstat$(EXEEXT)
  	$(LINK) $(src_vendstat_OBJECTS) $(src_vendstat_LDADD) $(LIBS)
@@ -123,7 +383,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  install-sbinSCRIPTS: $(sbin_SCRIPTS)
  	@$(NORMAL_INSTALL)
  	test -z "$(sbindir)" || $(MKDIR_P) "$(DESTDIR)$(sbindir)"
-@@ -754,6 +777,8 @@
+@@ -767,6 +790,8 @@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/smpdump.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/smpquery.Po@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vendstat.Po@am__quote@
@@ -132,7 +392,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  
  .c.o:
  @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@@ -1056,6 +1081,34 @@
+@@ -1069,6 +1094,34 @@
  @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
  @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o vendstat.obj `if test -f 'src/vendstat.c'; then $(CYGPATH_W) 'src/vendstat.c'; else $(CYGPATH_W) '$(srcdir)/src/vendstat.c'; fi`
  
@@ -167,7 +427,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  mostlyclean-libtool:
  	-rm -f *.lo
  
-@@ -1080,6 +1133,10 @@
+@@ -1093,6 +1146,10 @@
  	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,' | \
  	sed 'N;N;s,\n, ,g' | { \
  	list=; while read file base inst; do \
@@ -178,7 +438,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  	  if test "$$base" = "$$inst"; then list="$$list $$file"; else \
  	    echo " $(INSTALL_DATA) '$$file' '$(DESTDIR)$(man8dir)/$$inst'"; \
  	    $(INSTALL_DATA) "$$file" "$(DESTDIR)$(man8dir)/$$inst" || exit $$?; \
-@@ -1100,6 +1157,10 @@
+@@ -1113,6 +1170,10 @@
  	  sed -n '/\.8[a-z]*$$/p'; \
  	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^8][0-9a-z]*$$,8,;x' \
  	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \
@@ -189,7 +449,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  	test -z "$$files" || { \
  	  echo " ( cd '$(DESTDIR)$(man8dir)' && rm -f" $$files ")"; \
  	  cd "$(DESTDIR)$(man8dir)" && rm -f $$files; }
-@@ -1470,7 +1531,7 @@
+@@ -1483,7 +1544,7 @@
  clean: clean-recursive
  
  clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
@@ -198,7 +458,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  
  distclean: distclean-recursive
  	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-@@ -1551,7 +1612,8 @@
+@@ -1564,7 +1625,8 @@
  
  .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
  	all all-am am--refresh check check-am clean clean-generic \
@@ -208,125 +468,786 @@ diff -r -u /tmp/infiniband-diags-1.5.8/Makefile.in infiniband-diags-1.5.8/Makefi
  	ctags-recursive dist dist-all dist-bzip2 dist-gzip dist-hook \
  	dist-lzma dist-shar dist-tarZ dist-xz dist-zip distcheck \
  	distclean distclean-compile distclean-generic distclean-hdr \
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckportstate.in infiniband-diags-1.5.8/scripts/ibcheckportstate.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckportstate.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckportstate.in	Thu Feb 24 11:26:53 2011
-@@ -73,7 +73,7 @@
- portnum=$2
+diff -r -u /tmp/infiniband-diags-1.5.13/man/check_lft_balance.8 infiniband-diags-1.5.13/man/check_lft_balance.8
+--- /tmp/infiniband-diags-1.5.13/man/check_lft_balance.8	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/man/check_lft_balance.8	2012-02-03 02:35:35.562413389 +0900
+@@ -1,4 +1,4 @@
+-.TH CHECK_LFT_BALANCE.SH 8 "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
++.TH CHECK_LFT_BALANCE.SH 1m "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
  
- if [ "$guid_addr" ]; then
--	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
-+	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
- 		echo -n "guid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -81,7 +81,7 @@
- 	guid=$1
- else
- 	lid=$1
--	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
-+	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
- 		echo -n "lid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
+ .SH NAME
+ check_lft_balance.sh \- check InfiniBand unicast forwarding tables balance
+@@ -12,9 +12,9 @@
+ .PP
+ check_lft_balance.sh is a script which checks for balancing in Infiniband
+ unicast forwarding tables.  It analyzes the output of
+-.BR dump_lfts(8)
++.BR dump_lfts(1m)
+ and
+-.BR iblinkinfo(8).
++.BR iblinkinfo(1m).
+ 
+ .SH OPTIONS
+ 
+@@ -33,8 +33,8 @@
+ verbose output
+ 
+ .SH SEE ALSO
+-.BR dump_lfts(8),
+-.BR iblinkinfo(8)
++.BR dump_lfts(1m),
++.BR iblinkinfo(1m)
+ 
+ .SH AUTHORS
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_lfts.8 infiniband-diags-1.5.13/man/dump_lfts.8
+--- /tmp/infiniband-diags-1.5.13/man/dump_lfts.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/dump_lfts.8	2012-02-03 02:35:35.562694727 +0900
+@@ -1,4 +1,4 @@
+-.TH DUMP_LFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH DUMP_LFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ dump_lfts.sh \- dump InfiniBand unicast forwarding tables
+@@ -37,10 +37,10 @@
+ override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR dump_mfts(8),
+-.BR ibroute(8),
+-.BR ibswitches(8),
+-.BR opensm(8)
++.BR dump_mfts(1m),
++.BR ibroute(1m),
++.BR ibswitches(1m),
++.BR opensm(1m)
+ 
+ .SH AUTHORS
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/dump_mfts.8 infiniband-diags-1.5.13/man/dump_mfts.8
+--- /tmp/infiniband-diags-1.5.13/man/dump_mfts.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/dump_mfts.8	2012-02-03 02:35:35.563029231 +0900
+@@ -1,4 +1,4 @@
+-.TH DUMP_MFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH DUMP_MFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ dump_lfts.sh \- dump InfiniBand multicast forwarding tables
+@@ -34,10 +34,10 @@
+ 
+ 
+ .SH SEE ALSO
+-.BR dump_lfts(8),
+-.BR ibroute(8),
+-.BR ibswitches(8),
+-.BR opensm(8)
++.BR dump_lfts(1m),
++.BR ibroute(1m),
++.BR ibswitches(1m),
++.BR opensm(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibaddr.8 infiniband-diags-1.5.13/man/ibaddr.8
+--- /tmp/infiniband-diags-1.5.13/man/ibaddr.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibaddr.8	2012-02-03 02:35:35.563325822 +0900
+@@ -1,4 +1,4 @@
+-.TH IBADDR 8 "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBADDR 1m "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibaddr \- query InfiniBand address(es)
+@@ -102,8 +102,8 @@
+ ibaddr -g 32            # show gid address only
+ 
+ .SH SEE ALSO
+-.BR ibroute (8),
+-.BR ibtracert (8)
++.BR ibroute (1m),
++.BR ibtracert (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcacheedit.8 infiniband-diags-1.5.13/man/ibcacheedit.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcacheedit.8	2011-12-07 06:33:17.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcacheedit.8	2012-02-03 02:35:35.563629976 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCACHEEDIT 8 "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
++.TH IBCACHEEDIT 1m "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcacheedit \- edit an ibnetdiscover cache
+@@ -13,7 +13,7 @@
+ .PP
+ ibcacheedit allows users to edit an ibnetdiscover cache created through the
+ \fB\-\-cache\fR option in
+-.B ibnetdiscover(8).
++.B ibnetdiscover(1m).
+ 
+ .SH OPTIONS
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrors.8 infiniband-diags-1.5.13/man/ibcheckerrors.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckerrors.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckerrors.8	2012-02-03 02:35:35.563970296 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckerrors \- validate IB subnet and report errors
+@@ -30,10 +30,10 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR ibchecknode(8),
+-.BR ibcheckport(8),
+-.BR ibcheckerrs(8)
++.BR ibnetdiscover(1m),
++.BR ibchecknode(1m),
++.BR ibcheckport(1m),
++.BR ibcheckerrs(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckerrs.8 infiniband-diags-1.5.13/man/ibcheckerrs.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckerrs.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckerrs.8	2012-02-03 02:35:35.564264563 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKERRS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKERRS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckerrs \- validate IB port (or node) and report errors in counters above threshold
+@@ -50,8 +50,8 @@
+ ibcheckerrs -T xxx 2    # check node using xxx threshold file
+ 
+ .SH SEE ALSO
+-.BR perfquery(8),
+-.BR ibaddr(8)
++.BR perfquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknet.8 infiniband-diags-1.5.13/man/ibchecknet.8
+--- /tmp/infiniband-diags-1.5.13/man/ibchecknet.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibchecknet.8	2012-02-03 02:35:35.564541390 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKNET 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKNET 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibchecknet \- validate IB subnet and report errors
+@@ -25,10 +25,10 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR ibchecknode(8),
+-.BR ibcheckport(8),
+-.BR ibcheckerrs(8)
++.BR ibnetdiscover(1m),
++.BR ibchecknode(1m),
++.BR ibcheckport(1m),
++.BR ibcheckerrs(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibchecknode.8 infiniband-diags-1.5.13/man/ibchecknode.8
+--- /tmp/infiniband-diags-1.5.13/man/ibchecknode.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibchecknode.8	2012-02-03 02:35:35.564817485 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKNODE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKNODE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibchecknode \- validate IB node and report errors
+@@ -34,8 +34,8 @@
+ ibchecknode 2           # check node via lid 2
+ 
+ .SH SEE ALSO
+-.BR smpquery(8),
+-.BR ibaddr(8)
++.BR smpquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckport.8 infiniband-diags-1.5.13/man/ibcheckport.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckport.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckport.8	2012-02-03 02:35:35.565151379 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKPORT 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKPORT 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckport \- validate IB port and report errors
+@@ -34,8 +34,8 @@
+ ibcheckport 2 3         # check lid 2 port 3
+ 
+ .SH SEE ALSO
+-.BR smpquery(8),
+-.BR ibaddr(8)
++.BR smpquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportstate.8 infiniband-diags-1.5.13/man/ibcheckportstate.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckportstate.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckportstate.8	2012-02-03 02:35:35.565426319 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKPORTSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKPORTSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckportstate \- validate IB port for LinkUp and not Active state
+@@ -35,8 +35,8 @@
+ ibcheckportstate 2 3         # check lid 2 port 3
+ 
+ .SH SEE ALSO
+-.BR smpquery(8),
+-.BR ibaddr(8)
++.BR smpquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckportwidth.8 infiniband-diags-1.5.13/man/ibcheckportwidth.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckportwidth.8	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckportwidth.8	2012-02-03 02:35:35.565717461 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKPORTWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKPORTWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckportwidth \- validate IB port for 1x link width
+@@ -34,8 +34,8 @@
+ ibcheckportwidth 2 3         # check lid 2 port 3
+ 
+ .SH SEE ALSO
+-.BR smpquery(8),
+-.BR ibaddr(8)
++.BR smpquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckstate.8 infiniband-diags-1.5.13/man/ibcheckstate.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckstate.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckstate.8	2012-02-03 02:35:35.566002914 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckstate \- find ports in IB subnet which are link up but not active
+@@ -26,9 +26,9 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR ibchecknode(8),
+-.BR ibcheckportstate(8)
++.BR ibnetdiscover(1m),
++.BR ibchecknode(1m),
++.BR ibcheckportstate(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibcheckwidth.8 infiniband-diags-1.5.13/man/ibcheckwidth.8
+--- /tmp/infiniband-diags-1.5.13/man/ibcheckwidth.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibcheckwidth.8	2012-02-03 02:35:35.566280965 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCHECKWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCHECKWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibcheckwidth \- find 1x links in IB subnet
+@@ -26,9 +26,9 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR ibchecknode(8),
+-.BR ibcheckportwidth(8)
++.BR ibnetdiscover(1m),
++.BR ibchecknode(1m),
++.BR ibcheckportwidth(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearcounters.8 infiniband-diags-1.5.13/man/ibclearcounters.8
+--- /tmp/infiniband-diags-1.5.13/man/ibclearcounters.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibclearcounters.8	2012-02-03 02:35:35.566551828 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCLEARCOUNTERS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCLEARCOUNTERS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibclearcounters \- clear port counters in IB subnet
+@@ -21,8 +21,8 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR perfquery(8)
++.BR ibnetdiscover(1m),
++.BR perfquery(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibclearerrors.8 infiniband-diags-1.5.13/man/ibclearerrors.8
+--- /tmp/infiniband-diags-1.5.13/man/ibclearerrors.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibclearerrors.8	2012-02-03 02:35:35.566816740 +0900
+@@ -1,4 +1,4 @@
+-.TH IBCLEARERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBCLEARERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibclearerrors \- clear error counters in IB subnet
+@@ -25,8 +25,8 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR perfquery(8)
++.BR ibnetdiscover(1m),
++.BR perfquery(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounters.8 infiniband-diags-1.5.13/man/ibdatacounters.8
+--- /tmp/infiniband-diags-1.5.13/man/ibdatacounters.8	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibdatacounters.8	2012-02-03 02:35:35.567071656 +0900
+@@ -1,4 +1,4 @@
+-.TH IBDATACOUNTERS 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBDATACOUNTERS 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibdatacounters \- query IB subnet for data counters
+@@ -30,8 +30,8 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8),
+-.BR ibdatacounts(8)
++.BR ibnetdiscover(1m),
++.BR ibdatacounts(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdatacounts.8 infiniband-diags-1.5.13/man/ibdatacounts.8
+--- /tmp/infiniband-diags-1.5.13/man/ibdatacounts.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibdatacounts.8	2012-02-03 02:35:35.567359288 +0900
+@@ -1,4 +1,4 @@
+-.TH IBDATACOUNTS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBDATACOUNTS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibdatacounts \- get IB port data counters
+@@ -39,8 +39,8 @@
+ ibdatacounts 2   4       # show data counters for lid 2 port 4
+ 
+ .SH SEE ALSO
+-.BR perfquery(8),
+-.BR ibaddr(8)
++.BR perfquery(1m),
++.BR ibaddr(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibdiscover.8 infiniband-diags-1.5.13/man/ibdiscover.8
+--- /tmp/infiniband-diags-1.5.13/man/ibdiscover.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibdiscover.8	2012-02-03 02:35:35.567628292 +0900
+@@ -1,4 +1,4 @@
+-.TH IBDISCOVER.PL 8 "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBDISCOVER.PL 1m "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibdiscover.pl \- annotate and compare InfiniBand topology
+@@ -42,7 +42,7 @@
+ ibnetdiscover | ibdiscover.pl
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibfindnodesusing.8 infiniband-diags-1.5.13/man/ibfindnodesusing.8
+--- /tmp/infiniband-diags-1.5.13/man/ibfindnodesusing.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibfindnodesusing.8	2012-02-03 02:35:35.567863523 +0900
+@@ -1,4 +1,4 @@
+-.TH IBFINDNODESUSING 8 "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBFINDNODESUSING 1m "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibfindnodesusing.pl \- find a list of end nodes which are routed through
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibhosts.8 infiniband-diags-1.5.13/man/ibhosts.8
+--- /tmp/infiniband-diags-1.5.13/man/ibhosts.8	2011-11-02 14:31:40.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibhosts.8	2012-02-03 02:35:35.568127275 +0900
+@@ -1,4 +1,4 @@
+-.TH IBHOSTS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBHOSTS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibhosts \- show InfiniBand host nodes in topology
+@@ -23,7 +23,7 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH DEPENDENCIES
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibidsverify.8 infiniband-diags-1.5.13/man/ibidsverify.8
+--- /tmp/infiniband-diags-1.5.13/man/ibidsverify.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibidsverify.8	2012-02-03 02:35:35.568385072 +0900
+@@ -1,4 +1,4 @@
+-.TH IBIDSVERIFY 8 "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBIDSVERIFY 1m "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibidsverify.pl \- validate IB identifiers in subnet and report errors
+@@ -28,7 +28,7 @@
+ fabric has changed.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/iblinkinfo.8 infiniband-diags-1.5.13/man/iblinkinfo.8
+--- /tmp/infiniband-diags-1.5.13/man/iblinkinfo.8	2012-01-17 04:01:27.000000000 +0900
++++ infiniband-diags-1.5.13/man/iblinkinfo.8	2012-02-03 02:35:35.568634002 +0900
+@@ -1,4 +1,4 @@
+-.TH IBLINKINFO 8 "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
++.TH IBLINKINFO 1m "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ iblinkinfo \- report link info for all links in the fabric
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnetdiscover.8 infiniband-diags-1.5.13/man/ibnetdiscover.8
+--- /tmp/infiniband-diags-1.5.13/man/ibnetdiscover.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibnetdiscover.8	2012-02-03 02:35:35.568937527 +0900
+@@ -1,4 +1,4 @@
+-.TH IBNETDISCOVER 8 "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
++.TH IBNETDISCOVER 1m "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibnetdiscover \- discover InfiniBand topology
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibnodes.8 infiniband-diags-1.5.13/man/ibnodes.8
+--- /tmp/infiniband-diags-1.5.13/man/ibnodes.8	2011-11-02 14:31:40.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibnodes.8	2012-02-03 02:35:35.569202875 +0900
+@@ -1,4 +1,4 @@
+-.TH IBNODES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBNODES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibnodes \- show InfiniBand nodes in topology
+@@ -23,7 +23,7 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ .SH SEE ALSO
+ 
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH DEPENDENCIES
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibping.8 infiniband-diags-1.5.13/man/ibping.8
+--- /tmp/infiniband-diags-1.5.13/man/ibping.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibping.8	2012-02-03 02:35:35.569528591 +0900
+@@ -1,4 +1,4 @@
+-.TH IBPING 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBPING 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibping \- ping an InfiniBand address
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibportstate.8 infiniband-diags-1.5.13/man/ibportstate.8
+--- /tmp/infiniband-diags-1.5.13/man/ibportstate.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibportstate.8	2012-02-03 02:35:35.569834619 +0900
+@@ -1,4 +1,4 @@
+-.TH IBPORTSTATE 8 "Mar 9, 2011" "OpenIB" "OpenIB Diagnostics"
++.TH IBPORTSTATE 1m "Mar 9, 2011" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibportstate \- handle port (physical) state and link speed of an InfiniBand port
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintca.8 infiniband-diags-1.5.13/man/ibprintca.8
+--- /tmp/infiniband-diags-1.5.13/man/ibprintca.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibprintca.8	2012-02-03 02:35:35.570095020 +0900
+@@ -1,4 +1,4 @@
+-.TH IBPRINTCA 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBPRINTCA 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibprintca.pl \- print either the ca specified or the list of cas from the ibnetdiscover output
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintrt.8 infiniband-diags-1.5.13/man/ibprintrt.8
+--- /tmp/infiniband-diags-1.5.13/man/ibprintrt.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibprintrt.8	2012-02-03 02:35:35.570345844 +0900
+@@ -1,4 +1,4 @@
+-.TH IBPRINTRT 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBPRINTRT 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibprintrt.pl \- print either only the router specified or a list of routers
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibprintswitch.8 infiniband-diags-1.5.13/man/ibprintswitch.8
+--- /tmp/infiniband-diags-1.5.13/man/ibprintswitch.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibprintswitch.8	2012-02-03 02:35:35.570582582 +0900
+@@ -1,4 +1,4 @@
+-.TH IBPRINTSWITCH 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBPRINTSWITCH 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibprintswitch.pl \- print either the switch specified or a list of switches
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibqueryerrors.8 infiniband-diags-1.5.13/man/ibqueryerrors.8
+--- /tmp/infiniband-diags-1.5.13/man/ibqueryerrors.8	2012-01-17 04:28:29.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibqueryerrors.8	2012-02-03 02:35:35.570834749 +0900
+@@ -1,4 +1,4 @@
+-.TH IBQUERYERRORS 8 "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
++.TH IBQUERYERRORS 1m "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibqueryerrors \- query and report non-zero IB port counters
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibroute.8 infiniband-diags-1.5.13/man/ibroute.8
+--- /tmp/infiniband-diags-1.5.13/man/ibroute.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibroute.8	2012-02-03 02:35:35.571112654 +0900
+@@ -1,4 +1,4 @@
+-.TH IBROUTE 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBROUTE 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibroute \- query InfiniBand switch forwarding tables
+@@ -114,7 +114,7 @@
+ ibroute -M -n 4 # simple dump format
+ 
+ .SH SEE ALSO
+-.BR ibtracert (8)
++.BR ibtracert (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibrouters.8 infiniband-diags-1.5.13/man/ibrouters.8
+--- /tmp/infiniband-diags-1.5.13/man/ibrouters.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibrouters.8	2012-02-03 02:35:35.571379879 +0900
+@@ -1,4 +1,4 @@
+-.TH IBROUTERS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
++.TH IBROUTERS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibrouters \- show InfiniBand router nodes in topology
+@@ -23,7 +23,7 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstat.8 infiniband-diags-1.5.13/man/ibstat.8
+--- /tmp/infiniband-diags-1.5.13/man/ibstat.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibstat.8	2012-02-03 02:35:35.573395399 +0900
+@@ -1,4 +1,4 @@
+-.TH IBSTAT 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBSTAT 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibstat \- query basic status of InfiniBand device(s)
+@@ -103,7 +103,7 @@
+ ibstat mthca0 2   # show status of port 2 of 'mthca0'
+ 
+ .SH SEE ALSO
+-.BR ibstatus (8)
++.BR ibstatus (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibstatus.8 infiniband-diags-1.5.13/man/ibstatus.8
+--- /tmp/infiniband-diags-1.5.13/man/ibstatus.8	2011-09-01 08:49:24.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibstatus.8	2012-02-03 02:35:35.573870282 +0900
+@@ -1,4 +1,4 @@
+-.TH IBSTATUS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBSTATUS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibstatus \- query basic status of InfiniBand device(s)
+@@ -33,7 +33,7 @@
+ ibstatus mthca1:1 mthca0:2      # show status of specified ports
+ 
+ .SH SEE ALSO
+-.BR ibstat (8)
++.BR ibstat (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswitches.8 infiniband-diags-1.5.13/man/ibswitches.8
+--- /tmp/infiniband-diags-1.5.13/man/ibswitches.8	2011-11-02 14:31:40.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibswitches.8	2012-02-03 02:35:35.574379534 +0900
+@@ -1,4 +1,4 @@
+-.TH IBSWITCHES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBSWITCHES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibswitches\- show InfiniBand switch nodes in topology
+@@ -23,7 +23,7 @@
+ \-t <timeout_ms> override the default timeout for the solicited mads.
+ 
+ .SH SEE ALSO
+-.BR ibnetdiscover(8)
++.BR ibnetdiscover(1m)
+ 
+ .SH DEPENDENCIES
+ 
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibswportwatch.8 infiniband-diags-1.5.13/man/ibswportwatch.8
+--- /tmp/infiniband-diags-1.5.13/man/ibswportwatch.8	2011-09-01 08:49:23.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibswportwatch.8	2012-02-03 02:35:35.574915054 +0900
+@@ -1,4 +1,4 @@
+-.TH IBSWPORTWATCH 8 "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBSWPORTWATCH 1m "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibswportwatch.pl \- poll the counters on the specified switch/port and
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibsysstat.8 infiniband-diags-1.5.13/man/ibsysstat.8
+--- /tmp/infiniband-diags-1.5.13/man/ibsysstat.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibsysstat.8	2012-02-03 02:35:35.575411631 +0900
+@@ -1,4 +1,4 @@
+-.TH IBSYSSTAT 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH IBSYSSTAT 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibsysstat \- system status on an InfiniBand address
+diff -r -u /tmp/infiniband-diags-1.5.13/man/ibtracert.8 infiniband-diags-1.5.13/man/ibtracert.8
+--- /tmp/infiniband-diags-1.5.13/man/ibtracert.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/ibtracert.8	2012-02-03 02:35:35.575908010 +0900
+@@ -1,4 +1,4 @@
+-.TH IBTRACERT 8 "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
++.TH IBTRACERT 1m "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ ibtracert\- trace InfiniBand path
+@@ -31,7 +31,7 @@
+ \fB\-\-node\-name\-map\fR <node-name-map>
+ Specify a node name map.  The node name map file maps GUIDs to more
+ user friendly names.  See
+-.B ibnetdiscover(8)
++.B ibnetdiscover(1m)
+ for node name map file format.
+ 
+ .SH COMMON OPTIONS
+@@ -97,7 +97,7 @@
+ ibtracert -m 0xc000 4 16    # show multicast path of mlid 0xc000 between lids 4 and 16
+ 
+ .SH SEE ALSO
+-.BR ibroute (8)
++.BR ibroute (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/perfquery.8 infiniband-diags-1.5.13/man/perfquery.8
+--- /tmp/infiniband-diags-1.5.13/man/perfquery.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/perfquery.8	2012-02-03 02:35:35.576377411 +0900
+@@ -1,4 +1,4 @@
+-.TH PERFQUERY 8 "February 19, 2011" "OpenIB" "OpenIB Diagnostics"
++.TH PERFQUERY 1m "February 19, 2011" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ perfquery \- query InfiniBand port counters
+diff -r -u /tmp/infiniband-diags-1.5.13/man/saquery.8 infiniband-diags-1.5.13/man/saquery.8
+--- /tmp/infiniband-diags-1.5.13/man/saquery.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/saquery.8	2012-02-03 02:35:35.576824325 +0900
+@@ -1,4 +1,4 @@
+-.TH SAQUERY 8 "March 14, 2011" "OpenIB" "OpenIB Diagnostics"
++.TH SAQUERY 1m "March 14, 2011" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ saquery \- query InfiniBand subnet administration attributes
+@@ -99,7 +99,7 @@
+ \fB\-\-node\-name\-map\fR <node-name-map>
+ Specify a node name map.  The node name map file maps GUIDs to more
+ user friendly names.  See
+-.B ibnetdiscover(8)
++.B ibnetdiscover(1m)
+ for node name map file format.  Only used with the \fB\-O\fR and \fB\-U\fR
+ options.
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/sminfo.8 infiniband-diags-1.5.13/man/sminfo.8
+--- /tmp/infiniband-diags-1.5.13/man/sminfo.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/sminfo.8	2012-02-03 02:35:35.577446942 +0900
+@@ -1,4 +1,4 @@
+-.TH SMINFO 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH SMINFO 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ sminfo \- query InfiniBand SMInfo attribute
+@@ -99,7 +99,7 @@
+ sminfo  -G 0x8f1040023  # same but using guid address
+ 
+ .SH SEE ALSO
+-.BR smpdump (8)
++.BR smpdump (1m)
+ 
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/smpdump.8 infiniband-diags-1.5.13/man/smpdump.8
+--- /tmp/infiniband-diags-1.5.13/man/smpdump.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/smpdump.8	2012-02-03 02:35:35.577905860 +0900
+@@ -1,4 +1,4 @@
+-.TH SMPDUMP 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
++.TH SMPDUMP 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
+ 
+ .SH NAME
+ smpdump \- dump InfiniBand subnet management attributes
 @@ -91,7 +91,7 @@
+ smpdump 0xa0 0x11       # NODE INFO, lid 0xa0
  
- text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
- rv=$?
--if echo "$text" | awk -v mono=$bw -F '[.:]*' '
-+if echo "$text" | gawk -v mono=$bw -F '[.:]*' '
- function blue(s)
- {
- 	if (mono)
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibhosts.in infiniband-diags-1.5.8/scripts/ibhosts.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibhosts.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibhosts.in	Thu Feb 24 11:26:56 2011
-@@ -49,7 +49,7 @@
+ .SH SEE ALSO
+-.BR smpquery (8)
++.BR smpquery (1m)
  
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- /^Ca/	{print $1 "\t: 0x" substr($3, 4, 16) " ports " $2 " "\
- 		substr($0, match($0, "#[ \t]*")+RLENGTH)}
- /^ib/	{print $0; next}
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/set_nodedesc.sh infiniband-diags-1.5.8/scripts/set_nodedesc.sh
---- /tmp/infiniband-diags-1.5.8/scripts/set_nodedesc.sh	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/set_nodedesc.sh	Fri Feb 25 03:09:27 2011
-@@ -1,5 +1,13 @@
- #!/bin/bash
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/smpquery.8 infiniband-diags-1.5.13/man/smpquery.8
+--- /tmp/infiniband-diags-1.5.13/man/smpquery.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/smpquery.8	2012-02-03 02:35:35.578370168 +0900
+@@ -1,4 +1,4 @@
+-.TH SMPQUERY 8 "March 9, 2011" "OpenIB" "OpenIB Diagnostics"
++.TH SMPQUERY 1m "March 9, 2011" "OpenIB" "OpenIB Diagnostics"
  
-+# Call solaris_set_nodedesc, if operating system is SunOS
-+os=`uname -s`
-+if [ $os == "SunOS" ]; then
-+	solaris_set_nodedesc $*
-+	rc=$?
-+	exit $rc
-+fi
-+
- if [ -f /etc/sysconfig/network ]; then
- . /etc/sysconfig/network
- fi
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibchecknode.in infiniband-diags-1.5.8/scripts/ibchecknode.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibchecknode.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibchecknode.in	Thu Feb 24 11:26:52 2011
-@@ -71,7 +71,7 @@
- fi
+ .SH NAME
+ smpquery \- query InfiniBand subnet management attributes
+@@ -40,7 +40,7 @@
+ \fB\-\-node\-name\-map\fR <node-name-map>
+ Specify a node name map.  The node name map file maps GUIDs to more
+ user friendly names.  See
+-.B ibnetdiscover(8)
++.B ibnetdiscover(1m)
+ for node name map file format.
  
- if [ "$guid_addr" ]; then
--	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
-+	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
- 		echo -n "guid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -78,7 +78,7 @@
- 	fi
- else
- 	lid=$1
--	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
-+	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
- 		echo -n "lid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckstate.in infiniband-diags-1.5.8/scripts/ibcheckstate.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckstate.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckstate.in	Thu Feb 24 11:26:53 2011
-@@ -69,7 +69,7 @@
+ .SH COMMON OPTIONS
+@@ -114,7 +114,7 @@
+ smpquery -c nodeinfo 6 0,12  # nodeinfo by combined route
  
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- BEGIN {
- 	ne=0
- 	pe=0
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibswitches.in infiniband-diags-1.5.8/scripts/ibswitches.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibswitches.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibswitches.in	Thu Feb 24 11:26:58 2011
-@@ -49,7 +49,7 @@
+ .SH SEE ALSO
+-.BR smpdump (8)
++.BR smpdump (1m)
  
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- /^Switch/	{
- 			l=$0
- 			desc=substr(l, match(l, "#[ \t]*")+RLENGTH)
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibclearcounters.in infiniband-diags-1.5.8/scripts/ibclearcounters.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibclearcounters.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibclearcounters.in	Thu Feb 24 11:26:54 2011
-@@ -59,7 +59,7 @@
+ .SH AUTHOR
+ .TP
+diff -r -u /tmp/infiniband-diags-1.5.13/man/vendstat.8 infiniband-diags-1.5.13/man/vendstat.8
+--- /tmp/infiniband-diags-1.5.13/man/vendstat.8	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/man/vendstat.8	2012-02-03 02:35:35.578850801 +0900
+@@ -1,4 +1,4 @@
+-.TH VENDSTAT 8 "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
++.TH VENDSTAT 1m "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
  
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- 
- function clear_counters(lid)
- {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrors.in infiniband-diags-1.5.8/scripts/ibcheckerrors.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrors.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckerrors.in	Thu Feb 24 11:26:52 2011
+ .SH NAME
+ vendstat \- query InfiniBand vendor specific functions
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrors.in infiniband-diags-1.5.13/scripts/ibcheckerrors.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrors.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckerrors.in	2012-02-03 02:35:35.579485303 +0900
 @@ -74,7 +74,7 @@
  
  text="`eval $netcmd`"
@@ -336,57 +1257,9 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrors.in infiniband-diags
  BEGIN {
  	ne=0
  }
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibprintswitch.pl infiniband-diags-1.5.8/scripts/ibprintswitch.pl
---- /tmp/infiniband-diags-1.5.8/scripts/ibprintswitch.pl	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibprintswitch.pl	Thu Feb 24 11:26:57 2011
-@@ -84,7 +84,7 @@
- 
- if ($list_switches) {
- 	system("ibswitches $cache_file");
--	exit 1;
-+	exit $?;
- }
- 
- if ($target_switch eq "") {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibprintrt.pl infiniband-diags-1.5.8/scripts/ibprintrt.pl
---- /tmp/infiniband-diags-1.5.8/scripts/ibprintrt.pl	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibprintrt.pl	Thu Feb 24 11:26:57 2011
-@@ -84,7 +84,7 @@
- 
- if ($list_rts) {
- 	system("ibrouters $cache_file");
--	exit 1;
-+	exit $?;
- }
- 
- if ($target_rt eq "") {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibclearerrors.in infiniband-diags-1.5.8/scripts/ibclearerrors.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibclearerrors.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibclearerrors.in	Thu Feb 24 11:26:54 2011
-@@ -63,7 +63,7 @@
- 
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- 
- function clear_all_errors(lid, port)
- {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibdatacounters.in infiniband-diags-1.5.8/scripts/ibdatacounters.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibdatacounters.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibdatacounters.in	Thu Feb 24 11:26:54 2011
-@@ -74,7 +74,7 @@
- 
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- BEGIN {
- 	ne=0
- }
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrs.in infiniband-diags-1.5.8/scripts/ibcheckerrs.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrs.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckerrs.in	Fri Feb 25 03:09:27 2011
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrs.in infiniband-diags-1.5.13/scripts/ibcheckerrs.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckerrs.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckerrs.in	2012-02-03 02:35:35.580330205 +0900
 @@ -136,7 +136,7 @@
  fi
  
@@ -414,9 +1287,292 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckerrs.in infiniband-diags-1
  function blue(s)
  {
  	if (brief == "yes") {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibrouters.in infiniband-diags-1.5.8/scripts/ibrouters.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibrouters.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibrouters.in	Thu Feb 24 11:26:57 2011
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknet.in infiniband-diags-1.5.13/scripts/ibchecknet.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibchecknet.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibchecknet.in	2012-02-03 02:35:35.581065986 +0900
+@@ -67,7 +67,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ BEGIN {
+ 	ne=0
+ 	pe=0
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibchecknode.in infiniband-diags-1.5.13/scripts/ibchecknode.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibchecknode.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibchecknode.in	2012-02-03 02:35:35.581722971 +0900
+@@ -71,14 +71,14 @@
+ fi
+ 
+ if [ "$guid_addr" ]; then
+-	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
++	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
+ 		echo -n "guid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+ 	fi
+ else
+ 	lid=$1
+-	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
++	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
+ 		echo -n "lid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckport.in infiniband-diags-1.5.13/scripts/ibcheckport.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckport.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckport.in	2012-02-03 02:35:35.582363901 +0900
+@@ -73,7 +73,7 @@
+ portnum=$2
+ 
+ if [ "$guid_addr" ]; then
+-	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
++	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
+ 		echo -n "guid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -81,14 +81,14 @@
+ 	guid=$1
+ else
+ 	lid=$1
+-	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
++	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
+ 		echo -n "lid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+ 	fi
+ fi
+ 
+-is_switch=`$IBPATH/smpquery $ca_info nodeinfo $lid $portnum | awk -F '[.:]*' '/^NodeType/{ if ($2 == "Switch") {print 1}}'`
++is_switch=`$IBPATH/smpquery $ca_info nodeinfo $lid $portnum | gawk -F '[.:]*' '/^NodeType/{ if ($2 == "Switch") {print 1}}'`
+ 
+ if [ "$is_switch" -a "$portnum" == "0" ]; then
+ 	ignore_check=true
+@@ -96,7 +96,7 @@
+ 
+ text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
+ rv=$?
+-if echo "$text" | awk -v ignore_check=$ignore_check -v mono=$bw -F '[.:]*' '
++if echo "$text" | gawk -v ignore_check=$ignore_check -v mono=$bw -F '[.:]*' '
+ function blue(s)
+ {
+ 	if (mono)
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportstate.in infiniband-diags-1.5.13/scripts/ibcheckportstate.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckportstate.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckportstate.in	2012-02-03 02:35:35.582991842 +0900
+@@ -73,7 +73,7 @@
+ portnum=$2
+ 
+ if [ "$guid_addr" ]; then
+-	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
++	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
+ 		echo -n "guid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -81,7 +81,7 @@
+ 	guid=$1
+ else
+ 	lid=$1
+-	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
++	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
+ 		echo -n "lid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -91,7 +91,7 @@
+ 
+ text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
+ rv=$?
+-if echo "$text" | awk -v mono=$bw -F '[.:]*' '
++if echo "$text" | gawk -v mono=$bw -F '[.:]*' '
+ function blue(s)
+ {
+ 	if (mono)
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckportwidth.in infiniband-diags-1.5.13/scripts/ibcheckportwidth.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckportwidth.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckportwidth.in	2012-02-03 02:35:35.583534974 +0900
+@@ -73,7 +73,7 @@
+ portnum=$2
+ 
+ if [ "$guid_addr" ]; then
+-	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
++	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
+ 		echo -n "guid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -81,7 +81,7 @@
+ 	guid=$1
+ else
+ 	lid=$1
+-	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
++	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
+ 		echo -n "lid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -91,7 +91,7 @@
+ 
+ text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
+ rv=$?
+-if echo "$text" | awk -v mono=$bw -F '[.:]*' '
++if echo "$text" | gawk -v mono=$bw -F '[.:]*' '
+ function blue(s)
+ {
+ 	if (mono)
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckstate.in infiniband-diags-1.5.13/scripts/ibcheckstate.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckstate.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckstate.in	2012-02-03 02:35:35.583963185 +0900
+@@ -69,7 +69,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ BEGIN {
+ 	ne=0
+ 	pe=0
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibcheckwidth.in infiniband-diags-1.5.13/scripts/ibcheckwidth.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibcheckwidth.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibcheckwidth.in	2012-02-03 02:35:35.584379314 +0900
+@@ -69,7 +69,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ BEGIN {
+ 	ne=0
+ 	pe=0
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearcounters.in infiniband-diags-1.5.13/scripts/ibclearcounters.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibclearcounters.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibclearcounters.in	2012-02-03 02:35:35.584806630 +0900
+@@ -59,7 +59,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ 
+ function clear_counters(lid)
+ {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibclearerrors.in infiniband-diags-1.5.13/scripts/ibclearerrors.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibclearerrors.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibclearerrors.in	2012-02-03 02:35:35.585239580 +0900
+@@ -63,7 +63,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ 
+ function clear_all_errors(lid, port)
+ {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounters.in infiniband-diags-1.5.13/scripts/ibdatacounters.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibdatacounters.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibdatacounters.in	2012-02-03 02:35:35.585709867 +0900
+@@ -74,7 +74,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ BEGIN {
+ 	ne=0
+ }
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdatacounts.in infiniband-diags-1.5.13/scripts/ibdatacounts.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibdatacounts.in	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibdatacounts.in	2012-02-03 02:35:35.586208532 +0900
+@@ -91,7 +91,7 @@
+ fi
+ 
+ if [ "$guid_addr" ]; then
+-	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
++	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
+ 		echo -n "guid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -99,7 +99,7 @@
+ 	guid=$1
+ else
+ 	lid=$1
+-	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
++	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
+ 		echo -n "lid $1 address resolution: "
+ 		red "FAILED"
+ 		exit -1
+@@ -110,7 +110,7 @@
+ 
+ text="`eval $IBPATH/perfquery $ca_info $lid $portnum`"
+ rv=$?
+-if echo "$text" | awk -v mono=$bw -v brief=$brief -F '[.:]*' '
++if echo "$text" | gawk -v mono=$bw -v brief=$brief -F '[.:]*' '
+ function blue(s)
+ {
+ 	if (brief == "yes") {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibdiscover.pl infiniband-diags-1.5.13/scripts/ibdiscover.pl
+--- /tmp/infiniband-diags-1.5.13/scripts/ibdiscover.pl	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibdiscover.pl	2012-02-03 02:35:35.586731362 +0900
+@@ -49,9 +49,10 @@
+ 		$localGuid = $local;
+ 	} else {
+ 		($localPort, $type, $remoteGuid, $remotePort) =
+-		  /([\s\S]*)"([SH])\-000([a-f\d]*)"([\s\S]*)\n/;
++		  /([\s\S]*)"([SH])\-([a-f\d]*)"([\s\S]*)\n/;
+ 		($localPort)  = $localPort  =~ /\[(\d*)]/;
+ 		($remotePort) = $remotePort =~ /\[(\d*)]/;
++		$remoteGuid =~ s/^0*//;
+ 		if ($remoteGuid ne "" && $localPort ne "") {
+ 			printf(TOPO2 "%d|%s|%d|%s\n",
+ 				$localPort, $localGuid, $remotePort, $remoteGuid);
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibhosts.in infiniband-diags-1.5.13/scripts/ibhosts.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibhosts.in	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibhosts.in	2012-02-03 02:35:35.587167967 +0900
+@@ -49,7 +49,7 @@
+ 
+ text="`eval $netcmd`"
+ rv=$?
+-echo "$text" | awk '
++echo "$text" | gawk '
+ /^Ca/	{print $1 "\t: 0x" substr($3, 4, 16) " ports " $2 " "\
+ 		substr($0, match($0, "#[ \t]*")+RLENGTH)}
+ /^ib/	{print $0; next}
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintca.pl infiniband-diags-1.5.13/scripts/ibprintca.pl
+--- /tmp/infiniband-diags-1.5.13/scripts/ibprintca.pl	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintca.pl	2012-02-03 02:35:35.587655248 +0900
+@@ -84,7 +84,7 @@
+ 
+ if ($list_hcas) {
+ 	system("ibhosts $cache_file");
+-	exit 1;
++	exit $?;
+ }
+ 
+ if ($target_hca eq "") {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintrt.pl infiniband-diags-1.5.13/scripts/ibprintrt.pl
+--- /tmp/infiniband-diags-1.5.13/scripts/ibprintrt.pl	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintrt.pl	2012-02-03 02:35:35.588097690 +0900
+@@ -84,7 +84,7 @@
+ 
+ if ($list_rts) {
+ 	system("ibrouters $cache_file");
+-	exit 1;
++	exit $?;
+ }
+ 
+ if ($target_rt eq "") {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibprintswitch.pl infiniband-diags-1.5.13/scripts/ibprintswitch.pl
+--- /tmp/infiniband-diags-1.5.13/scripts/ibprintswitch.pl	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibprintswitch.pl	2012-02-03 02:35:35.588537533 +0900
+@@ -84,7 +84,7 @@
+ 
+ if ($list_switches) {
+ 	system("ibswitches $cache_file");
+-	exit 1;
++	exit $?;
+ }
+ 
+ if ($target_switch eq "") {
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibrouters.in infiniband-diags-1.5.13/scripts/ibrouters.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibrouters.in	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibrouters.in	2012-02-03 02:35:35.588990471 +0900
 @@ -49,7 +49,7 @@
  
  text="`eval $netcmd`"
@@ -426,10 +1582,10 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibrouters.in infiniband-diags-1.5
  /^Rt/	{print $1 "\t: 0x" substr($3, 4, 16) " ports " $2 " "\
  		substr($0, match($0, "#[ \t]*")+RLENGTH)}
  /^ib/	{print $0; next}
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibstatus infiniband-diags-1.5.8/scripts/ibstatus
---- /tmp/infiniband-diags-1.5.8/scripts/ibstatus	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibstatus	Fri Feb 25 03:09:27 2011
-@@ -2,8 +2,9 @@
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibstatus infiniband-diags-1.5.13/scripts/ibstatus
+--- /tmp/infiniband-diags-1.5.13/scripts/ibstatus	2012-01-12 15:50:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibstatus	2012-02-03 02:35:35.589550326 +0900
+@@ -2,66 +2,128 @@
  
  # Usage ibstatus [devname[:port]]
  
@@ -441,7 +1597,6 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibstatus infiniband-diags-1.5.8/s
  
  usage() {
  	prog=`basename $0`
-@@ -10,58 +11,119 @@
  	echo "Usage: " $prog " [-h] [devname[:portnum]]"
  	echo "	-h:	this help screen"
  	echo "	Examples:"
@@ -551,26 +1706,19 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibstatus infiniband-diags-1.5.8/s
 -	echo "	link_layer:	" `[ -r $port_dir/link_layer ] && cat $port_dir/link_layer || echo IB`
 -	echo
 -}
+-
+-ib_status() {
+-	ports_dir="$infiniband_base/$1/ports"
 +# Check to see if /usr/bin/ibv_devinfo exists.
 +if [ ! -x $ibvdevinfo ]; then
 +	echo "$ibvdevinfo doesn't exist!"
 +	exit 0
 +fi
  
--ib_status() {
--	ports_dir="$infiniband_base/$1/ports"
-+rm -rf $ibvdevinfo_results
- 
 -	if ! [ -d "$ports_dir" ]; then
 -		fatal "device '$1': sys files not found ($ports_dir)"
 -	fi
-+# Run ibv_devinfo and direct the output to $ibvdevinfo_results.
-+$ibvdevinfo -v > $ibvdevinfo_results
-+if [ $? != 0 ]; then
-+	echo "$ibvdevinfo failed!"
-+	exit 0
-+fi
-+#
++rm -rf $ibvdevinfo_results
  
 -	if [ "$2" = "+" ]; then
 -		ports=`(cd "$infiniband_base/$1/ports" 2>/dev/null || fatal No devices; echo *)`
@@ -582,7 +1730,14 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibstatus infiniband-diags-1.5.8/s
 -		port_status $1 $i
 -	done
 -}
--
++# Run ibv_devinfo and direct the output to $ibvdevinfo_results.
++$ibvdevinfo -v > $ibvdevinfo_results
++if [ $? != 0 ]; then
++	echo "$ibvdevinfo failed!"
++	exit 0
++fi
++#
+ 
 -if [ "$1" = "-h" ]; then
 -	usage
 +nhcas=`$ibvdevinfo -l | awk '/HCA/{print $1}'`
@@ -611,93 +1766,9 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibstatus infiniband-diags-1.5.8/s
 +
  	shift
  done
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckwidth.in infiniband-diags-1.5.8/scripts/ibcheckwidth.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckwidth.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckwidth.in	Thu Feb 24 11:26:54 2011
-@@ -69,7 +69,7 @@
- 
- text="`eval $netcmd`"
- rv=$?
--echo "$text" | awk '
-+echo "$text" | gawk '
- BEGIN {
- 	ne=0
- 	pe=0
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckportwidth.in infiniband-diags-1.5.8/scripts/ibcheckportwidth.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckportwidth.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckportwidth.in	Thu Feb 24 11:26:53 2011
-@@ -73,7 +73,7 @@
- portnum=$2
- 
- if [ "$guid_addr" ]; then
--	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
-+	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
- 		echo -n "guid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -81,7 +81,7 @@
- 	guid=$1
- else
- 	lid=$1
--	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
-+	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
- 		echo -n "lid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -91,7 +91,7 @@
- 
- text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
- rv=$?
--if echo "$text" | awk -v mono=$bw -F '[.:]*' '
-+if echo "$text" | gawk -v mono=$bw -F '[.:]*' '
- function blue(s)
- {
- 	if (mono)
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibdatacounts.in infiniband-diags-1.5.8/scripts/ibdatacounts.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibdatacounts.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibdatacounts.in	Thu Feb 24 11:26:55 2011
-@@ -91,7 +91,7 @@
- fi
- 
- if [ "$guid_addr" ]; then
--	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
-+	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
- 		echo -n "guid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -99,7 +99,7 @@
- 	guid=$1
- else
- 	lid=$1
--	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
-+	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
- 		echo -n "lid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -110,7 +110,7 @@
- 
- text="`eval $IBPATH/perfquery $ca_info $lid $portnum`"
- rv=$?
--if echo "$text" | awk -v mono=$bw -v brief=$brief -F '[.:]*' '
-+if echo "$text" | gawk -v mono=$bw -v brief=$brief -F '[.:]*' '
- function blue(s)
- {
- 	if (brief == "yes") {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibprintca.pl infiniband-diags-1.5.8/scripts/ibprintca.pl
---- /tmp/infiniband-diags-1.5.8/scripts/ibprintca.pl	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibprintca.pl	Thu Feb 24 11:26:57 2011
-@@ -84,7 +84,7 @@
- 
- if ($list_hcas) {
- 	system("ibhosts $cache_file");
--	exit 1;
-+	exit $?;
- }
- 
- if ($target_hca eq "") {
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/IBswcountlimits.pm infiniband-diags-1.5.8/scripts/IBswcountlimits.pm
---- /tmp/infiniband-diags-1.5.8/scripts/IBswcountlimits.pm	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/IBswcountlimits.pm	Thu Jun 30 13:22:36 2011
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/IBswcountlimits.pm infiniband-diags-1.5.13/scripts/IBswcountlimits.pm
+--- /tmp/infiniband-diags-1.5.13/scripts/IBswcountlimits.pm	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/IBswcountlimits.pm	2012-02-03 02:35:35.590131347 +0900
 @@ -261,7 +261,8 @@
  	my $cache_file   = get_cache_file($ca_name, $ca_port);
  	my $extra_params = get_ca_name_port_param_string($ca_name, $ca_port);
@@ -708,879 +1779,51 @@ diff -r -u /tmp/infiniband-diags-1.5.8/scripts/IBswcountlimits.pm infiniband-dia
  		die "Execution of ibnetdiscover failed: $!\n";
  	}
  }
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibcheckport.in infiniband-diags-1.5.8/scripts/ibcheckport.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibcheckport.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibcheckport.in	Thu Feb 24 11:26:53 2011
-@@ -73,7 +73,7 @@
- portnum=$2
- 
- if [ "$guid_addr" ]; then
--	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | awk '/failed/{exit -1} {print $3}'`; then
-+	if ! lid=`$IBPATH/ibaddr $ca_info -G -L $1 | gawk '/failed/{exit -1} {print $3}'`; then
- 		echo -n "guid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -81,7 +81,7 @@
- 	guid=$1
- else
- 	lid=$1
--	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | awk '/failed/{exit -1} {print $1}'`; then
-+	if ! temp=`$IBPATH/ibaddr $ca_info -L $1 | gawk '/failed/{exit -1} {print $1}'`; then
- 		echo -n "lid $1 address resolution: "
- 		red "FAILED"
- 		exit -1
-@@ -91,7 +91,7 @@
- 
- text="`eval $IBPATH/smpquery $ca_info portinfo $lid $portnum`"
- rv=$?
--if echo "$text" | awk -v mono=$bw -F '[.:]*' '
-+if echo "$text" | gawk -v mono=$bw -F '[.:]*' '
- function blue(s)
- {
- 	if (mono)
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibdiscover.pl infiniband-diags-1.5.8/scripts/ibdiscover.pl
---- /tmp/infiniband-diags-1.5.8/scripts/ibdiscover.pl	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibdiscover.pl	Thu Feb 24 11:26:55 2011
-@@ -49,9 +49,10 @@
- 		$localGuid = $local;
- 	} else {
- 		($localPort, $type, $remoteGuid, $remotePort) =
--		  /([\s\S]*)"([SH])\-000([a-f\d]*)"([\s\S]*)\n/;
-+		  /([\s\S]*)"([SH])\-([a-f\d]*)"([\s\S]*)\n/;
- 		($localPort)  = $localPort  =~ /\[(\d*)]/;
- 		($remotePort) = $remotePort =~ /\[(\d*)]/;
-+		$remoteGuid =~ s/^0*//;
- 		if ($remoteGuid ne "" && $localPort ne "") {
- 			printf(TOPO2 "%d|%s|%d|%s\n",
- 				$localPort, $localGuid, $remotePort, $remoteGuid);
-diff -r -u /tmp/infiniband-diags-1.5.8/scripts/ibchecknet.in infiniband-diags-1.5.8/scripts/ibchecknet.in
---- /tmp/infiniband-diags-1.5.8/scripts/ibchecknet.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/scripts/ibchecknet.in	Thu Feb 24 11:26:52 2011
-@@ -67,7 +67,7 @@
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/ibswitches.in infiniband-diags-1.5.13/scripts/ibswitches.in
+--- /tmp/infiniband-diags-1.5.13/scripts/ibswitches.in	2012-01-13 04:28:34.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/ibswitches.in	2012-02-03 02:35:35.590576702 +0900
+@@ -49,7 +49,7 @@
  
  text="`eval $netcmd`"
  rv=$?
 -echo "$text" | awk '
 +echo "$text" | gawk '
- BEGIN {
- 	ne=0
- 	pe=0
-diff -r -u /tmp/infiniband-diags-1.5.8/libibnetdisc/src/query_smp.c infiniband-diags-1.5.8/libibnetdisc/src/query_smp.c
---- /tmp/infiniband-diags-1.5.8/libibnetdisc/src/query_smp.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/libibnetdisc/src/query_smp.c	Thu May  5 15:26:22 2011
-@@ -160,7 +160,7 @@
- 	uint8_t *mad;
- 	uint32_t trid;
- 	uint8_t umad[sizeof(struct ib_user_mad) + IB_MAD_SIZE];
--	int length = umad_size() + IB_MAD_SIZE;
-+	int length = IB_MAD_SIZE;
- 
- 	memset(umad, 0, sizeof(umad));
- 
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibstat.8 infiniband-diags-1.5.8/man/ibstat.8
---- /tmp/infiniband-diags-1.5.8/man/ibstat.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibstat.8	Thu Feb 24 11:26:48 2011
-@@ -1,4 +1,4 @@
--.TH IBSTAT 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBSTAT 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibstat \- query basic status of InfiniBand device(s)
-@@ -103,7 +103,7 @@
- ibstat mthca0 2   # show status of port 2 of 'mthca0'
- 
- .SH SEE ALSO
--.BR ibstatus (8)
-+.BR ibstatus (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/vendstat.8 infiniband-diags-1.5.8/man/vendstat.8
---- /tmp/infiniband-diags-1.5.8/man/vendstat.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/vendstat.8	Thu Feb 24 11:26:50 2011
-@@ -1,4 +1,4 @@
--.TH VENDSTAT 8 "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
-+.TH VENDSTAT 1m "February 10, 2010" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- vendstat \- query InfiniBand vendor specific functions
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckportstate.8 infiniband-diags-1.5.8/man/ibcheckportstate.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckportstate.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckportstate.8	Thu Feb 24 11:26:42 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKPORTSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKPORTSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckportstate \- validate IB port for LinkUp and not Active state
-@@ -35,8 +35,8 @@
- ibcheckportstate 2 3         # check lid 2 port 3
- 
- .SH SEE ALSO
--.BR smpquery(8),
--.BR ibaddr(8)
-+.BR smpquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibnodes.8 infiniband-diags-1.5.8/man/ibnodes.8
---- /tmp/infiniband-diags-1.5.8/man/ibnodes.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibnodes.8	Thu Feb 24 11:26:46 2011
-@@ -1,4 +1,4 @@
--.TH IBNODES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBNODES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibnodes \- show InfiniBand nodes in topology
-@@ -23,7 +23,7 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- .SH SEE ALSO
- 
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibchecknode.8 infiniband-diags-1.5.8/man/ibchecknode.8
---- /tmp/infiniband-diags-1.5.8/man/ibchecknode.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibchecknode.8	Thu Feb 24 11:26:42 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKNODE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKNODE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibchecknode \- validate IB node and report errors
-@@ -34,8 +34,8 @@
- ibchecknode 2           # check node via lid 2
- 
- .SH SEE ALSO
--.BR smpquery(8),
--.BR ibaddr(8)
-+.BR smpquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckport.8 infiniband-diags-1.5.8/man/ibcheckport.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckport.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckport.8	Thu Feb 24 11:26:42 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKPORT 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKPORT 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckport \- validate IB port and report errors
-@@ -34,8 +34,8 @@
- ibcheckport 2 3         # check lid 2 port 3
- 
- .SH SEE ALSO
--.BR smpquery(8),
--.BR ibaddr(8)
-+.BR smpquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckstate.8 infiniband-diags-1.5.8/man/ibcheckstate.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckstate.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckstate.8	Thu Feb 24 11:26:43 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKSTATE 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKSTATE 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckstate \- find ports in IB subnet which are link up but not active
-@@ -26,9 +26,9 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR ibchecknode(8),
--.BR ibcheckportstate(8)
-+.BR ibnetdiscover(1m),
-+.BR ibchecknode(1m),
-+.BR ibcheckportstate(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/smpquery.8 infiniband-diags-1.5.8/man/smpquery.8
---- /tmp/infiniband-diags-1.5.8/man/smpquery.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/smpquery.8	Thu Feb 24 11:26:50 2011
-@@ -1,4 +1,4 @@
--.TH SMPQUERY 8 "March 14, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH SMPQUERY 1m "March 14, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- smpquery \- query InfiniBand subnet management attributes
-@@ -34,7 +34,7 @@
- \fB\-\-node\-name\-map\fR <node-name-map>
- Specify a node name map.  The node name map file maps GUIDs to more
- user friendly names.  See
--.B ibnetdiscover(8)
-+.B ibnetdiscover(1m)
- for node name map file format.
- 
- .SH COMMON OPTIONS
-@@ -108,7 +108,7 @@
- smpquery -c nodeinfo 6 0,12  # nodeinfo by combined route
- 
- .SH SEE ALSO
--.BR smpdump (8)
-+.BR smpdump (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckerrors.8 infiniband-diags-1.5.8/man/ibcheckerrors.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckerrors.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckerrors.8	Thu Feb 24 11:26:41 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckerrors \- validate IB subnet and report errors
-@@ -30,10 +30,10 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR ibchecknode(8),
--.BR ibcheckport(8),
--.BR ibcheckerrs(8)
-+.BR ibnetdiscover(1m),
-+.BR ibchecknode(1m),
-+.BR ibcheckport(1m),
-+.BR ibcheckerrs(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibprintca.8 infiniband-diags-1.5.8/man/ibprintca.8
---- /tmp/infiniband-diags-1.5.8/man/ibprintca.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibprintca.8	Thu Feb 24 11:26:47 2011
-@@ -1,4 +1,4 @@
--.TH IBPRINTCA 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBPRINTCA 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibprintca.pl \- print either the ca specified or the list of cas from the ibnetdiscover output
-diff -r -u /tmp/infiniband-diags-1.5.8/man/sminfo.8 infiniband-diags-1.5.8/man/sminfo.8
---- /tmp/infiniband-diags-1.5.8/man/sminfo.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/sminfo.8	Thu Feb 24 11:26:50 2011
-@@ -1,4 +1,4 @@
--.TH SMINFO 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH SMINFO 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- sminfo \- query InfiniBand SMInfo attribute
-@@ -99,7 +99,7 @@
- sminfo  -G 0x8f1040023  # same but using guid address
- 
- .SH SEE ALSO
--.BR smpdump (8)
-+.BR smpdump (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibdiscover.8 infiniband-diags-1.5.8/man/ibdiscover.8
---- /tmp/infiniband-diags-1.5.8/man/ibdiscover.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibdiscover.8	Thu Feb 24 11:26:44 2011
-@@ -1,4 +1,4 @@
--.TH IBDISCOVER.PL 8 "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBDISCOVER.PL 1m "September 21, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibdiscover.pl \- annotate and compare InfiniBand topology
-@@ -42,7 +42,7 @@
- ibnetdiscover | ibdiscover.pl
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/iblinkinfo.8 infiniband-diags-1.5.8/man/iblinkinfo.8
---- /tmp/infiniband-diags-1.5.8/man/iblinkinfo.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/iblinkinfo.8	Fri Feb 25 03:09:26 2011
-@@ -1,4 +1,4 @@
--.TH IBLINKINFO 8 "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
-+.TH IBLINKINFO 1m "Jan 24, 2008" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- iblinkinfo \- report link info for all links in the fabric
-diff -r -u /tmp/infiniband-diags-1.5.8/man/dump_mfts.8 infiniband-diags-1.5.8/man/dump_mfts.8
---- /tmp/infiniband-diags-1.5.8/man/dump_mfts.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/dump_mfts.8	Thu Feb 24 11:26:41 2011
-@@ -1,4 +1,4 @@
--.TH DUMP_MFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH DUMP_MFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- dump_lfts.sh \- dump InfiniBand multicast forwarding tables
-@@ -34,10 +34,10 @@
- 
- 
- .SH SEE ALSO
--.BR dump_lfts(8),
--.BR ibroute(8),
--.BR ibswitches(8),
--.BR opensm(8)
-+.BR dump_lfts(1m),
-+.BR ibroute(1m),
-+.BR ibswitches(1m),
-+.BR opensm(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibclearerrors.8 infiniband-diags-1.5.8/man/ibclearerrors.8
---- /tmp/infiniband-diags-1.5.8/man/ibclearerrors.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibclearerrors.8	Thu Feb 24 11:26:44 2011
-@@ -1,4 +1,4 @@
--.TH IBCLEARERRORS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCLEARERRORS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibclearerrors \- clear error counters in IB subnet
-@@ -25,8 +25,8 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR perfquery(8)
-+.BR ibnetdiscover(1m),
-+.BR perfquery(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibhosts.8 infiniband-diags-1.5.8/man/ibhosts.8
---- /tmp/infiniband-diags-1.5.8/man/ibhosts.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibhosts.8	Thu Feb 24 11:26:45 2011
-@@ -1,4 +1,4 @@
--.TH IBHOSTS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBHOSTS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibhosts \- show InfiniBand host nodes in topology
-@@ -23,7 +23,7 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckportwidth.8 infiniband-diags-1.5.8/man/ibcheckportwidth.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckportwidth.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckportwidth.8	Thu Feb 24 11:26:43 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKPORTWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKPORTWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckportwidth \- validate IB port for 1x link width
-@@ -34,8 +34,8 @@
- ibcheckportwidth 2 3         # check lid 2 port 3
- 
- .SH SEE ALSO
--.BR smpquery(8),
--.BR ibaddr(8)
-+.BR smpquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/check_lft_balance.8 infiniband-diags-1.5.8/man/check_lft_balance.8
---- /tmp/infiniband-diags-1.5.8/man/check_lft_balance.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/check_lft_balance.8	Thu Feb 24 11:26:40 2011
-@@ -1,4 +1,4 @@
--.TH CHECK_LFT_BALANCE.SH 8 "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
-+.TH CHECK_LFT_BALANCE.SH 1m "March 1, 2008" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- check_lft_balance.sh \- check InfiniBand unicast forwarding tables balance
-@@ -12,9 +12,9 @@
- .PP
- check_lft_balance.sh is a script which checks for balancing in Infiniband
- unicast forwarding tables.  It analyzes the output of
--.BR dump_lfts(8)
-+.BR dump_lfts(1m)
- and
--.BR iblinkinfo(8).
-+.BR iblinkinfo(1m).
- 
- .SH OPTIONS
- 
-@@ -33,8 +33,8 @@
- verbose output
- 
- .SH SEE ALSO
--.BR dump_lfts(8),
--.BR iblinkinfo(8)
-+.BR dump_lfts(1m),
-+.BR iblinkinfo(1m)
- 
- .SH AUTHORS
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibidsverify.8 infiniband-diags-1.5.8/man/ibidsverify.8
---- /tmp/infiniband-diags-1.5.8/man/ibidsverify.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibidsverify.8	Thu Feb 24 11:26:45 2011
-@@ -1,4 +1,4 @@
--.TH IBIDSVERIFY 8 "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBIDSVERIFY 1m "June 1, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibidsverify.pl \- validate IB identifiers in subnet and report errors
-@@ -28,7 +28,7 @@
- fabric has changed.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibqueryerrors.8 infiniband-diags-1.5.8/man/ibqueryerrors.8
---- /tmp/infiniband-diags-1.5.8/man/ibqueryerrors.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibqueryerrors.8	Thu Feb 24 11:26:47 2011
-@@ -1,4 +1,4 @@
--.TH IBQUERYERRORS 8 "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
-+.TH IBQUERYERRORS 1m "Dec 31, 2009" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibqueryerrors \- query and report non-zero IB port counters
-diff -r -u /tmp/infiniband-diags-1.5.8/man/dump_lfts.8 infiniband-diags-1.5.8/man/dump_lfts.8
---- /tmp/infiniband-diags-1.5.8/man/dump_lfts.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/dump_lfts.8	Thu Feb 24 11:26:40 2011
-@@ -1,4 +1,4 @@
--.TH DUMP_LFTS.SH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH DUMP_LFTS.SH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- dump_lfts.sh \- dump InfiniBand unicast forwarding tables
-@@ -37,10 +37,10 @@
- override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR dump_mfts(8),
--.BR ibroute(8),
--.BR ibswitches(8),
--.BR opensm(8)
-+.BR dump_mfts(1m),
-+.BR ibroute(1m),
-+.BR ibswitches(1m),
-+.BR opensm(1m)
- 
- .SH AUTHORS
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibnetdiscover.8 infiniband-diags-1.5.8/man/ibnetdiscover.8
---- /tmp/infiniband-diags-1.5.8/man/ibnetdiscover.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibnetdiscover.8	Thu Feb 24 11:26:46 2011
-@@ -1,4 +1,4 @@
--.TH IBNETDISCOVER 8 "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
-+.TH IBNETDISCOVER 1m "May 13, 2009" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibnetdiscover \- discover InfiniBand topology
-diff -r -u /tmp/infiniband-diags-1.5.8/man/saquery.8 infiniband-diags-1.5.8/man/saquery.8
---- /tmp/infiniband-diags-1.5.8/man/saquery.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/saquery.8	Thu Feb 24 11:26:50 2011
-@@ -1,4 +1,4 @@
--.TH SAQUERY 8 "October 19, 2008" "OpenIB" "OpenIB Diagnostics"
-+.TH SAQUERY 1m "October 19, 2008" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- saquery \- query InfiniBand subnet administration attributes
-@@ -99,7 +99,7 @@
- \fB\-\-node\-name\-map\fR <node-name-map>
- Specify a node name map.  The node name map file maps GUIDs to more
- user friendly names.  See
--.B ibnetdiscover(8)
-+.B ibnetdiscover(1m)
- for node name map file format.  Only used with the \fB\-O\fR and \fB\-U\fR
- options.
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibtracert.8 infiniband-diags-1.5.8/man/ibtracert.8
---- /tmp/infiniband-diags-1.5.8/man/ibtracert.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibtracert.8	Fri Feb 25 03:09:26 2011
-@@ -1,4 +1,4 @@
--.TH IBTRACERT 8 "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
-+.TH IBTRACERT 1m "September 14, 2010" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibtracert\- trace InfiniBand path
-@@ -31,7 +31,7 @@
- \fB\-\-node\-name\-map\fR <node-name-map>
- Specify a node name map.  The node name map file maps GUIDs to more
- user friendly names.  See
--.B ibnetdiscover(8)
-+.B ibnetdiscover(1m)
- for node name map file format.
- 
- .SH COMMON OPTIONS
-@@ -97,7 +97,7 @@
- ibtracert -m 0xc000 4 16    # show multicast path of mlid 0xc000 between lids 4 and 16
- 
- .SH SEE ALSO
--.BR ibroute (8)
-+.BR ibroute (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibaddr.8 infiniband-diags-1.5.8/man/ibaddr.8
---- /tmp/infiniband-diags-1.5.8/man/ibaddr.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibaddr.8	Thu Feb 24 11:26:41 2011
-@@ -1,4 +1,4 @@
--.TH IBADDR 8 "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBADDR 1m "June 18, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibaddr \- query InfiniBand address(es)
-@@ -102,8 +102,8 @@
- ibaddr -g 32            # show gid address only
- 
- .SH SEE ALSO
--.BR ibroute (8),
--.BR ibtracert (8)
-+.BR ibroute (1m),
-+.BR ibtracert (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/perfquery.8 infiniband-diags-1.5.8/man/perfquery.8
---- /tmp/infiniband-diags-1.5.8/man/perfquery.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/perfquery.8	Thu Feb 24 11:26:49 2011
-@@ -1,4 +1,4 @@
--.TH PERFQUERY 8 "Jun 16, 2010" "OpenIB" "OpenIB Diagnostics"
-+.TH PERFQUERY 1m "Jun 16, 2010" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- perfquery \- query InfiniBand port counters
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibroute.8 infiniband-diags-1.5.8/man/ibroute.8
---- /tmp/infiniband-diags-1.5.8/man/ibroute.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibroute.8	Thu Feb 24 11:26:47 2011
-@@ -1,4 +1,4 @@
--.TH IBROUTE 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBROUTE 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibroute \- query InfiniBand switch forwarding tables
-@@ -114,7 +114,7 @@
- ibroute -M -n 4 # simple dump format
- 
- .SH SEE ALSO
--.BR ibtracert (8)
-+.BR ibtracert (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibsysstat.8 infiniband-diags-1.5.8/man/ibsysstat.8
---- /tmp/infiniband-diags-1.5.8/man/ibsysstat.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibsysstat.8	Thu Feb 24 11:26:49 2011
-@@ -1,4 +1,4 @@
--.TH IBSYSSTAT 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBSYSSTAT 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibsysstat \- system status on an InfiniBand address
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckwidth.8 infiniband-diags-1.5.8/man/ibcheckwidth.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckwidth.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckwidth.8	Thu Feb 24 11:26:43 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKWIDTH 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKWIDTH 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckwidth \- find 1x links in IB subnet
-@@ -26,9 +26,9 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR ibchecknode(8),
--.BR ibcheckportwidth(8)
-+.BR ibnetdiscover(1m),
-+.BR ibchecknode(1m),
-+.BR ibcheckportwidth(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcacheedit.8 infiniband-diags-1.5.8/man/ibcacheedit.8
---- /tmp/infiniband-diags-1.5.8/man/ibcacheedit.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcacheedit.8	Thu Feb 24 11:26:41 2011
-@@ -1,4 +1,4 @@
--.TH IBCACHEEDIT 8 "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCACHEEDIT 1m "Apr 15, 2010" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcacheedit \- edit an ibnetdiscover cache
-@@ -13,7 +13,7 @@
- .PP
- ibcacheedit allows users to edit an ibnetdiscover cache created through the
- \fB\-\-cache\fR option in
--.B ibnetdiscover(8).
-+.B ibnetdiscover(1m).
- 
- .SH OPTIONS
- 
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibswitches.8 infiniband-diags-1.5.8/man/ibswitches.8
---- /tmp/infiniband-diags-1.5.8/man/ibswitches.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibswitches.8	Thu Feb 24 11:26:48 2011
-@@ -1,4 +1,4 @@
--.TH IBSWITCHES 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBSWITCHES 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibswitches\- show InfiniBand switch nodes in topology
-@@ -23,7 +23,7 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibfindnodesusing.8 infiniband-diags-1.5.8/man/ibfindnodesusing.8
---- /tmp/infiniband-diags-1.5.8/man/ibfindnodesusing.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibfindnodesusing.8	Thu Feb 24 11:26:45 2011
-@@ -1,4 +1,4 @@
--.TH IBFINDNODESUSING 8 "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBFINDNODESUSING 1m "May 22, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibfindnodesusing.pl \- find a list of end nodes which are routed through
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibprintrt.8 infiniband-diags-1.5.8/man/ibprintrt.8
---- /tmp/infiniband-diags-1.5.8/man/ibprintrt.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibprintrt.8	Thu Feb 24 11:26:47 2011
-@@ -1,4 +1,4 @@
--.TH IBPRINTRT 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBPRINTRT 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibprintrt.pl \- print either only the router specified or a list of routers
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibswportwatch.8 infiniband-diags-1.5.8/man/ibswportwatch.8
---- /tmp/infiniband-diags-1.5.8/man/ibswportwatch.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibswportwatch.8	Thu Feb 24 11:26:49 2011
-@@ -1,4 +1,4 @@
--.TH IBSWPORTWATCH 8 "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBSWPORTWATCH 1m "September 27, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibswportwatch.pl \- poll the counters on the specified switch/port and
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibprintswitch.8 infiniband-diags-1.5.8/man/ibprintswitch.8
---- /tmp/infiniband-diags-1.5.8/man/ibprintswitch.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibprintswitch.8	Thu Feb 24 11:26:47 2011
-@@ -1,4 +1,4 @@
--.TH IBPRINTSWITCH 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBPRINTSWITCH 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibprintswitch.pl \- print either the switch specified or a list of switches
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibchecknet.8 infiniband-diags-1.5.8/man/ibchecknet.8
---- /tmp/infiniband-diags-1.5.8/man/ibchecknet.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibchecknet.8	Thu Feb 24 11:26:42 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKNET 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKNET 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibchecknet \- validate IB subnet and report errors
-@@ -25,10 +25,10 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR ibchecknode(8),
--.BR ibcheckport(8),
--.BR ibcheckerrs(8)
-+.BR ibnetdiscover(1m),
-+.BR ibchecknode(1m),
-+.BR ibcheckport(1m),
-+.BR ibcheckerrs(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibclearcounters.8 infiniband-diags-1.5.8/man/ibclearcounters.8
---- /tmp/infiniband-diags-1.5.8/man/ibclearcounters.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibclearcounters.8	Thu Feb 24 11:26:44 2011
-@@ -1,4 +1,4 @@
--.TH IBCLEARCOUNTERS 8 "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCLEARCOUNTERS 1m "May 21, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibclearcounters \- clear port counters in IB subnet
-@@ -21,8 +21,8 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR perfquery(8)
-+.BR ibnetdiscover(1m),
-+.BR perfquery(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibdatacounters.8 infiniband-diags-1.5.8/man/ibdatacounters.8
---- /tmp/infiniband-diags-1.5.8/man/ibdatacounters.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibdatacounters.8	Thu Feb 24 11:26:44 2011
-@@ -1,4 +1,4 @@
--.TH IBDATACOUNTERS 8 "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBDATACOUNTERS 1m "May 31, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibdatacounters \- query IB subnet for data counters
-@@ -30,8 +30,8 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8),
--.BR ibdatacounts(8)
-+.BR ibnetdiscover(1m),
-+.BR ibdatacounts(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibping.8 infiniband-diags-1.5.8/man/ibping.8
---- /tmp/infiniband-diags-1.5.8/man/ibping.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibping.8	Thu Feb 24 11:26:46 2011
-@@ -1,4 +1,4 @@
--.TH IBPING 8 "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBPING 1m "August 11, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibping \- ping an InfiniBand address
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibcheckerrs.8 infiniband-diags-1.5.8/man/ibcheckerrs.8
---- /tmp/infiniband-diags-1.5.8/man/ibcheckerrs.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibcheckerrs.8	Thu Feb 24 11:26:42 2011
-@@ -1,4 +1,4 @@
--.TH IBCHECKERRS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBCHECKERRS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibcheckerrs \- validate IB port (or node) and report errors in counters above threshold
-@@ -50,8 +50,8 @@
- ibcheckerrs -T xxx 2    # check node using xxx threshold file
- 
- .SH SEE ALSO
--.BR perfquery(8),
--.BR ibaddr(8)
-+.BR perfquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/smpdump.8 infiniband-diags-1.5.8/man/smpdump.8
---- /tmp/infiniband-diags-1.5.8/man/smpdump.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/smpdump.8	Thu Feb 24 11:26:50 2011
-@@ -1,4 +1,4 @@
--.TH SMPDUMP 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH SMPDUMP 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- smpdump \- dump InfiniBand subnet management attributes
-@@ -91,7 +91,7 @@
- smpdump 0xa0 0x11       # NODE INFO, lid 0xa0
- 
- .SH SEE ALSO
--.BR smpquery (8)
-+.BR smpquery (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibrouters.8 infiniband-diags-1.5.8/man/ibrouters.8
---- /tmp/infiniband-diags-1.5.8/man/ibrouters.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibrouters.8	Thu Feb 24 11:26:48 2011
-@@ -1,4 +1,4 @@
--.TH IBROUTERS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBROUTERS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibrouters \- show InfiniBand router nodes in topology
-@@ -23,7 +23,7 @@
- \-t <timeout_ms> override the default timeout for the solicited mads.
- 
- .SH SEE ALSO
--.BR ibnetdiscover(8)
-+.BR ibnetdiscover(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibportstate.8 infiniband-diags-1.5.8/man/ibportstate.8
---- /tmp/infiniband-diags-1.5.8/man/ibportstate.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibportstate.8	Thu Feb 24 11:26:46 2011
-@@ -1,4 +1,4 @@
--.TH IBPORTSTATE 8 "Jan 13, 2010" "OpenIB" "OpenIB Diagnostics"
-+.TH IBPORTSTATE 1m "Jan 13, 2010" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibportstate \- handle port (physical) state and link speed of an InfiniBand port
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibstatus.8 infiniband-diags-1.5.8/man/ibstatus.8
---- /tmp/infiniband-diags-1.5.8/man/ibstatus.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibstatus.8	Thu Feb 24 11:26:48 2011
-@@ -1,4 +1,4 @@
--.TH IBSTATUS 8 "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
-+.TH IBSTATUS 1m "July 25, 2006" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibstatus \- query basic status of InfiniBand device(s)
-@@ -33,7 +33,7 @@
- ibstatus mthca1:1 mthca0:2      # show status of specified ports
- 
- .SH SEE ALSO
--.BR ibstat (8)
-+.BR ibstat (1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/man/ibdatacounts.8 infiniband-diags-1.5.8/man/ibdatacounts.8
---- /tmp/infiniband-diags-1.5.8/man/ibdatacounts.8	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/man/ibdatacounts.8	Thu Feb 24 11:26:44 2011
-@@ -1,4 +1,4 @@
--.TH IBDATACOUNTS 8 "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
-+.TH IBDATACOUNTS 1m "May 30, 2007" "OpenIB" "OpenIB Diagnostics"
- 
- .SH NAME
- ibdatacounts \- get IB port data counters
-@@ -39,8 +39,8 @@
- ibdatacounts 2   4       # show data counters for lid 2 port 4
- 
- .SH SEE ALSO
--.BR perfquery(8),
--.BR ibaddr(8)
-+.BR perfquery(1m),
-+.BR ibaddr(1m)
- 
- .SH AUTHOR
- .TP
-diff -r -u /tmp/infiniband-diags-1.5.8/configure infiniband-diags-1.5.8/configure
---- /tmp/infiniband-diags-1.5.8/configure	Wed Feb 16 02:28:21 2011
-+++ infiniband-diags-1.5.8/configure	Fri Feb 25 03:09:23 2011
-@@ -8689,6 +8689,7 @@
- 	;;
-       esac
-       link_all_deplibs=yes
-+      hardcode_libdir_flag_spec=
-       ;;
- 
-     sunos4*)
-diff -r -u /tmp/infiniband-diags-1.5.8/infiniband-diags.spec.in infiniband-diags-1.5.8/infiniband-diags.spec.in
---- /tmp/infiniband-diags-1.5.8/infiniband-diags.spec.in	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/infiniband-diags.spec.in	Thu Feb 24 11:26:32 2011
-@@ -52,7 +52,7 @@
- %{_includedir}/infiniband/*.h
- %define _perldir %(perl -e 'use Config; $T=$Config{installsitearch}; $T=~/(.*)\\/site_perl.*/; print $1;')
- %{_perldir}/*
--%{_mandir}/man8/*
-+%{_mandir}/man1m/*
- %{_mandir}/man3/*
- %doc README COPYING ChangeLog
- 
-diff -r -u /tmp/infiniband-diags-1.5.8/src/ibnetdiscover.c infiniband-diags-1.5.8/src/ibnetdiscover.c
---- /tmp/infiniband-diags-1.5.8/src/ibnetdiscover.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/src/ibnetdiscover.c	Thu Feb 24 11:27:00 2011
-@@ -523,7 +523,7 @@
+ /^Switch/	{
+ 			l=$0
+ 			desc=substr(l, match(l, "#[ \t]*")+RLENGTH)
+diff -r -u /tmp/infiniband-diags-1.5.13/scripts/set_nodedesc.sh infiniband-diags-1.5.13/scripts/set_nodedesc.sh
+--- /tmp/infiniband-diags-1.5.13/scripts/set_nodedesc.sh	2011-09-01 08:49:22.000000000 +0900
++++ infiniband-diags-1.5.13/scripts/set_nodedesc.sh	2012-02-03 02:35:35.590989601 +0900
+@@ -1,5 +1,13 @@
+ #!/bin/bash
+ 
++# Call solaris_set_nodedesc, if operating system is SunOS
++os=`uname -s`
++if [ $os == "SunOS" ]; then
++	solaris_set_nodedesc $*
++	rc=$?
++	exit $rc
++fi
++
+ if [ -f /etc/sysconfig/network ]; then
+ . /etc/sysconfig/network
+ fi
+diff -r -u /tmp/infiniband-diags-1.5.13/src/ibdiag_common.c infiniband-diags-1.5.13/src/ibdiag_common.c
+--- /tmp/infiniband-diags-1.5.13/src/ibdiag_common.c	2011-12-07 06:33:19.000000000 +0900
++++ infiniband-diags-1.5.13/src/ibdiag_common.c	2012-02-03 02:35:35.591629248 +0900
+@@ -398,7 +398,7 @@
+ 
+ 	if (ibdebug)
+ 		printf("%s: iberror: [pid %d] %s: failed: %s\n",
+-		       prog_name ? prog_name : "", getpid(), fn, buf);
++		       prog_name ? prog_name : "", (int)getpid(), fn, buf);
+ 	else
+ 		printf("%s: iberror: failed: %s\n",
+ 		       prog_name ? prog_name : "", buf);
+diff -r -u /tmp/infiniband-diags-1.5.13/src/ibnetdiscover.c infiniband-diags-1.5.13/src/ibnetdiscover.c
+--- /tmp/infiniband-diags-1.5.13/src/ibnetdiscover.c	2011-11-02 14:31:40.000000000 +0900
++++ infiniband-diags-1.5.13/src/ibnetdiscover.c	2012-02-03 02:35:35.592254585 +0900
+@@ -571,7 +571,7 @@
  			}
  
  			fprintf(f, "\n# Spine Nodes");
@@ -1589,7 +1832,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/src/ibnetdiscover.c infiniband-diags-1.5.
  				if (ch->spinenode[n]) {
  					out_switch(ch->spinenode[n], group,
  						   chname, NULL, NULL);
-@@ -540,7 +540,7 @@
+@@ -588,7 +588,7 @@
  				}
  			}
  			fprintf(f, "\n# Line Nodes");
@@ -1598,41 +1841,20 @@ diff -r -u /tmp/infiniband-diags-1.5.8/src/ibnetdiscover.c infiniband-diags-1.5.
  				if (ch->linenode[n]) {
  					out_switch(ch->linenode[n], group,
  						   chname, NULL, NULL);
-diff -r -u /tmp/infiniband-diags-1.5.8/src/saquery.c infiniband-diags-1.5.8/src/saquery.c
---- /tmp/infiniband-diags-1.5.8/src/saquery.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/src/saquery.c	Thu Jun 23 10:36:40 2011
-@@ -105,7 +105,7 @@
-  * Declare some globals because I don't want this to be too complex.
-  */
- #define MAX_PORTS (8)
--#define DEFAULT_SA_TIMEOUT_MS (1000)
-+#define DEFAULT_SA_TIMEOUT_MS (10000)
- static struct query_res result;
- 
- enum {
-@@ -1757,7 +1757,7 @@
- 			requested_lid = (uint16_t) strtoul(argv[0], NULL, 0);
- 			requested_lid_flag++;
- 		} else if (node_print_desc == NAME_OF_GUID) {
--			requested_guid = strtoul(argv[0], NULL, 0);
-+			requested_guid = strtoull(argv[0], NULL, 0);
- 			requested_guid_flag++;
- 		} else
- 			requested_name = argv[0];
-diff -r -u /tmp/infiniband-diags-1.5.8/src/ibportstate.c infiniband-diags-1.5.8/src/ibportstate.c
---- /tmp/infiniband-diags-1.5.8/src/ibportstate.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/src/ibportstate.c	Thu Feb 24 11:27:00 2011
-@@ -252,6 +252,7 @@
+diff -r -u /tmp/infiniband-diags-1.5.13/src/ibportstate.c infiniband-diags-1.5.13/src/ibportstate.c
+--- /tmp/infiniband-diags-1.5.13/src/ibportstate.c	2011-12-07 06:33:19.000000000 +0900
++++ infiniband-diags-1.5.13/src/ibportstate.c	2012-02-03 02:35:35.592911694 +0900
+@@ -345,6 +345,7 @@
  	int portnum = 0;
  	ib_portid_t selfportid = { 0 };
  	int selfport = 0;
 +	int switch_lid = 0;
  	int changed = 0;
  	int i;
- 	long val;
-@@ -431,6 +432,12 @@
- 			mad_decode_field(data, IB_PORT_LINK_SPEED_ENABLED_F,
- 					 &lse);
+ 	uint16_t devid, rem_devid;
+@@ -568,6 +569,12 @@
+ 						 &lsee);
+ 			}
  
 +			/* Get Switch LID from the default switch port */
 +			if (!smp_query_via(data, &portid, IB_ATTR_PORT_INFO, 0, 0, srcport))
@@ -1643,7 +1865,7 @@ diff -r -u /tmp/infiniband-diags-1.5.8/src/ibportstate.c infiniband-diags-1.5.8/
  			/* Setup portid for peer port */
  			memcpy(&peerportid, &portid, sizeof(peerportid));
  			peerportid.drpath.cnt = 1;
-@@ -440,6 +447,7 @@
+@@ -577,6 +584,7 @@
  			if (ib_resolve_self_via(&selfportid,
  						&selfport, 0, srcport) < 0)
  				IBERROR("could not resolve self");
@@ -1651,10 +1873,10 @@ diff -r -u /tmp/infiniband-diags-1.5.8/src/ibportstate.c infiniband-diags-1.5.8/
  			peerportid.drpath.drslid = (uint16_t) selfportid.lid;
  			peerportid.drpath.drdlid = 0xffff;
  
-diff -r -u /tmp/infiniband-diags-1.5.8/src/ibstat.c infiniband-diags-1.5.8/src/ibstat.c
---- /tmp/infiniband-diags-1.5.8/src/ibstat.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/src/ibstat.c	Fri Feb 25 03:09:28 2011
-@@ -245,7 +245,7 @@
+diff -r -u /tmp/infiniband-diags-1.5.13/src/ibstat.c infiniband-diags-1.5.13/src/ibstat.c
+--- /tmp/infiniband-diags-1.5.13/src/ibstat.c	2011-11-02 14:32:02.000000000 +0900
++++ infiniband-diags-1.5.13/src/ibstat.c	2012-02-03 02:35:35.593351838 +0900
+@@ -315,7 +315,7 @@
  		if (i >= n)
  			IBPANIC("'%s' IB device can't be found", argv[0]);
  
@@ -1663,15 +1885,24 @@ diff -r -u /tmp/infiniband-diags-1.5.8/src/ibstat.c infiniband-diags-1.5.8/src/i
  		n = 1;
  	}
  
-diff -r -u /tmp/infiniband-diags-1.5.8/src/ibdiag_common.c infiniband-diags-1.5.8/src/ibdiag_common.c
---- /tmp/infiniband-diags-1.5.8/src/ibdiag_common.c	Wed Feb 16 02:13:21 2011
-+++ infiniband-diags-1.5.8/src/ibdiag_common.c	Tue May  3 13:50:05 2011
-@@ -330,7 +330,7 @@
+diff -r -u /tmp/infiniband-diags-1.5.13/src/saquery.c infiniband-diags-1.5.13/src/saquery.c
+--- /tmp/infiniband-diags-1.5.13/src/saquery.c	2011-11-02 14:55:06.000000000 +0900
++++ infiniband-diags-1.5.13/src/saquery.c	2012-02-03 02:35:35.594244049 +0900
+@@ -91,7 +91,7 @@
+  * Declare some globals because I don't want this to be too complex.
+  */
+ #define MAX_PORTS (8)
+-#define DEFAULT_SA_TIMEOUT_MS (1000)
++#define DEFAULT_SA_TIMEOUT_MS (10000)
  
- 	if (ibdebug)
- 		printf("%s: iberror: [pid %d] %s: failed: %s\n",
--		       prog_name ? prog_name : "", getpid(), fn, buf);
-+		       prog_name ? prog_name : "", (int)getpid(), fn, buf);
- 	else
- 		printf("%s: iberror: failed: %s\n",
- 		       prog_name ? prog_name : "", buf);
+ enum {
+ 	ALL,
+@@ -1658,7 +1658,7 @@
+ 			requested_lid = (uint16_t) strtoul(argv[0], NULL, 0);
+ 			requested_lid_flag++;
+ 		} else if (node_print_desc == NAME_OF_GUID) {
+-			requested_guid = strtoul(argv[0], NULL, 0);
++			requested_guid = strtoull(argv[0], NULL, 0);
+ 			requested_guid_flag++;
+ 		} else
+ 			requested_name = argv[0];

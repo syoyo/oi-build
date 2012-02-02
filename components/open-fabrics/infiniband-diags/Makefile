@@ -23,10 +23,10 @@
 include ../../../make-rules/shared-macros.mk
 
 COMPONENT_NAME=		infiniband-diags
-COMPONENT_VERSION=	1.5.8
+COMPONENT_VERSION=	1.5.13
 COMPONENT_SRC=		$(COMPONENT_NAME)-$(COMPONENT_VERSION)
 COMPONENT_ARCHIVE=	$(COMPONENT_SRC).tar.gz
-COMPONENT_ARCHIVE_HASH=	sha1:76e399d95b25fbef4f109305e07e35eba6b1547e
+COMPONENT_ARCHIVE_HASH=	sha1:6be2ee53a5730f57217f9398748d81ea187d79f4
 COMPONENT_ARCHIVE_URL=	http://www.openfabrics.org/downloads/management/$(COMPONENT_ARCHIVE)
 
 include $(WS_TOP)/make-rules/prep.mk
