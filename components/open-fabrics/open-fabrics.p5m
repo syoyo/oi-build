@@ -122,7 +122,7 @@ file path=usr/include/rdma/rdma_verbs.h variant.opensolaris.zone=global
 file path=usr/lib/$(MACH64)/libibmad.so.5.2.2 variant.opensolaris.zone=global
 file path=usr/lib/$(MACH64)/libibumad.so.3.0.2
 file path=usr/lib/$(MACH64)/libibverbs.so.1.0.0
-file path=usr/lib/$(MACH64)/libmlx4-rdmav2.so
+file path=usr/lib/$(MACH64)/libmlx4-rdmav2.so pkg.linted=true
 file path=usr/lib/$(MACH64)/libmthca-rdmav2.so
 file path=usr/lib/$(MACH64)/libopensm.so.5.0.0 variant.opensolaris.zone=global
 file path=usr/lib/$(MACH64)/libosmcomp.so.3.0.5 variant.opensolaris.zone=global
@@ -172,10 +172,10 @@ file path=usr/lib/ibdm1.5.7/pkgIndex.tcl variant.opensolaris.zone=global
 file path=usr/lib/ibis1.5.7/libibis.so.1.5.7 variant.opensolaris.zone=global
 file path=usr/lib/ibis1.5.7/pkgIndex.tcl variant.opensolaris.zone=global
 file path=usr/lib/libibmad.so.5.2.2 variant.opensolaris.zone=global
-file path=usr/lib/libibnetdisc.so.5.2.0 variant.opensolaris.zone=global
+file path=usr/lib/libibnetdisc.so.5.2.0 variant.opensolaris.zone=global pkg.linted=true
 file path=usr/lib/libibumad.so.3.0.2
 file path=usr/lib/libibverbs.so.1.0.0
-file path=usr/lib/libmlx4-rdmav2.so
+file path=usr/lib/libmlx4-rdmav2.so pkg.linted=true
 file path=usr/lib/libmthca-rdmav2.so
 file path=usr/lib/libopensm.so.5.0.0 variant.opensolaris.zone=global
 file path=usr/lib/libosmcomp.so.3.0.5 variant.opensolaris.zone=global
@@ -216,19 +216,19 @@ file path=usr/sbin/ibqueryerrors variant.opensolaris.zone=global
 file path=usr/sbin/ibqueryerrors.pl variant.opensolaris.zone=global
 file path=usr/sbin/ibroute variant.opensolaris.zone=global
 file path=usr/sbin/ibrouters variant.opensolaris.zone=global
-file path=usr/sbin/ibstat variant.opensolaris.zone=global
+file path=usr/sbin/ibstat variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibstatus variant.opensolaris.zone=global
 file path=usr/sbin/ibswitches variant.opensolaris.zone=global
 file path=usr/sbin/ibswportwatch.pl variant.opensolaris.zone=global
-file path=usr/sbin/ibsysstat variant.opensolaris.zone=global
-file path=usr/sbin/ibtracert variant.opensolaris.zone=global
-file path=usr/sbin/perfquery variant.opensolaris.zone=global
-file path=usr/sbin/saquery variant.opensolaris.zone=global
+file path=usr/sbin/ibsysstat variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/ibtracert variant.opensolaris.zone=global pkg.linted=true 
+file path=usr/sbin/perfquery variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/saquery variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/set_nodedesc.sh variant.opensolaris.zone=global
-file path=usr/sbin/sminfo variant.opensolaris.zone=global
-file path=usr/sbin/smpdump variant.opensolaris.zone=global
-file path=usr/sbin/smpquery variant.opensolaris.zone=global
-file path=usr/sbin/solaris_set_nodedesc variant.opensolaris.zone=global
+file path=usr/sbin/sminfo variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/smpdump variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/smpquery variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/solaris_set_nodedesc variant.opensolaris.zone=global pkg.linted=true
 file path=usr/share/libibverbs.d/mlx4.driver
 file path=usr/share/libibverbs.d/mthca.driver
 file path=usr/share/man/man1/ib_clock_test.1
