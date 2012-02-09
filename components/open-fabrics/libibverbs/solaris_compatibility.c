@@ -54,7 +54,7 @@
 #include "../include/infiniband/verbs.h"
 #include "../../libmthca/libmthca-1.0.5/src/mthca-abi.h"
 #include "../../libmlx4/libmlx4-1.0.1/src/mlx4-abi.h"
-#include "../../librdmacm/librdmacm-1.0.14.1/include/rdma/rdma_cma_abi.h"
+#include "../../librdmacm/librdmacm-1.0.15/include/rdma/rdma_cma_abi.h"
 #include <libdevinfo.h>
 
 #define HW_DRIVER_MAX_NAME_LEN			20
