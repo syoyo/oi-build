@@ -84,7 +84,10 @@ $(WS_LOGS):
 
 $(WS_REPO):
 	$(PKGREPO) create $(PKG_REPO)
-	$(PKGREPO) add-publisher -s $(PKG_REPO) $(PUBLISHER)
+	$(PKGREPO) set -s $(PKG_REPO) publisher/prefix=$(PUBLISHER)
+
+# Solaris 11
+#	$(PKGREPO) add-publisher -s $(PKG_REPO) $(PUBLISHER)
 
 $(WS_LINT_CACHE):	$(WS_LOGS)
 ifdef CANONICAL_REPO
