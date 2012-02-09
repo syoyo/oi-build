@@ -185,7 +185,7 @@ file path=usr/lib/secure/$(MACH64)/libsdp.so.1.0.0
 file path=usr/lib/secure/libsdp.so.1.0.0
 file path=usr/sbin/dump2psl.pl variant.opensolaris.zone=global
 file path=usr/sbin/dump2slvl.pl variant.opensolaris.zone=global
-file path=usr/sbin/ibaddr variant.opensolaris.zone=global
+file path=usr/sbin/ibaddr variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibcheckerrors variant.opensolaris.zone=global
 file path=usr/sbin/ibcheckerrs variant.opensolaris.zone=global
 file path=usr/sbin/ibchecknet variant.opensolaris.zone=global
@@ -203,18 +203,18 @@ file path=usr/sbin/ibdiagnet variant.opensolaris.zone=global
 file path=usr/sbin/ibdiscover.pl variant.opensolaris.zone=global
 file path=usr/sbin/ibhosts variant.opensolaris.zone=global
 file path=usr/sbin/ibis variant.opensolaris.zone=global
-file path=usr/sbin/iblinkinfo variant.opensolaris.zone=global
+file path=usr/sbin/iblinkinfo variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/iblinkinfo.pl variant.opensolaris.zone=global
-file path=usr/sbin/ibnetdiscover variant.opensolaris.zone=global
+file path=usr/sbin/ibnetdiscover variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibnodes variant.opensolaris.zone=global
-file path=usr/sbin/ibping variant.opensolaris.zone=global
-file path=usr/sbin/ibportstate variant.opensolaris.zone=global
+file path=usr/sbin/ibping variant.opensolaris.zone=global pkg.linted=true
+file path=usr/sbin/ibportstate variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibprintca.pl variant.opensolaris.zone=global
 file path=usr/sbin/ibprintrt.pl variant.opensolaris.zone=global
 file path=usr/sbin/ibprintswitch.pl variant.opensolaris.zone=global
-file path=usr/sbin/ibqueryerrors variant.opensolaris.zone=global
+file path=usr/sbin/ibqueryerrors variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibqueryerrors.pl variant.opensolaris.zone=global
-file path=usr/sbin/ibroute variant.opensolaris.zone=global
+file path=usr/sbin/ibroute variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibrouters variant.opensolaris.zone=global
 file path=usr/sbin/ibstat variant.opensolaris.zone=global pkg.linted=true
 file path=usr/sbin/ibstatus variant.opensolaris.zone=global
